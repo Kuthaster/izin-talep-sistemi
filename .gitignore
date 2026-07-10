@@ -1,0 +1,25 @@
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ===== Backend (Maven / Spring Boot) =====
+target/
+backend/**/application.properties
+backend/**/application-local.properties
+!backend/**/application-example.properties
+*.log
+
+# ===== Frontend (Flutter) =====
+flutter/**/build/
+flutter/**/.dart_tool/
+flutter/**/.flutter-plugins
+flutter/**/.flutter-plugins-dependencies
+flutter/**/.packages
+flutter/**/android/local.properties
+flutter/**/ios/Flutter/flutter_export_environment.sh
+flutter/**/*.g.dart
