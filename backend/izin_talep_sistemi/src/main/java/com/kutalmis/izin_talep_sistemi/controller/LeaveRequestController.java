@@ -8,6 +8,7 @@ import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDecisionDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestFilterDTO;
 import com.kutalmis.izin_talep_sistemi.service.LeaveRequestService;
 import com.kutalmis.izin_talep_sistemi.service.UserService;
+import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCountDTO;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,17 @@ public class LeaveRequestController {
     public LeaveRequestController(LeaveRequestService leaveRequestService, UserService userService) {
         this.leaveRequestService = leaveRequestService;
         this.userService = userService;
+    }
+
+    // %TODO% Kendi izin talebi, izin adet sayma kısmı (leaverequestsservice getLeaveRequestCount ile), altların
+    //izin talepleri ve filtreleme mekanizmasının tamamını /dashboard/** içine oturt
+
+    @Operation(summary = "İzin talep adedi listele (bu uç noktaya diğer izin talep toplama özellikleri eklenebilir")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/dashboard")
+    public LeaveRequestCountDTO getLeaveRequestCount()
+    {
+        return leaveRequestService.getLeaveRequestCount();
     }
 
     @Operation(summary = "Kendi izin taleplerimi listele")
@@ -95,8 +107,6 @@ public class LeaveRequestController {
     return leaveRequestService.decide(id, caller,managerNote,decision);
     }
 
-   
-
     @Operation(summary = "İzin talebini güncelle", description = "Yalnızca henüz onay sürecine girmemiş (PENDING, seviye 1) kendi talebiniz güncellenebilir.")
     @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Talep güncellendi."),
@@ -123,5 +133,5 @@ public class LeaveRequestController {
         User caller = userService.getUserEntityByEmail(principal.getName());
         return leaveRequestService.cancelLeaveRequest(id, caller);
     }
-    }
+}
     

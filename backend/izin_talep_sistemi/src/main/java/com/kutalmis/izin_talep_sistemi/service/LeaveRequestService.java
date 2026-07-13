@@ -26,6 +26,7 @@ import com.kutalmis.izin_talep_sistemi.repository.DepartmentApproverRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveRequestApprovalRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveRequestRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveTypeRepository;
+import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCountDTO;
 
 @Service
 public class LeaveRequestService {
@@ -90,6 +91,12 @@ public class LeaveRequestService {
     }
 
     
+    public LeaveRequestCountDTO getLeaveRequestCount(){
+        Long pending = leaveRequestRepository.countByStatus("PENDING");
+        long approved = leaveRequestRepository.countByStatus("APPROVED");
+        long total = pending + approved;
+        return new LeaveRequestCountDTO(pending, approved, total);
+    } 
 
     public LeaveRequestDTO createLeaveRequest(LeaveRequestCreateDTO dto, User caller) {
         if (leaveRequestRepository.existsByUserIdAndStatus(caller.getId(), "PENDING")){
