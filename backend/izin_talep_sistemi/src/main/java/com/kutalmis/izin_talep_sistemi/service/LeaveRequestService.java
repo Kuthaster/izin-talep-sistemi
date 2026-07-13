@@ -127,19 +127,11 @@ public class LeaveRequestService {
 
         return toDTO(savedRequest);
     }
-    @Transactional
-    public LeaveRequestDTO approveLeaveRequest(Long requestId, LeaveRequestDecisionDTO dto, User caller) {
-    String note = (dto != null) ? dto.managerNote() : null;
-
-    return decide(requestId, "APPROVED", caller, note);
-    }
 
     @Transactional
-    public LeaveRequestDTO rejectLeaveRequest(Long requestId, LeaveRequestDecisionDTO dto, User caller) {
-    String note = (dto != null) ? dto.managerNote() : null;
-    return decide(requestId, "REJECTED", caller, note);
-    }
-    private LeaveRequestDTO decide(Long requestId, String decision, User caller, String note) {
+    public LeaveRequestDTO decide(Long requestId, User caller, String note, String decision) {
+
+        
     LeaveRequest request = leaveRequestRepository.findById(requestId)
         .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
 
@@ -273,9 +265,9 @@ public class LeaveRequestService {
                 request.getStartDate(),
                 request.getEndDate(),
                 request.getStatus(),
-                request.getReason(),
                 request.getManagerNote(),
-                request.getCreatedAt()
+                request.getCreatedAt(),
+                request.getCurrentLevel()
         );
     }
     private static final int MAX_LEVEL = 3;
@@ -283,12 +275,12 @@ public class LeaveRequestService {
     private void advanceChain(LeaveRequest request, int startLevel, int approvalsSoFar) {
         int requiredLevels = request.getLeaveType().getRequiredLevels();
 
-        if (approvalsSoFar >= requiredLevels) {
+        int level = startLevel;
+        if (approvalsSoFar >= requiredLevels || level > MAX_LEVEL) {
             request.setStatus("APPROVED");
             return;
         }
 
-        int level = startLevel;
         while (level <= MAX_LEVEL) {
             DepartmentApprover approver = departmentApproverRepository
                 .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)

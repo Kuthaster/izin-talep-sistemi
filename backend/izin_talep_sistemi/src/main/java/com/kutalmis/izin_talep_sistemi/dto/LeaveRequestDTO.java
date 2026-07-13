@@ -10,8 +10,8 @@ public record LeaveRequestDTO(
     LocalDate startDate,
     LocalDate endDate,
     String status,
-    String reason,
     String managerNote,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    Integer currentLevel
 ) {
 }

@@ -80,32 +80,22 @@ public class LeaveRequestController {
         return leaveRequestService.createLeaveRequest(dto, caller);
     }
 
-    @Operation(summary = "İzin talebini onayla")    
+    @Operation(summary = "İzin talebini onayla/reddet")    
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Talep onaylandı."),
-        @ApiResponse(responseCode = "403", description = "Bu talebi onaylama yetkiniz yok."),
+        @ApiResponse(responseCode = "200", description = "İşlem başarılı."),
+        @ApiResponse(responseCode = "403", description = "Bu talebi onaylama/reddetme yetkiniz yok."),
         @ApiResponse(responseCode = "409", description = "Talep zaten sonuçlandırılmış.")
     })
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER_LEVEL_1', 'MANAGER_LEVEL_2','MANAGER_LEVEL_3')")
-     @PutMapping("/{id}/approve")
-    public LeaveRequestDTO approveLeaveRequest(@PathVariable Long id, @RequestBody(required = false) LeaveRequestDecisionDTO dto, Principal principal) {
+    @PatchMapping("/{id}")
+    public LeaveRequestDTO decide(@PathVariable Long id,Principal principal,@RequestBody LeaveRequestDecisionDTO dto) {
+    String managerNote = dto.managerNote();
+    String decision = dto.decision();
     User caller = userService.getUserEntityByEmail(principal.getName());
-    return leaveRequestService.approveLeaveRequest(id, dto, caller);
+    return leaveRequestService.decide(id, caller,managerNote,decision);
     }
 
-    @Operation(summary = "İzin talebini Reddet")        
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Talep Reddedildi."),
-        @ApiResponse(responseCode = "403", description = "Bu talebi reddetme yetkiniz yok."),
-        @ApiResponse(responseCode = "409", description = "Talep zaten sonuçlandırılmış.")
-    })  
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER_LEVEL_1', 'MANAGER_LEVEL_2','MANAGER_LEVEL_3')")
-    @PutMapping("/{id}/reject")
-    public LeaveRequestDTO rejectLeaveRequest(@PathVariable Long id, @RequestBody(required = false) LeaveRequestDecisionDTO dto, Principal principal) {
-        User caller = userService.getUserEntityByEmail(principal.getName());
-        return leaveRequestService.rejectLeaveRequest(id, dto, caller);
-    }
+   
 
     @Operation(summary = "İzin talebini güncelle", description = "Yalnızca henüz onay sürecine girmemiş (PENDING, seviye 1) kendi talebiniz güncellenebilir.")
     @ApiResponses(value = {
