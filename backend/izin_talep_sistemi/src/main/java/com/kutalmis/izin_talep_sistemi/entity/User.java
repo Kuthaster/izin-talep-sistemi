@@ -25,6 +25,9 @@ public class User {
     @Column(name = "password_hash", nullable = false)
         private String passwordHash;
 
+    @Column(nullable = false)
+    private Boolean active = true;
+    
     //İlişkiler
 
     @ManyToOne
@@ -94,6 +97,14 @@ public class User {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public void setActive(Boolean active){
+        this.active = active;
+    }
+
+    public Boolean getActive(){
+        return active;
     }
 
 }

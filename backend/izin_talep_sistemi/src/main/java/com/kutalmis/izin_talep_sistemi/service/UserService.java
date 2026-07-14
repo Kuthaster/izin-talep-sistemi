@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.kutalmis.izin_talep_sistemi.dto.UserActivityUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserDepartmentUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserResponseDTO;
@@ -127,5 +128,14 @@ public class UserService {
                 user.getDepartment().getName(),
                 user.getRole().getDisplayName()
         );
+    }
+
+    @Transactional
+    public UserResponseDTO updateActivity(Long userId, UserActivityUpdateDTO dto){
+        User user = userRepository.findById(userId)
+            .orElseThrow(()-> new IllegalArgumentException(userId + " ID'li kullanıcı bulunamadı."));
+        user.setActive(dto.active());
+        
+        return mapperResponseDTO(userRepository.save(user));
     }
 }
