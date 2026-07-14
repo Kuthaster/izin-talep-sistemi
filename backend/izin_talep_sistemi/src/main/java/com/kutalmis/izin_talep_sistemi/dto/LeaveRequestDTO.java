@@ -2,6 +2,7 @@ package com.kutalmis.izin_talep_sistemi.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record LeaveRequestDTO(
     Long id,
@@ -10,8 +11,8 @@ public record LeaveRequestDTO(
     LocalDate startDate,
     LocalDate endDate,
     String status,
-    String managerNote,
     LocalDateTime createdAt,
-    Integer currentLevel
+    Integer currentLevel,
+    List<LeaveRequestApprovalDTO> approvals
 ) {
-}
+}   

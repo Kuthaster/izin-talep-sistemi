@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
-import io.swagger.v3.oas.annotations.tags.Tag; 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+import com.kutalmis.izin_talep_sistemi.entity.LeaveDecision;
 import com.kutalmis.izin_talep_sistemi.entity.User;
 
 
@@ -62,7 +64,7 @@ public class LeaveRequestController {
         description = "Admin tüm talepleri, yönetici ise onaylayıcı olarak atandığı departman(lar)ın tüm taleplerini görür."
     )
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER_LEVEL_1','MANAGER_LEVEL_2','MANAGER_LEVEL_3')")
-    @GetMapping
+    @GetMapping("/forApproval")
     public List<LeaveRequestDTO> getRequestsForApproval(
         Principal principal,
         @RequestParam(required = false) String status,
@@ -99,11 +101,11 @@ public class LeaveRequestController {
         @ApiResponse(responseCode = "409", description = "Talep zaten sonuçlandırılmış.")
     })
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER_LEVEL_1', 'MANAGER_LEVEL_2','MANAGER_LEVEL_3')")
-    @PatchMapping("/{id}")
+    @PatchMapping("/forApproval/{id}")
     public LeaveRequestDTO decide(@PathVariable Long id,Principal principal,@RequestBody LeaveRequestDecisionDTO dto) {
-    String managerNote = dto.managerNote();
-    String decision = dto.decision();
     User caller = userService.getUserEntityByEmail(principal.getName());
+    String managerNote = dto.managerNote();
+    LeaveDecision decision = dto.decision();
     return leaveRequestService.decide(id, caller,managerNote,decision);
     }
 
@@ -115,7 +117,7 @@ public class LeaveRequestController {
     @ApiResponse(responseCode = "409", description = "Talep zaten sonuçlandırılmış veya onay sürecinde.")
     })
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/{id}")
+    @PutMapping("/mine/{id}")
     public LeaveRequestDTO updateLeaveRequest(@PathVariable Long id, @RequestBody LeaveRequestCreateDTO dto, Principal principal) {
         User caller = userService.getUserEntityByEmail(principal.getName());
         return leaveRequestService.updateLeaveRequest(id, dto, caller);
@@ -128,7 +130,7 @@ public class LeaveRequestController {
     @ApiResponse(responseCode = "409", description = "Talep zaten sonuçlandırılmış.")
     })
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/{id}/cancel")
+    @PatchMapping("/mine/{id}")
     public LeaveRequestDTO cancelLeaveRequest(@PathVariable Long id, Principal principal) {
         User caller = userService.getUserEntityByEmail(principal.getName());
         return leaveRequestService.cancelLeaveRequest(id, caller);

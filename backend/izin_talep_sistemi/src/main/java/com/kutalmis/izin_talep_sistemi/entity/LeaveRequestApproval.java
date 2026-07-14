@@ -2,6 +2,7 @@ package com.kutalmis.izin_talep_sistemi.entity;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
+import com.kutalmis.izin_talep_sistemi.entity.LeaveDecision;
 
 @Entity
 @Table(name = "leave_request_approvals")
@@ -22,8 +23,9 @@ public class LeaveRequestApproval {
     @JoinColumn(name = "approver_id", nullable = false)
     private User approver;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String decision;
+    private LeaveDecision decision;
 
     @Column(length = 500)
     private String note;
@@ -34,7 +36,7 @@ public class LeaveRequestApproval {
     public LeaveRequestApproval() {
     }
 
-    public LeaveRequestApproval(LeaveRequest leaveRequest, Integer level, User approver, String decision, String note) {
+    public LeaveRequestApproval(LeaveRequest leaveRequest, Integer level, User approver, LeaveDecision decision, String note) {
         this.leaveRequest = leaveRequest;
         this.level = level;
         this.approver = approver;
@@ -52,7 +54,7 @@ public class LeaveRequestApproval {
     public User getApprover(){ 
     return approver;
     }
-    public String getDecision(){ 
+    public LeaveDecision getDecision(){ 
     return decision; 
     }
     public String getNote(){

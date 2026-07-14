@@ -36,9 +36,6 @@ public class LeaveRequest {
     @Column(nullable = false, length = 500)
     private String reason;
 
-    @Column(length = 500)
-    private String managerNote;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -89,15 +86,7 @@ public class LeaveRequest {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
-
-    public String getManagerNote() {
-        return managerNote;
-    }
-
-    public void setManagerNote(String managerNote) {
-        this.managerNote = managerNote;
-    }
-
+    
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
