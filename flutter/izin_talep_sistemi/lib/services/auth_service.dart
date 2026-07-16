@@ -1,0 +1,28 @@
+import 'package:dio/dio.dart';
+import "package:flutter_secure_storage/flutter_secure_storage.dart";
+import 'package:izin_talep_sistemi/models/login_response.dart';
+
+import 'api_client.dart';
+import 'auth_interceptor.dart';
+
+class AuthService {
+  
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+
+  Future <LoginResponse> login(String email, String password) async{
+  
+  try{
+
+  final response =  await DioClient().dio.post('/api/auth/login', data: {
+    'email': email,
+    'password': password,
+    });
+
+    final loginResponse = LoginResponse.fromJson(response.data);
+    await _storage.write(key: authTokenKey, value: loginResponse.token);
+    return loginResponse;
+  } on DioException catch (_) {
+      throw Exception('E-posta veya şifre hatalı');
+    }
+  }
+}
