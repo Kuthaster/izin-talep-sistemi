@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @PreAuthorize("isAuthenticated()")
-@Tag(name = "Users", description = "Kullanıcı yönetim uç noktası")
+@Tag(name = "Users", description = "Kullanici uç noktası")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {

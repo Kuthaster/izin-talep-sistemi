@@ -3,7 +3,7 @@ package com.kutalmis.izin_talep_sistemi.controller;
 import java.security.Principal;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,8 +14,6 @@ import com.kutalmis.izin_talep_sistemi.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Tag(name = "Dashboard", description = "Basit dashboard (talep adetleri) / departman ve role göre scoped")

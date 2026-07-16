@@ -12,6 +12,7 @@ import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCountDTO;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.PrincipalMethodArgumentResolver;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import com.kutalmis.izin_talep_sistemi.entity.LeaveDecision;
 import com.kutalmis.izin_talep_sistemi.entity.User;
+import com.kutalmis.izin_talep_sistemi.repository.UserRepository;
 
 
 @Tag(name = "Leave Request", description = "Çalışan izin yönetim uç noktası")
@@ -41,9 +43,10 @@ public class LeaveRequestController {
     @Operation(summary = "İzin talep adedi listele (bu uç noktaya diğer izin talep toplama özellikleri eklenebilir")
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/dashboard")
-    public LeaveRequestCountDTO getLeaveRequestCount()
+    public LeaveRequestCountDTO getLeaveRequestCount(Principal principal)
     {
-        return leaveRequestService.getLeaveRequestCount();
+        User caller = userService.getUserEntityByEmail(principal.getName());
+        return leaveRequestService.getLeaveRequestCount(caller);
     }
 
     @Operation(summary = "Kendi izin taleplerimi listele")

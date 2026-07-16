@@ -11,9 +11,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestApprovalDTO;
+import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCountDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDTO;
-import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDecisionDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestFilterDTO;
 import com.kutalmis.izin_talep_sistemi.entity.DepartmentApprover;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveDecision;
@@ -27,8 +28,6 @@ import com.kutalmis.izin_talep_sistemi.repository.DepartmentApproverRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveRequestApprovalRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveRequestRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveTypeRepository;
-import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestApprovalDTO;
-import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCountDTO;
 
 @Service
 public class LeaveRequestService {
@@ -175,7 +174,7 @@ public class LeaveRequestService {
 
     leaveRequestApprovalRepository.save(new LeaveRequestApproval(request, level, caller, decision, note));
 
-    if ("REJECTED".equals(decision)) {
+    if (decision == LeaveDecision.REJECTED) {
         request.setStatus("REJECTED");
         return toDTO(leaveRequestRepository.save(request));
     }
@@ -186,7 +185,7 @@ public class LeaveRequestService {
     return toDTO(leaveRequestRepository.save(request));
     }
 
-    private void advancePastSelfApprovals(LeaveRequest request) { //buna bak bi ara %TODO%
+    private void advancePastSelfApprovals(LeaveRequest request) {
         int requiredLevels = request.getLeaveType().getRequiredLevels();
         int level = request.getCurrentLevel() + 1;
 
