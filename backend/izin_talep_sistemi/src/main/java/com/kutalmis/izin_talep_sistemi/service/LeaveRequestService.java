@@ -1,7 +1,5 @@
 package com.kutalmis.izin_talep_sistemi.service;
 
-
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -120,7 +118,7 @@ public class LeaveRequestService {
         Long total = cancelled + rejected + pending + approved;
 
         return new LeaveRequestCountDTO(pending, approved,rejected,cancelled, total);
-    } 
+    }
 
     public LeaveRequestDTO createLeaveRequest(LeaveRequestCreateDTO dto, User caller) {
         if (leaveRequestRepository.existsByUserIdAndStatus(caller.getId(), "PENDING")){

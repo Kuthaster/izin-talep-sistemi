@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kutalmis.izin_talep_sistemi.dto.AdminDepartmentDTO;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentDTO;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Department;
@@ -38,7 +37,7 @@ public class AdminDepartmentController {
 
     @Operation(summary = "Bütün departmanları yönetici bilgisiyle birlikte listele")
     @GetMapping
-    public List<AdminDepartmentDTO> getAllDepartments() {
+    public List<DepartmentDTO> getAllDepartments() {
         return departmentService.getAllDepartmentsForAdmin();
     }
 

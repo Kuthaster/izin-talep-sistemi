@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.kutalmis.izin_talep_sistemi.dto.AdminDepartmentDTO;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Department;
 import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
@@ -27,9 +26,9 @@ public class DepartmentService {
             .collect(Collectors.toList());
     }
 
-    public List<AdminDepartmentDTO> getAllDepartmentsForAdmin() {
+    public List<DepartmentDTO> getAllDepartmentsForAdmin() {
         return departmentRepository.findAll().stream()
-            .map(dept -> new AdminDepartmentDTO(dept.getId(), dept.getName()))
+            .map(dept -> new DepartmentDTO(dept.getId(), dept.getName()))
             .collect(Collectors.toList());
     }
 
