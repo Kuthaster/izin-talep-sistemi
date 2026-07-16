@@ -1,0 +1,1 @@
+enum LeaveDecision { APPROVED, REJECTED }
