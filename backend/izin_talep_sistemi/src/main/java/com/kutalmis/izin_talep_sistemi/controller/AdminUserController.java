@@ -1,23 +1,25 @@
 package com.kutalmis.izin_talep_sistemi.controller;
 
+import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.kutalmis.izin_talep_sistemi.dto.UserCreateDTO;
-import com.kutalmis.izin_talep_sistemi.dto.UserDepartmentUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserResponseDTO;
-import com.kutalmis.izin_talep_sistemi.dto.UserRoleUpdateDTO;
+import com.kutalmis.izin_talep_sistemi.dto.UserUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
 
 
 
@@ -45,16 +47,9 @@ public class AdminUserController {
     public UserResponseDTO createUser(@RequestBody UserCreateDTO dto) {
         return userService.createUser(dto);
     }
-    @Operation(summary = "Kullanıcının departmanını değiştir.")
-    @PutMapping("{id}/department")
-    public UserResponseDTO UpdateDepartment(@PathVariable Long id,@Valid @RequestBody UserDepartmentUpdateDTO dto) {
-        return userService.updateDepartment(id, dto);
+    @Operation(summary = "Kullanıcını bilgilerini güncelle")
+    @PutMapping("/{id}")
+    public UserResponseDTO updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO dto){
+        return userService.updateUser(id, dto);
     }
-
-    @Operation(summary = "Kullanıcının rolünü değiştir.")
-    @PutMapping("{id}/role")
-    public UserResponseDTO  updateRole(@PathVariable Long id,@Valid @RequestBody UserRoleUpdateDTO dto) {
-        return userService.updateRole(id, dto);
-    }
-
 }

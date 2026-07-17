@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeDTO;
-import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeDefaultDaysUpdateDTO;
-import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeStatusUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.service.LeaveTypeService;
-import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeRequiredLevelsUpdateDTO;
+import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeUpdateDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,24 +34,14 @@ public class AdminLeaveTypeController {
         return leaveTypeService.getAllLeaveTypesForAdmin();
     }
 
-    @Operation(summary = "Varsayılan gün sayısını güncelle")
+    @Operation(summary = "Izin türünü güncelle")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Gün sayısı güncellendi."),
-        @ApiResponse(responseCode = "400", description = "Geçersiz gün sayısı veya izin türü bulunamadı.")
+        @ApiResponse(responseCode = "200", description = "İzin türü başarıyla güncellendi."),
+        @ApiResponse(responseCode = "400", description = "Geçersiz girdi veya izin türü bulunamadı.")
     })
-    @PutMapping("/{id}/defaultDays")
-    public LeaveTypeDTO updateDefaultDays(@PathVariable Long id, @Valid @RequestBody LeaveTypeDefaultDaysUpdateDTO dto) {
-        return leaveTypeService.updateDefaultDays(id, dto);
-    }
-
-    @Operation(summary = "İzin türünü aktif/pasif yap")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Durum güncellendi."),
-        @ApiResponse(responseCode = "400", description = "İzin türü bulunamadı.")
-    })
-    @PatchMapping("/{id}/status")
-    public LeaveTypeDTO updateStatus(@PathVariable Long id, @Valid @RequestBody LeaveTypeStatusUpdateDTO dto) {
-        return leaveTypeService.updateStatus(id, dto);
+    @PutMapping("/{id}")
+    public LeaveTypeDTO updateLeaveType(@PathVariable Long id, @Valid @RequestBody LeaveTypeUpdateDTO dto) {
+        return leaveTypeService.updateLeaveType(id, dto);
     }
 
     @Operation(summary = "Yeni izin türü oluştur")
@@ -66,10 +54,5 @@ public class AdminLeaveTypeController {
     public LeaveTypeDTO createLeaveType(@Valid @RequestBody LeaveTypeCreateDTO dto) {
         return leaveTypeService.createLeaveType(dto);
 
-    }
-    @Operation(summary = "Gerekli onay seviyesini güncelle")
-    @PutMapping("/{id}/requiredLevels")
-    public LeaveTypeDTO updateRequiredLevels(@PathVariable Long id, @Valid @RequestBody LeaveTypeRequiredLevelsUpdateDTO dto) {
-    return leaveTypeService.updateRequiredLevels(id, dto);
-    }
+    }   
 }

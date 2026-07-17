@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeDTO;
-import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeDefaultDaysUpdateDTO;
-import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeRequiredLevelsUpdateDTO;
-import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeStatusUpdateDTO;
+import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveType;
 import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveTypeRepository;
@@ -36,22 +34,40 @@ public class LeaveTypeService {
     }
 
     @Transactional
-    public LeaveTypeDTO updateDefaultDays(Long id, LeaveTypeDefaultDaysUpdateDTO dto) {
+    public LeaveTypeDTO updateLeaveType(Long id, LeaveTypeUpdateDTO dto) {
         LeaveType leaveType = leaveTypeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + " ID'li izin türü bulunamadı."));
 
-        leaveType.setDefaultDays(dto.defaultDays());
-        return toDTO(leaveTypeRepository.save(leaveType));
+        if (dto.defaultDays() != null){
+            leaveType.setDefaultDays(dto.defaultDays());
+        }
+
+        if (dto.active() != null){
+            leaveType.setActive(dto.active());
+        }
+        if (dto.requiredLevels() != null){
+            leaveType.setRequiredLevels(dto.requiredLevels());
+        }
+
+        LeaveType saved = leaveTypeRepository.save(leaveType);
+        return toDTO(leaveTypeRepository.save(saved));
     }
+
     @Transactional
-    public LeaveTypeDTO updateStatus(Long id, LeaveTypeStatusUpdateDTO dto) {
-        LeaveType leaveType = leaveTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " ID'li izin türü bulunamadı."));
-
-        leaveType.setActive(dto.active());
+    public LeaveTypeDTO createLeaveType(LeaveTypeCreateDTO dto) {
+        if (leaveTypeRepository.existsByName(dto.name())) {
+            throw new DuplicateResourceException(dto.name() + " adlı bir izin türü zaten var.");
+        }
+        
+        LeaveType leaveType = new LeaveType();
+        leaveType.setName(dto.name());
+        leaveType.setDefaultDays(dto.defaultDays());
+        leaveType.setActive(true);
+        leaveType.setRequiredLevels(dto.requiredLevels() != null ? dto.requiredLevels() : 1);
+        
         return toDTO(leaveTypeRepository.save(leaveType));
     }
-
+    
     private LeaveTypeDTO toDTO(LeaveType leaveType) {
         return new LeaveTypeDTO(
                 leaveType.getId(),
@@ -60,29 +76,6 @@ public class LeaveTypeService {
                 leaveType.getActive(),
                 leaveType.getRequiredLevels() 
         );
-    }
-    @Transactional
-    public LeaveTypeDTO createLeaveType(LeaveTypeCreateDTO dto) {
-    if (leaveTypeRepository.existsByName(dto.name())) {
-        throw new DuplicateResourceException(dto.name() + " adlı bir izin türü zaten var.");
-    }
-
-    LeaveType leaveType = new LeaveType();
-    leaveType.setName(dto.name());
-    leaveType.setDefaultDays(dto.defaultDays());
-    leaveType.setActive(true);
-    leaveType.setRequiredLevels(dto.requiredLevels() != null ? dto.requiredLevels() : 1);
-
-    return toDTO(leaveTypeRepository.save(leaveType));
-    }
-
-    @Transactional
-    public LeaveTypeDTO updateRequiredLevels(Long id, LeaveTypeRequiredLevelsUpdateDTO dto) {
-        LeaveType leaveType = leaveTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " ID'li izin türü bulunamadı."));
-
-        leaveType.setRequiredLevels(dto.requiredLevels());
-        return toDTO(leaveTypeRepository.save(leaveType));
     }
     
 }

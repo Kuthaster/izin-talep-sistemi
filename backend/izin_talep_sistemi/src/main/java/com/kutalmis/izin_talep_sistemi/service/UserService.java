@@ -4,22 +4,20 @@ import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.kutalmis.izin_talep_sistemi.dto.UserActivityUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserCreateDTO;
-import com.kutalmis.izin_talep_sistemi.dto.UserDepartmentUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserResponseDTO;
-import com.kutalmis.izin_talep_sistemi.dto.UserRoleUpdateDTO;
+import com.kutalmis.izin_talep_sistemi.dto.UserUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Department;
 import com.kutalmis.izin_talep_sistemi.entity.DepartmentApprover;
 import com.kutalmis.izin_talep_sistemi.entity.Role;
 import com.kutalmis.izin_talep_sistemi.entity.User;
 import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
+import com.kutalmis.izin_talep_sistemi.repository.DepartmentApproverRepository;
 import com.kutalmis.izin_talep_sistemi.repository.DepartmentRepository;
 import com.kutalmis.izin_talep_sistemi.repository.RoleRepository;
 import com.kutalmis.izin_talep_sistemi.repository.UserRepository;
-import com.kutalmis.izin_talep_sistemi.repository.DepartmentApproverRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -96,28 +94,6 @@ public class UserService {
     }
     return mapperResponseDTO(savedUser);
     }
-    @Transactional
-    public UserResponseDTO updateDepartment(Long userId, UserDepartmentUpdateDTO dto){
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException(userId + " Id'li kullanıcı bulunamadı."));
-        Department department = departmentRepository.findById(dto.departmentId())
-            .orElseThrow(()  -> new IllegalArgumentException(dto.departmentId() + " Id'li departman bulunamadı."));
-        
-        user.setDepartment(department);
-        User saved = userRepository.save(user);
-
-        return mapperResponseDTO(saved);
-    } 
-    @Transactional
-    public UserResponseDTO updateRole(Long userId, UserRoleUpdateDTO dto){
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException(userId + " Id'li kullanıcı bulunamadı."));
-        Role role = roleRepository.findByDisplayName(dto.displayName())
-            .orElseThrow(() -> new IllegalArgumentException(dto.displayName() + " İsimli rol bulunamadı"));
-        user.setRole(role);
-        User saved = userRepository.save(user);
-        return mapperResponseDTO(saved);
-    }
 
     private UserResponseDTO mapperResponseDTO(User user) {
         return new UserResponseDTO(
@@ -130,12 +106,28 @@ public class UserService {
         );
     }
 
+
     @Transactional
-    public UserResponseDTO updateActivity(Long userId, UserActivityUpdateDTO dto){
+    public UserResponseDTO updateUser(Long userId, UserUpdateDTO dto) {
         User user = userRepository.findById(userId)
-            .orElseThrow(()-> new IllegalArgumentException(userId + " ID'li kullanıcı bulunamadı."));
-        user.setActive(dto.active());
-        
-        return mapperResponseDTO(userRepository.save(user));
+        .orElseThrow(()-> new IllegalArgumentException(userId + " ID'li kullanıcı bulunamadı."));
+
+        Department department = departmentRepository.findById(dto.departmentId())
+        .orElseThrow(()  -> new IllegalArgumentException(dto.departmentId() + " Id'li departman bulunamadı."));
+
+        Role role = roleRepository.findByDisplayName(dto.displayName())
+            .orElseThrow(() -> new IllegalArgumentException(dto.displayName() + " İsimli rol bulunamadı"));
+            
+        if(dto.departmentId() != null) { 
+            user.setDepartment(department);
+        }
+        if(dto.active() != null){
+            user.setActive(dto.active());
+        }
+        if(dto.displayName() != null){
+            user.setRole(role);
+        }
+        User saved = userRepository.save(user);
+        return mapperResponseDTO(saved);
     }
 }
