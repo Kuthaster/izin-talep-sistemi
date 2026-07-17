@@ -7,7 +7,7 @@ import 'api_client.dart';
 import '../models/leave_request.dart';
 
 class LeaveRequestService {
-  Future<List<LeaveRequest>> getMyRequests() async {
+  Future<List<LeaveRequest>> getMyLeaveRequests() async {
     final response = await DioClient().dio.get('/api/leaveRequests/mine');
     return (response.data as List)
         .map((item) => LeaveRequest.fromJson(item))

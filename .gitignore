@@ -7,14 +7,12 @@
 .DS_Store
 Thumbs.db
 
-# ===== Backend (Maven / Spring Boot) =====
 target/
 backend/**/application.properties
 backend/**/application-local.properties
 !backend/**/application-example.properties
 *.log
 
-# ===== Frontend (Flutter) =====
 flutter/**/build/
 flutter/**/.dart_tool/
 flutter/**/.flutter-plugins
