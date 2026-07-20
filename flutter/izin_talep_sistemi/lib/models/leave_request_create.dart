@@ -18,11 +18,11 @@ class LeaveRequestCreate {
   }
 
   Map<String, dynamic> toJson() {
-  return {
-    'leaveTypeId': leaveTypeId,
-    'startDate': DateFormat('yyyy-MM-dd').format(startDate),
-    'endDate': DateFormat('yyyy-MM-dd').format(endDate),
-    'reason': reason,
-  };
+    return {
+      'leaveTypeId': leaveTypeId,
+      'startDate': DateFormat('yyyy-MM-dd').format(startDate),
+      'endDate': DateFormat('yyyy-MM-dd').format(endDate),
+      'reason': reason,
+    };
   }
 }

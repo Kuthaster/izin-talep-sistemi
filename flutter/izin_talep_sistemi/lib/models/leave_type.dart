@@ -16,4 +16,14 @@ class LeaveType {
         requiredLevels: json['requiredLevels'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id' : id,
+      'name': name,
+      'defaultDays': defaultDays,
+      'active': active,
+      'requiredLevels': requiredLevels
+    };
+  }
 }

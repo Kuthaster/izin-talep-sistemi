@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/auth_provider.dart';
 import 'package:izin_talep_sistemi/screens/login_screen.dart';
-import 'package:izin_talep_sistemi/screens/my_requests_screen.dart';
+import 'package:izin_talep_sistemi/screens/main_screen.dart';
 
 class AuthGate extends ConsumerWidget{
   const AuthGate({super.key});
@@ -16,7 +16,7 @@ class AuthGate extends ConsumerWidget{
      return authState.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (err, stack) => const LoginScreen(),
-      data: (user) => user == null ? const LoginScreen() : const MyRequestsScreen(),
+      data: (user) => user == null ? const LoginScreen() : const MainScreen(),
     );
   }
 } 
