@@ -58,6 +58,38 @@ public class LeaveRequestService {
         .collect(Collectors.toList());
     }
 
+    
+    
+    public LeaveRequestCountDTO getLeaveRequestCount(User caller){
+        
+        if (caller.getRole().getName() == RoleAuthority.ADMIN){
+            Long pending = leaveRequestRepository.countByStatus("PENDING");
+            Long approved = leaveRequestRepository.countByStatus("APPROVED");
+            Long rejected = leaveRequestRepository.countByStatus("REJECTED");
+            Long cancelled = leaveRequestRepository.countByStatus("CANCELLED");
+            Long total = cancelled + rejected + pending + approved;
+            return new LeaveRequestCountDTO(pending, approved,rejected,cancelled, total);       
+        }
+        
+        List<Long> departmentIds = departmentApproverRepository.findByApprover_Id(caller.getId()).stream()
+        .map(da -> da.getDepartment().getId())
+        .distinct()
+        .collect(Collectors.toList());
+        
+        if (departmentIds.isEmpty()) {
+            return new LeaveRequestCountDTO(0L, 0L, 0L, 0L, 0L);
+            
+        }
+        
+        Long pending = leaveRequestRepository.countByStatusAndUser_Department_IdIn("PENDING", departmentIds);
+        Long approved = leaveRequestRepository.countByStatusAndUser_Department_IdIn("APPROVED", departmentIds);
+        Long rejected = leaveRequestRepository.countByStatusAndUser_Department_IdIn("REJECTED", departmentIds);
+        Long cancelled = leaveRequestRepository.countByStatusAndUser_Department_IdIn("CANCELLED", departmentIds);
+        Long total = cancelled + rejected + pending + approved;
+        
+        return new LeaveRequestCountDTO(pending, approved,rejected,cancelled, total);
+    }
+    
     public List<LeaveRequestDTO> getRequestsForApproval(User caller, LeaveRequestFilterDTO filter) {
     Specification<LeaveRequest> filters = Specification
         .where(LeaveRequestSpecifications.hasStatus(filter.status()))
@@ -88,38 +120,7 @@ public class LeaveRequestService {
         .map(this::toDTO)
         .collect(Collectors.toList());
     }
-
     
-    public LeaveRequestCountDTO getLeaveRequestCount(User caller){
-        
-        if (caller.getRole().getName() == RoleAuthority.ADMIN){
-            Long pending = leaveRequestRepository.countByStatus("PENDING");
-            Long approved = leaveRequestRepository.countByStatus("APPROVED");
-            Long rejected = leaveRequestRepository.countByStatus("REJECTED");
-            Long cancelled = leaveRequestRepository.countByStatus("CANCELLED");
-            Long total = cancelled + rejected + pending + approved;
-            return new LeaveRequestCountDTO(pending, approved,rejected,cancelled, total);       
-        }
-
-        List<Long> departmentIds = departmentApproverRepository.findByApprover_Id(caller.getId()).stream()
-        .map(da -> da.getDepartment().getId())
-        .distinct()
-        .collect(Collectors.toList());
-
-        if (departmentIds.isEmpty()) {
-            return new LeaveRequestCountDTO(0L, 0L, 0L, 0L, 0L);
-
-        }
-
-        Long pending = leaveRequestRepository.countByStatusAndUser_Department_IdIn("PENDING", departmentIds);
-        Long approved = leaveRequestRepository.countByStatusAndUser_Department_IdIn("APPROVED", departmentIds);
-        Long rejected = leaveRequestRepository.countByStatusAndUser_Department_IdIn("REJECTED", departmentIds);
-        Long cancelled = leaveRequestRepository.countByStatusAndUser_Department_IdIn("CANCELLED", departmentIds);
-        Long total = cancelled + rejected + pending + approved;
-
-        return new LeaveRequestCountDTO(pending, approved,rejected,cancelled, total);
-    }
-
     public LeaveRequestDTO createLeaveRequest(LeaveRequestCreateDTO dto, User caller) {
         if (leaveRequestRepository.existsByUserIdAndStatus(caller.getId(), "PENDING")){
             throw new IllegalStateException("Zaten bekleyen bir talebiniz var.");
@@ -222,6 +223,7 @@ public class LeaveRequestService {
             throw new AccessDeniedException("Bu izin talebini onaylama/reddetme yetkiniz yok.");
         }
     }
+    
     @Transactional
     public LeaveRequestDTO updateLeaveRequest(Long requestId, LeaveRequestCreateDTO dto, User caller) {
         LeaveRequest request = leaveRequestRepository.findById(requestId)

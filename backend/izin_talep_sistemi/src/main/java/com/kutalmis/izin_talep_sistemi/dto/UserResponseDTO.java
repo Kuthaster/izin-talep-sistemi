@@ -1,4 +1,5 @@
 package com.kutalmis.izin_talep_sistemi.dto;
+import  com.kutalmis.izin_talep_sistemi.entity.RoleAuthority;
 
 public record UserResponseDTO(
     Long id, 
@@ -6,6 +7,7 @@ public record UserResponseDTO(
     String lastName, 
     String email, 
     String departmentName, 
-    String roleDisplayName 
+    String roleDisplayName, 
+    RoleAuthority roleAuthority
 ) {
 }

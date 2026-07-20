@@ -102,7 +102,8 @@ public class UserService {
                 user.getLastName(),
                 user.getEmail(),
                 user.getDepartment().getName(),
-                user.getRole().getDisplayName()
+                user.getRole().getDisplayName(),
+                user.getRole().getName()
         );
     }
 

@@ -33,7 +33,7 @@ public class LeaveRequest {
     @Column(nullable = false)
     private String status = "PENDING";
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = true, length = 500)
     private String reason;
 
     @Column(name = "created_at", nullable = false, updatable = false)
