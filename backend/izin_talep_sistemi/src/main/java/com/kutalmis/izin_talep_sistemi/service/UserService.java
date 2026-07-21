@@ -119,11 +119,11 @@ public class UserService {
         Role role = roleRepository.findByDisplayName(dto.displayName())
             .orElseThrow(() -> new IllegalArgumentException(dto.displayName() + " İsimli rol bulunamadı"));
             
-        if(dto.departmentId() != null) { 
-            user.setDepartment(department);
-        }
-        if(dto.active() != null){
-            user.setActive(dto.active());
+            if(dto.departmentId() != null) { 
+                user.setDepartment(department);
+            }
+            if(dto.active() != null){
+                user.setActive(dto.active());
         }
         if(dto.displayName() != null){
             user.setRole(role);

@@ -1,16 +1,16 @@
 package com.kutalmis.izin_talep_sistemi.service;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.kutalmis.izin_talep_sistemi.dto.RoleActivityUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.RoleCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.RoleDTO;
+import com.kutalmis.izin_talep_sistemi.dto.RoleUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Role;
 import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
 import com.kutalmis.izin_talep_sistemi.repository.RoleRepository;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.stream.Collectors;
 
 @Service
 public class RoleService {
@@ -43,25 +43,17 @@ public class RoleService {
         return new RoleCreateDTO(saved.getDisplayName(), saved.getName());
     }
     
-     @Transactional
-    public RoleDTO updateActivity(Long roleId, RoleActivityUpdateDTO dto) {
-        Role role = roleRepository.findById(roleId)
-            .orElseThrow(() -> new IllegalArgumentException(roleId + " ID'li rol bulunamadı."));
-
-        role.setActive(dto.active());
-        return toDTO(roleRepository.save(role));
-    }
-
     @Transactional
-    public RoleDTO updateDisplayName(Long roleId, String newDisplayName) {
-        if (newDisplayName == null || newDisplayName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Rol adı boş olamaz.");
-        }
-
+    public RoleDTO updateRole(Long roleId, RoleUpdateDTO dto){
         Role role = roleRepository.findById(roleId)
             .orElseThrow(() -> new IllegalArgumentException(roleId + " ID'li rol bulunamadı."));
-
-        role.setDisplayName(newDisplayName);
+        
+        if(dto.displayName() != null || dto.displayName().isBlank()) { 
+            role.setDisplayName(dto.displayName());
+        }
+        if(dto.active() != null){
+            role.setActive(dto.active());
+        }
         return toDTO(roleRepository.save(role));
     }
 

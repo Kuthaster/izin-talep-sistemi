@@ -57,8 +57,8 @@ public class AdminDepartmentController {
         @ApiResponse(responseCode = "400", description = "Departman adı boş olamaz veya rol bulunamadı.")
     })
     @PutMapping("/{id}")
-    public DepartmentDTO updateDepartmentName(@PathVariable Long id, @Valid @RequestBody DepartmentUpdateDTO dto) {
-        return departmentService.updateDepartmentName(id, dto.departmentName());
+    public DepartmentDTO updateDepartment(@PathVariable Long id, @Valid @RequestBody DepartmentUpdateDTO dto) {
+        return departmentService.updateDepartment(id, dto);
     }
 
 }

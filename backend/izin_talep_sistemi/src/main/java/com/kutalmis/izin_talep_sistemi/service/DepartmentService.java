@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentDTO;
+import com.kutalmis.izin_talep_sistemi.dto.DepartmentUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Department;
 import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
 import com.kutalmis.izin_talep_sistemi.repository.DepartmentRepository;
@@ -44,7 +45,8 @@ public class DepartmentService {
         return departmentRepository.save(department);
     }
     @Transactional
-    public DepartmentDTO updateDepartmentName(Long id, String newDepartmentName){
+    public DepartmentDTO updateDepartment(Long id, DepartmentUpdateDTO dto){
+        String newDepartmentName = dto.departmentName();
         if (newDepartmentName == null || newDepartmentName.trim().isEmpty()) {
             throw new IllegalArgumentException("Departman ismi boş olamaz.");
         }
