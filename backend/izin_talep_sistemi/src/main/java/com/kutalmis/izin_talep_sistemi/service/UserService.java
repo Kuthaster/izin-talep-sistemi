@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kutalmis.izin_talep_sistemi.dto.UserCreateDTO;
+import com.kutalmis.izin_talep_sistemi.dto.ChangePasswordDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserResponseDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Department;
@@ -53,6 +54,7 @@ public class UserService {
     return userRepository.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException(email + " E-postasına sahip kullanıcı bulunamadı"));
     }
+    
     @Transactional
     public UserResponseDTO createUser(UserCreateDTO dto) {
 
@@ -130,5 +132,19 @@ public class UserService {
         }
         User saved = userRepository.save(user);
         return mapperResponseDTO(saved);
+    }
+
+    @Transactional
+    public void changePassword(User caller, ChangePasswordDTO dto) {
+        if (!passwordEncoder.matches(dto.currentPassword(), caller.getPasswordHash())) {
+            throw new IllegalArgumentException("Mevcut şifre yanlış.");
+        }
+
+        if (dto.newPassword() == null || dto.newPassword().isBlank()) {
+            throw new IllegalArgumentException("Yeni şifre boş olamaz.");
+        }
+
+        caller.setPasswordHash(passwordEncoder.encode(dto.newPassword()));
+    userRepository.save(caller);
     }
 }

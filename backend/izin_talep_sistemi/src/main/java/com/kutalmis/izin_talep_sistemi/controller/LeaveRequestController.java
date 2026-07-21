@@ -43,9 +43,6 @@ public class LeaveRequestController {
         this.userService = userService;
     }
 
-    // %TODO% Kendi izin talebi, izin adet sayma kısmı (leaverequestsservice getLeaveRequestCount ile), altların
-    //izin talepleri ve filtreleme mekanizmasının tamamını /dashboard/** içine oturt
-
     @Operation(summary = "İzin talep adedi listele (bu uç noktaya diğer izin talep toplama özellikleri eklenebilir")
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/dashboard")
