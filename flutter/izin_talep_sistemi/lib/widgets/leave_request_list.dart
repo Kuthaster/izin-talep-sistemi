@@ -15,7 +15,6 @@ class LeaveRequestList extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Hata: $err')),
       data: (requests) {  
-      print('Got ${requests.length} requests');
       final sorted = [...requests]
     ..sort((a, b) {
       if (a.status == 'PENDING' && b.status != 'PENDING') return -1;

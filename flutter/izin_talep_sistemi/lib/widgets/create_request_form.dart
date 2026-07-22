@@ -86,9 +86,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       ref.invalidate(myLeaveRequestsProvider);
 
       if (mounted) Navigator.pop(context);
-    } catch (e, stack) {
-      print('CAUGHT ERROR: $e');
-      print('STACK: $stack');
+    } catch (e) {
       setState(() => _errorMessage = '${_isEditing ? "Güncellenemedi" : "Oluşturulamadı"}: $e');
       } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -124,7 +122,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
                 if (match.isNotEmpty) _selectedLeaveTypeId = match.first.id;
               }
               return DropdownButtonFormField<int>(
-                value: _selectedLeaveTypeId,
+                initialValue: _selectedLeaveTypeId,
                 decoration: const InputDecoration(labelText: 'İzin Türü'),
                 items: leaveTypes
                     .map((type) => DropdownMenuItem(value: type.id, child: Text(type.name)))

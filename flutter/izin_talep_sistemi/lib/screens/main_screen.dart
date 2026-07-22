@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izin_talep_sistemi/models/scopelater/role_authority.dart';
+import 'package:izin_talep_sistemi/models/role_authority.dart';
 import 'package:izin_talep_sistemi/screens/my_requests_screen.dart';
 import 'package:izin_talep_sistemi/screens/profile_screen.dart';
 import 'package:izin_talep_sistemi/widgets/create_request_form.dart';

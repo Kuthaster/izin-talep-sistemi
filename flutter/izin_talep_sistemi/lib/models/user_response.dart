@@ -1,4 +1,4 @@
-import 'package:izin_talep_sistemi/models/scopelater/role_authority.dart';
+import 'package:izin_talep_sistemi/models/role_authority.dart';
 
 class UserResponse{
   final int    id;

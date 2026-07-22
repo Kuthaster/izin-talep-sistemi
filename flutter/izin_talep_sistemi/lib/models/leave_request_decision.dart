@@ -1,21 +1,21 @@
 import 'leave_decision.dart';
 
 class LeaveRequestDecision {
-  String? name;
+  final String? managerNote;
   final LeaveDecision decision;
 
-  LeaveRequestDecision({required this.decision, required this.name});
+  LeaveRequestDecision({this.managerNote, required this.decision});
 
   factory LeaveRequestDecision.fromJson(Map<String, dynamic> json){
     return LeaveRequestDecision(
-        decision: json['decision'],
-        name: json["name"],
+        decision: LeaveDecision.values.byName(json['decision']),
+        managerNote: json["managerNote"],
     );
   }
     Map<String, dynamic> toJson(){
     return {
       'decision': decision.name,
-      'name': name
+      'managerNote': managerNote
     };
   }
 }

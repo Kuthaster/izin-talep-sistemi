@@ -9,7 +9,6 @@ class LeaveRequestService {
   
   Future<List<LeaveRequest>> getMyLeaveRequests() async {
     final response = await DioClient().dio.get('/api/leaveRequests/mine');
-    print('Raw list response: ${response.data}');
     return (response.data as List)
         .map((item) => LeaveRequest.fromJson(item))
         .toList();

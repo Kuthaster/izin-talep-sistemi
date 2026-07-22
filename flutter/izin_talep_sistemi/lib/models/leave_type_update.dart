@@ -1,6 +1,6 @@
 class LeaveTypeUpdate {
-  final int defaultDays;
-  final bool active;
+  final int? defaultDays;
+  final bool? active;
   final int? requiredLevels;
   
   LeaveTypeUpdate({required this.defaultDays,required this.active, required this.requiredLevels});

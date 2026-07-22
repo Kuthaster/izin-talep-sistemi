@@ -22,7 +22,7 @@ class LeaveTypesService {
   }
 
   Future <LeaveTypeUpdate> updateLeaveType(int id, LeaveTypeUpdate dto) async {
-        final response = await DioClient().dio.put('/api/admin/leaveTypes/${id}', data: dto.toJson());
+        final response = await DioClient().dio.put('/api/admin/leaveTypes/$id', data: dto.toJson());
         
         return LeaveTypeUpdate.fromJson(response.data);
   }
