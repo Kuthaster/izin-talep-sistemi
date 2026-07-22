@@ -40,7 +40,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserResponse?>> {
     }
   }
   Future<UserResponse> _loadCurrentUser() async {
-    final response = await DioClient().dio.get('/api/users/me');
+    final response = await DioClient().dio.get('/api/users/profile');
     return(UserResponse.fromJson(response.data));
 
   }

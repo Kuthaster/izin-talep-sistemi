@@ -21,7 +21,7 @@ class DepartmentApproverService {
   }
 
   Future<void> removeApprover(int departmentId, int level) async {
-    final response = await DioClient().dio.delete('/api/admin/departmentApprovers/department/$departmentId/level/$level');
+    await DioClient().dio.delete('/api/admin/departmentApprovers/department/$departmentId/level/$level');
   }
 
   

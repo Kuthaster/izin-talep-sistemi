@@ -83,7 +83,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       } else {
         await LeaveRequestService().createLeaveRequest(dto);
       }
-      ref.invalidate(myLeaveRequestsProvider);
+      ref.invalidate(leaveRequestsProvider);
 
       if (mounted) Navigator.pop(context);
     } catch (e) {

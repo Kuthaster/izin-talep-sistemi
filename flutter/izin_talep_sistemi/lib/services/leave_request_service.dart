@@ -14,7 +14,7 @@ class LeaveRequestService {
         .toList();
   }
   Future<LeaveRequestCount> getLeaveRequestCount() async {
-    final response = await DioClient().dio.get('/api/dashboard');
+    final response = await DioClient().dio.get('/api/leaveRequests/dashboard');
     return LeaveRequestCount.fromJson(response.data);
     }
 

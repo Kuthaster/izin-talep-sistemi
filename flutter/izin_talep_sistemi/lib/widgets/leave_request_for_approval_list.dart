@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izin_talep_sistemi/widgets/leave_request_tile.dart';
+import 'package:izin_talep_sistemi/providers/leave_request_approval_provider.dart';
+import 'package:izin_talep_sistemi/widgets/leave_request_for_approval_tile.dart';
 
-import '../providers/leave_request_provider.dart';
-
-class LeaveRequestList extends ConsumerWidget {
-  const LeaveRequestList({super.key});
+class LeaveRequestForApprovalList extends ConsumerWidget {
+  const LeaveRequestForApprovalList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncRequests = ref.watch(leaveRequestsProvider);
+    final asyncRequests = ref.watch(leaveRequestsForApprovalProvider);
 
     return asyncRequests.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -23,10 +22,10 @@ class LeaveRequestList extends ConsumerWidget {
     });
 
     return RefreshIndicator(
-    onRefresh: () => ref.refresh(leaveRequestsProvider.future),
+    onRefresh: () => ref.refresh(leaveRequestsForApprovalProvider.future),
     child: ListView.builder(
       itemCount: sorted.length,
-      itemBuilder: (context, index) => LeaveRequestTile(request: sorted[index]),
+      itemBuilder: (context, index) => LeaveRequestForApprovalTile(request: sorted[index]),
     ),
     );
     },

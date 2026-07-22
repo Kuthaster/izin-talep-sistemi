@@ -3,10 +3,10 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/widgets/create_request_form.dart';
 import 'package:izin_talep_sistemi/widgets/leave_request_list.dart';
 
 import '../providers/leave_request_provider.dart';
-import 'package:izin_talep_sistemi/widgets/create_request_form.dart';
 
 class MyRequestsScreen extends ConsumerWidget {
   const MyRequestsScreen({super.key});
@@ -16,20 +16,21 @@ class MyRequestsScreen extends ConsumerWidget {
     
   return Scaffold(
       appBar: AppBar(
+      centerTitle: true, //başlık merkezleme
       title: const Text('İzin Taleplerim'),
       actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(myLeaveRequestsProvider),
-          ),
+            onPressed: () => ref.invalidate(leaveRequestsProvider),
+          ),//sayfa yenileme appbarda
         ],
       ),
       body: Column(
         children: const [
           Expanded(
-            child: LeaveRequestList()),
-      ],
-      ),
+            child: LeaveRequestList())//liste
+            
+        ],),
       floatingActionButton: FloatingActionButton(
       onPressed: () => showModalBottomSheet(
         context: context,

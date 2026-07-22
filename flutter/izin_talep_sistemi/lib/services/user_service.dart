@@ -1,3 +1,4 @@
+import 'package:izin_talep_sistemi/models/change_password.dart';
 import 'package:izin_talep_sistemi/models/user_create.dart';
 import 'package:izin_talep_sistemi/models/user_response.dart';
 import 'package:izin_talep_sistemi/models/user_update.dart';
@@ -24,4 +25,7 @@ class UserService {
     return UserResponse.fromJson(response.data);
    }
 
+  Future<void> changePassword(ChangePassword dto) async{
+    await DioClient().dio.patch('/api/users/profile/password', data:dto.toJson());
+  }
 }
