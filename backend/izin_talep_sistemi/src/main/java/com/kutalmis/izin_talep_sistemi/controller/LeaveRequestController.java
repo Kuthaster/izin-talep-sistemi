@@ -19,7 +19,6 @@ import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDecisionDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestFilterDTO;
-import com.kutalmis.izin_talep_sistemi.entity.LeaveDecision;
 import com.kutalmis.izin_talep_sistemi.entity.User;
 import com.kutalmis.izin_talep_sistemi.service.LeaveRequestService;
 import com.kutalmis.izin_talep_sistemi.service.UserService;
@@ -28,6 +27,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 
 @Tag(name = "Leave Request", description = "Çalışan izin yönetim uç noktası")
@@ -43,8 +43,8 @@ public class LeaveRequestController {
         this.userService = userService;
     }
 
-    @Operation(summary = "İzin talep adedi listele (bu uç noktaya diğer izin talep toplama özellikleri eklenebilir")
-    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "İzin talep adedi listele")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER_LEVEL_1','MANAGER_LEVEL_2','MANAGER_LEVEL_3')")
     @GetMapping("/dashboard")
     public LeaveRequestCountDTO getLeaveRequestCount(Principal principal)
     {
@@ -95,7 +95,7 @@ public class LeaveRequestController {
     })
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public LeaveRequestDTO createLeaveRequest(@RequestBody LeaveRequestCreateDTO dto, Principal principal) {
+    public LeaveRequestDTO createLeaveRequest(@Valid @RequestBody LeaveRequestCreateDTO dto, Principal principal) {
         User caller = userService.getUserEntityByEmail(principal.getName());
         return leaveRequestService.createLeaveRequest(dto, caller);
     }
@@ -108,11 +108,9 @@ public class LeaveRequestController {
     })
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER_LEVEL_1', 'MANAGER_LEVEL_2','MANAGER_LEVEL_3')")
     @PatchMapping("/forApproval/{id}")
-    public LeaveRequestDTO decide(@PathVariable Long id,Principal principal,@RequestBody LeaveRequestDecisionDTO dto) {
+    public LeaveRequestDTO decide(@Valid @PathVariable Long id,Principal principal,@RequestBody LeaveRequestDecisionDTO dto) {
     User caller = userService.getUserEntityByEmail(principal.getName());
-    String managerNote = dto.managerNote();
-    LeaveDecision decision = dto.decision();
-    return leaveRequestService.decide(id, caller,managerNote,decision);
+    return leaveRequestService.decide(id, caller,dto);
     }
 
     @Operation(summary = "İzin talebini güncelle", description = "Yalnızca henüz onay sürecine girmemiş (PENDING, seviye 1) kendi talebiniz güncellenebilir.")
@@ -124,7 +122,7 @@ public class LeaveRequestController {
     })
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/mine/{id}")
-    public LeaveRequestDTO updateLeaveRequest(@PathVariable Long id, @RequestBody LeaveRequestCreateDTO dto, Principal principal) {
+    public LeaveRequestDTO updateLeaveRequest(@Valid @PathVariable Long id, @RequestBody LeaveRequestCreateDTO dto, Principal principal) {
         User caller = userService.getUserEntityByEmail(principal.getName());
         return leaveRequestService.updateLeaveRequest(id, dto, caller);
     }

@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 
 
@@ -49,7 +50,7 @@ public class AdminUserController {
     }
     @Operation(summary = "Kullanıcını bilgilerini güncelle")
     @PutMapping("/{id}")
-    public UserResponseDTO updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO dto){
+    public UserResponseDTO updateUser(@PathVariable Long id,@Valid @RequestBody UserUpdateDTO dto){
         return userService.updateUser(id, dto);
     }
 }

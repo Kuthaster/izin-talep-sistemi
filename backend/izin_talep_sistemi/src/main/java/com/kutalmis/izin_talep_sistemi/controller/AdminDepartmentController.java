@@ -47,7 +47,7 @@ public class AdminDepartmentController {
         @ApiResponse(responseCode = "409", description = "Bu isimli bir departman zaten var.")
     })
     @PostMapping
-    public Department createDepartment(@RequestBody Department department) {
+    public Department createDepartment(@Valid @RequestBody Department department) {
         return departmentService.createDepartment(department);
     }
 

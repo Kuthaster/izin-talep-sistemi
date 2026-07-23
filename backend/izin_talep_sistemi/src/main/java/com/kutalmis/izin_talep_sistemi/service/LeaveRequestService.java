@@ -13,6 +13,7 @@ import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestApprovalDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCountDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDTO;
+import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDecisionDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestFilterDTO;
 import com.kutalmis.izin_talep_sistemi.entity.DepartmentApprover;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveDecision;
@@ -58,8 +59,6 @@ public class LeaveRequestService {
         .collect(Collectors.toList());
     }
 
-    
-    
     public LeaveRequestCountDTO getLeaveRequestCount(User caller){
         
         if (caller.getRole().getName() == RoleAuthority.ADMIN){
@@ -159,7 +158,10 @@ public class LeaveRequestService {
     }
 
     @Transactional
-    public LeaveRequestDTO decide(Long requestId, User caller, String note, LeaveDecision decision) {
+    public LeaveRequestDTO decide(Long requestId,User caller, LeaveRequestDecisionDTO dto) {
+    
+    String managerNote = (dto != null) ? dto.managerNote() : null;
+    LeaveDecision decision = dto.decision();
 
     LeaveRequest request = leaveRequestRepository.findById(requestId)
         .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
@@ -169,9 +171,9 @@ public class LeaveRequestService {
     }
 
     int level = request.getCurrentLevel();
-    assertCanDecide(caller, request, level);
+    assertAuthority(caller, request, level);
 
-    leaveRequestApprovalRepository.save(new LeaveRequestApproval(request, level, caller, decision, note));
+    leaveRequestApprovalRepository.save(new LeaveRequestApproval(request, level, caller, decision ,managerNote));
 
     if (decision == LeaveDecision.REJECTED) {
         request.setStatus("REJECTED");
@@ -209,7 +211,7 @@ public class LeaveRequestService {
         }
     }
 
-    private void assertCanDecide(User caller, LeaveRequest request, int level) {
+    private void assertAuthority(User caller, LeaveRequest request, int level) {
         if (caller.getRole().getName() == RoleAuthority.ADMIN) {
             return;
         }
@@ -220,7 +222,7 @@ public class LeaveRequestService {
                 "Bu departmanın " + level + ". seviye onaylayıcısı atanmamış."));
 
         if (!approver.getApprover().getId().equals(caller.getId())) {
-            throw new AccessDeniedException("Bu izin talebini onaylama/reddetme yetkiniz yok.");
+            throw new AccessDeniedException("Yetkisiz İşlem");
         }
     }
     
@@ -294,7 +296,7 @@ public class LeaveRequestService {
             a.getLevel(),
             a.getApprover().getFirstName() + " " + a.getApprover().getLastName(),
             a.getDecision(),
-            a.getNote(),
+            a.getManagerNote(),
             a.getDecidedAt()
         ))
         .collect(Collectors.toList());

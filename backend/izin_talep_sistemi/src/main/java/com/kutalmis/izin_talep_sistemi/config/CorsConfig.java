@@ -15,7 +15,7 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**") // Apply this rule to all our API endpoints
                         .allowedOrigins("http://localhost:3000", "http://localhost:8081") // Add your Flutter app's local URLs here!
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow these HTTP actions
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH") // Allow these HTTP actions
                         .allowedHeaders("*") // Allow any headers
                         .allowCredentials(true); // Allow passwords/authentication tokens
             }

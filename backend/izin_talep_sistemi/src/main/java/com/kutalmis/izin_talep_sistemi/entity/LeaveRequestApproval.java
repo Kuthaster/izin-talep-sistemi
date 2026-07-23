@@ -37,7 +37,7 @@ public class LeaveRequestApproval {
     private LeaveDecision decision;
 
     @Column(length = 500)
-    private String note;
+    private String managerNote;
 
     @Column(name = "decided_at", nullable = false, updatable = false)
     private LocalDateTime decidedAt = LocalDateTime.now();
@@ -45,12 +45,12 @@ public class LeaveRequestApproval {
     public LeaveRequestApproval() {
     }
 
-    public LeaveRequestApproval(LeaveRequest leaveRequest, Integer level, User approver, LeaveDecision decision, String note) {
+    public LeaveRequestApproval(LeaveRequest leaveRequest, Integer level, User approver, LeaveDecision decision, String managerNote) {
         this.leaveRequest = leaveRequest;
         this.level = level;
         this.approver = approver;
         this.decision = decision;
-        this.note = note;
+        this.managerNote = managerNote;
     }
 
     public Long getId() { 
@@ -66,8 +66,8 @@ public class LeaveRequestApproval {
     public LeaveDecision getDecision(){ 
     return decision; 
     }
-    public String getNote(){
-        return note;
+    public String getManagerNote(){
+        return managerNote;
      }
     public LocalDateTime getDecidedAt(){
     return decidedAt;
