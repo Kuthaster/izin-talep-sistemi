@@ -25,52 +25,69 @@ class ProfileScreen extends ConsumerWidget {
       ),
       body: SafeArea(
           child: Column(
+            spacing: 10,
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              
               CircleAvatar(
                 radius: 50,
+                child: Text(_getInitials(firstName, user?.lastName), style: const TextStyle(color: Colors.white,fontSize: 26,fontWeight: FontWeight.bold)),
+                backgroundColor: Color.fromRGBO(0, 189, 246, 0.959)),
+              Column( 
+                children: [
+                Text('${firstName ?? ''} ${lastName ?? ''}'),
+                Text(roleDisplayName ?? 'BULUNAMADI'),
+                Text(roleAuthority?.name ?? 'BULUNAMADI'),
+                Text(departmentName ?? 'BULUNAMADI'),
+                ],
               ),
-              Text('${firstName ?? ''} ${lastName ?? ''}'),
-              Text(roleDisplayName ?? 'BULUNAMADI'),
-              Text(roleAuthority?.name ?? 'BULUNAMADI'),
-              Text(departmentName ?? 'BULUNAMADI'),
               SizedBox(
                 height: 10,
                 width: 150,
-                child: Divider(color: Color.fromARGB(255, 3, 250, 32)),
+                child: Divider(color: Color.fromARGB(255, 69, 3, 250)),
               ),
-              Container(
-                padding: EdgeInsets.all(12),
-                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 25, 0, 255),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+              Container( 
+                margin: EdgeInsets.symmetric(horizontal: 300, vertical: 10),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.email, color: Color(0xFF181818)),
+                    Icon(Icons.email, color: Color.fromARGB(255, 6, 6, 6)),
                     SizedBox(width: 8),
-                    Text(email ?? 'BULUNAMADI'),
+                    Text(email ?? 'BULUNAMADI',style: TextStyle(color: Color.fromARGB(255, 3, 3, 3)),),
                   ],
                 ),
-              ),ElevatedButton(
-                onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                builder: (context) => const ChangePasswordForm(),
-              );}, 
-                child: Text("ŞİFREYİ DEĞİŞTİR")  //TODO BURAYI STILIZE ET
-              ),ElevatedButton(
-              onPressed: () {
-              ref.read(authProvider.notifier).logout();
-              Navigator.of(context).popUntil((route) => route.isFirst
-              );},
-              child: const Text('Çıkış Yap'),
-              )
-            ],
+              ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size(160, 40),
+                  ),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) => const ChangePasswordForm(),
+                    );}, 
+                child: Text("ŞİFREYİ DEĞİŞTİR"),  //TODO BURAYI STILIZE ET
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    ref.read(authProvider.notifier).logout();
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                child: const Text('Çıkış Yap'),
+                )
+            ], 
           ),
         ),
     );
   }
+}
+
+//TODO BU MAIN SCREEN DE DE KULLANILIYOR VE ILERIDE GUNCELLEYINCE APPROVAL EKRANINDA DA CALISANLAR ICIN KULLANILACAK PROFIL CEMBERI CIZMEYI AYRI BIR WIDGETE CEVIR ILERIDE
+String _getInitials(String? first, String? last) {
+  final f = (first != null && first.isNotEmpty) ? first[0] : '';
+  final l = (last != null && last.isNotEmpty) ? last[0] : '';
+  return (f + l).toUpperCase();
 }

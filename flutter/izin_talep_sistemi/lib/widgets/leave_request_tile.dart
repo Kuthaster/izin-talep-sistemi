@@ -30,7 +30,7 @@ class LeaveRequestTile extends ConsumerWidget {
   Future<void> _cancel(BuildContext context, WidgetRef ref) async {
     try {
       await LeaveRequestService().cancelLeaveRequest(request.id);
-      ref.invalidate(myLeaveRequestsProvider);
+      ref.invalidate(leaveRequestsProvider);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

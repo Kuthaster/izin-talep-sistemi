@@ -95,7 +95,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncLeaveTypes = ref.watch(myLeaveTypesProvider);
+    final asyncLeaveTypes = ref.watch(leaveTypesProvider);
 
     return Padding(
       padding: EdgeInsets.only(

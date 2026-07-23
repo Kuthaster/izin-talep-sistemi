@@ -2,7 +2,7 @@ import 'package:izin_talep_sistemi/models/department.dart';
 import 'package:izin_talep_sistemi/models/department_update.dart';
 import 'api_client.dart';
 
-class departmentService {
+class DepartmentService {
 
   Future<List<Department>> getAllDepartments() async {
         final response = await DioClient().dio.get('/api/departments');
@@ -13,7 +13,7 @@ class departmentService {
   }
 
   Future<List<Department>> getAllDepartmentsForAdmin() async {
-        final response = await DioClient().dio.get('/api/departments');
+        final response = await DioClient().dio.get('/api/admin/departments');
         
         return (response.data as List)
           .map((item) => Department.fromJson(item))

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:izin_talep_sistemi/screens/auth_gate.dart';
 
 void main() {
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
+        textTheme: GoogleFonts.kameronTextTheme(Theme.of(context).textTheme,),
         // This is the theme of your application.
         //
         // TRY THIS: Try running your application with "flutter run". You'll see
