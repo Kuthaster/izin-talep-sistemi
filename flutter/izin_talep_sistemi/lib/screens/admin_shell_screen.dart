@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:izin_talep_sistemi/widgets/admin_sidebar.dart';
 import 'package:izin_talep_sistemi/widgets/sections/department_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/leave_type_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/approver_chain_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/roles_section.dart';
 /* import 'package:izin_talep_sistemi/widgets/sections/users_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/departments_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/leave_types_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/approver_chain_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/approvals_section.dart'; */
 
 enum AdminSection {
@@ -13,6 +14,7 @@ enum AdminSection {
   departments,
   leaveTypes,
   approverChain,
+  roles,
 }
 
 class AdminScreen extends StatefulWidget {
@@ -36,11 +38,13 @@ class AdminScreenState extends State<AdminScreen> {
       case AdminSection.users:
         return const DepartmentsSection(); //const UsersSection();
       case AdminSection.departments:
-        return const DepartmentsSection(); 
+        return const DepartmentsSection();
       case AdminSection.leaveTypes:
-        return const DepartmentsSection(); // const LeaveTypesSection();
+        return const LeaveTypesSection();
       case AdminSection.approverChain:
-        return const DepartmentsSection(); // const ApproverChainSection();
+        return const ApproverChainSection();
+      case AdminSection.roles:
+        return const RolesSection();
     }
   }
 

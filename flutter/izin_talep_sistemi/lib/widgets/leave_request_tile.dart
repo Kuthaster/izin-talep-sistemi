@@ -27,15 +27,32 @@ class LeaveRequestTile extends ConsumerWidget {
     }
   }
 
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'PENDING':
+        return 'Bekliyor · Sv ${request.currentLevel.toString()}';
+      case 'APPROVED':
+        return 'Onaylandı';
+      case 'REJECTED':
+        return 'Reddedildi';
+      case 'CANCELLED':
+        return 'İptal Edildi';
+      default:
+        return status;
+    }
+  }
+
+  String get currentLevelPlaceholder => request.currentLevel.toString();
+
   Future<void> _cancel(BuildContext context, WidgetRef ref) async {
     try {
       await LeaveRequestService().cancelLeaveRequest(request.id);
       ref.invalidate(leaveRequestsProvider);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('İptal edilemedi: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('İptal edilemedi: $e')));
       }
     }
   }
@@ -51,13 +68,15 @@ class LeaveRequestTile extends ConsumerWidget {
   Widget _buildRow(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: const Color.fromARGB(255, 243, 8, 8)),
         borderRadius: BorderRadius.circular(10),
       ),
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
         title: Text(request.leaveTypeName),
-        subtitle: Text('${request.status} — Level ${request.currentLevel}'),
+        subtitle: Text(
+          '${_statusLabel(request.status)} — Kademe ${request.currentLevel}',
+        ),
         trailing: request.status == 'PENDING'
             ? Row(
                 mainAxisSize: MainAxisSize.min,

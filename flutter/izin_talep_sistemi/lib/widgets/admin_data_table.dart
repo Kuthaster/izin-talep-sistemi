@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AdminDataTable<T> extends ConsumerStatefulWidget{
+class AdminDataTable<T> extends ConsumerStatefulWidget {
   final List<T> items;
   final List<DataColumn> columns;
   final List<DataRow> Function(List<T>) buildRows;
- // final List<int Function(T, T)>? sortComparators;
+  // final List<int Function(T, T)>? sortComparators;
   final int itemsPerPage;
   final bool showPagination;
   final String? emptyStateTitle;
@@ -13,7 +13,18 @@ class AdminDataTable<T> extends ConsumerStatefulWidget{
   final VoidCallback? onEmptyStateAction;
   final String? emptyStateActionLabel;
 
-  const AdminDataTable({super.key, required this.items, required this.columns, required this.buildRows,/* required this.sortComparators,*/ this.itemsPerPage = 10, this.showPagination = true, this.emptyStateTitle, this.emptyStateMessage, this.onEmptyStateAction, this.emptyStateActionLabel,});
+  const AdminDataTable({
+    super.key,
+    required this.items,
+    required this.columns,
+    required this.buildRows,
+    /* required this.sortComparators,*/ this.itemsPerPage = 10,
+    this.showPagination = true,
+    this.emptyStateTitle,
+    this.emptyStateMessage,
+    this.onEmptyStateAction,
+    this.emptyStateActionLabel,
+  });
 
   @override
   ConsumerState<AdminDataTable<T>> createState() => _AdminDataTableState<T>();
@@ -38,7 +49,10 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
     } */
 
     final startIndex = _currentPage * widget.itemsPerPage;
-    final endIndex = (startIndex + widget.itemsPerPage).clamp(0, widget.items.length);
+    final endIndex = (startIndex + widget.itemsPerPage).clamp(
+      0,
+      widget.items.length,
+    );
     final pageItems = widget.items.sublist(startIndex, endIndex);
     final rows = widget.buildRows(pageItems);
 
@@ -47,9 +61,7 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: Colors.grey[300]!),
-              ),
+              border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -69,23 +81,17 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
             ),
           ),
         ),
-        if (widget.showPagination)
-          _buildPagination(),
+        if (widget.showPagination) _buildPagination(),
       ],
     );
   }
 
-  
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.inbox_outlined,
-            size: 64,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.inbox_outlined, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 18),
           Text(
             widget.emptyStateTitle ?? 'No data',
@@ -99,10 +105,7 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
             const SizedBox(height: 8),
             Text(
               widget.emptyStateMessage!,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
           ],
           if (widget.onEmptyStateAction != null) ...[
@@ -122,9 +125,7 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Colors.grey[300]!),
-        ),
+        border: Border(top: BorderSide(color: Colors.grey[300]!)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -1,4 +1,5 @@
 package com.kutalmis.izin_talep_sistemi.service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,36 +23,37 @@ public class RoleService {
 
     public List<RoleDTO> getAllRoles() {
         return roleRepository.findAll().stream()
-            .map(this::toDTO)
-            .collect(Collectors.toList());
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     public RoleCreateDTO createRole(RoleCreateDTO dto) {
         roleRepository.findByDisplayName(dto.displayName()).ifPresent(existing -> {
-        if (Boolean.TRUE.equals(existing.getActive())) {
-            throw new DuplicateResourceException("Bu isimli aktif bir rol zaten var.");
-        }
-        throw new DuplicateResourceException(
-            "Bu isimli pasif bir rol zaten var. Yeni oluşturmak yerine mevcut rolü tekrar aktifleştirebilirsiniz (ID: " + existing.getId() + ").");
+            if (existing.getActive()) {
+                throw new DuplicateResourceException("Bu isimli aktif bir rol zaten var.");
+            }
+            throw new DuplicateResourceException(
+                    "Bu isimli pasif bir rol zaten var. Yeni oluşturmak yerine mevcut rolü tekrar aktifleştirebilirsiniz (ID: "
+                            + existing.getId() + ").");
         });
 
         Role role = new Role(dto.name(), dto.displayName());
-        role.setActive(true);   //Zaten initializer de de var, belli olsun diye
+        role.setActive(true); // Zaten initializer de de var, belli olsun diye
         Role saved = roleRepository.save(role);
 
         return new RoleCreateDTO(saved.getDisplayName(), saved.getName());
     }
-    
+
     @Transactional
-    public RoleDTO updateRole(Long roleId, RoleUpdateDTO dto){
+    public RoleDTO updateRole(Long roleId, RoleUpdateDTO dto) {
         Role role = roleRepository.findById(roleId)
-            .orElseThrow(() -> new IllegalArgumentException(roleId + " ID'li rol bulunamadı."));
-        
-        if(dto.displayName() != null || dto.displayName().isBlank()) { 
+                .orElseThrow(() -> new IllegalArgumentException(roleId + " ID'li rol bulunamadı."));
+
+        if (dto.displayName() != null || dto.displayName().isBlank()) {
             role.setDisplayName(dto.displayName());
         }
-        if(dto.active() != null){
+        if (dto.active() != null) {
             role.setActive(dto.active());
         }
         return toDTO(roleRepository.save(role));

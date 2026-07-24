@@ -7,11 +7,14 @@ class AdminSidebar extends ConsumerWidget {
   final AdminSection currentSection;
   final Function(AdminSection) onSectionSelected;
 
-  const AdminSidebar({super.key, required this.currentSection,required this.onSectionSelected,});
+  const AdminSidebar({
+    super.key,
+    required this.currentSection,
+    required this.onSectionSelected,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return Container(
       width: 250,
       color: const Color.fromARGB(255, 5, 57, 110),
@@ -64,6 +67,12 @@ class AdminSidebar extends ConsumerWidget {
                   section: AdminSection.approverChain,
                   icon: Icons.account_tree_outlined,
                 ),
+                _buildNavItem(
+                  context,
+                  label: 'Roller',
+                  section: AdminSection.roles,
+                  icon: Icons.person,
+                ),
               ],
             ),
           ),
@@ -71,9 +80,8 @@ class AdminSidebar extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              border: Border(
-              top: BorderSide(color: Color(0xFF34495E)),
-            )),
+              border: Border(top: BorderSide(color: Color(0xFF34495E))),
+            ),
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -89,7 +97,7 @@ class AdminSidebar extends ConsumerWidget {
               ),
             ),
           ),
-        ]
+        ],
       ),
     );
   }

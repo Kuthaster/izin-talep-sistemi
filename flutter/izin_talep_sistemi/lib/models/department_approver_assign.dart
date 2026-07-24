@@ -3,7 +3,11 @@ class DepartmentApproverAssign {
   final int level;
   final int approverId;
 
-  DepartmentApproverAssign({required this.departmentId, required this.level, required this.approverId,});
+  DepartmentApproverAssign({
+    required this.departmentId,
+    required this.level,
+    required this.approverId,
+  });
 
   Map<String, dynamic> toJson() {
     return {

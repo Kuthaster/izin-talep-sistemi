@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum StatusType {
-  pending,
-  approved,
-  rejected,
-  cancelled,
-  active,
-  inactive,
-}
+enum StatusType { pending, approved, rejected, cancelled, active, inactive }
 
 class AdminStatusChip extends ConsumerWidget {
   final StatusType status;
   final String? label;
+  final VoidCallback? onTap;
 
-  const AdminStatusChip({super.key, required this.status, this.label}); 
+  const AdminStatusChip({
+    super.key,
+    required this.status,
+    this.label,
+    this.onTap,
+  });
 
   Color _getBackgroundColor() {
     switch (status) {
@@ -68,19 +67,31 @@ class AdminStatusChip extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref){
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: _getBackgroundColor(),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        label ?? _getDefaultLabel(),
-        style: TextStyle(
-          color: _getTextColor(),
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final radius = BorderRadius.only(
+      bottomRight: const Radius.elliptical(25, 40),
+      topLeft: const Radius.elliptical(25, 40),
+    );
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: radius,
+      splashColor: Colors.pinkAccent.withValues(alpha: 100),
+      highlightColor: Colors.purpleAccent.withValues(alpha: 100),
+      focusColor: Colors.amber.withValues(alpha: 100),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: _getBackgroundColor(),
+          borderRadius: radius,
+        ),
+        child: Text(
+          label ?? _getDefaultLabel(),
+          style: TextStyle(
+            color: _getTextColor(),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

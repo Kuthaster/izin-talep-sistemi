@@ -2,17 +2,10 @@ package com.kutalmis.izin_talep_sistemi.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record LeaveTypeUpdateDTO(
-    @NotNull(message = "Onay seviyesi belirtilmelidir.")
-    @Min(value = 1, message = "Onay seviyesi en az 1 olmalıdır.")
-    @Max(value = 3, message = "Onay seviyesi en fazla 3 olabilir.")
-    Integer requiredLevels,
-    @NotNull(message = "Aktiflik durumu belirtilmelidir.")
-    Boolean active,
-    @Positive(message = "Varsayılan gün sayısı sıfırdan büyük olmalıdır.")
-    Integer defaultDays
-){}
- 
+        @Min(value = 1, message = "Onay seviyesi en az 1 olmalıdır.") @Max(value = 3, message = "Onay seviyesi en fazla 3 olabilir.") Integer requiredLevels,
+        Boolean active,
+        @Positive(message = "Varsayılan gün sayısı sıfırdan büyük olmalıdır.") Integer defaultDays) {
+}
