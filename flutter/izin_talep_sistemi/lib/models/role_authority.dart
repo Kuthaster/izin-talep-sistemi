@@ -11,12 +11,12 @@ String authorityLabel(RoleAuthority authority) {
     case RoleAuthority.ADMIN:
       return 'ADMIN';
     case RoleAuthority.MANAGER_LEVEL_3:
-      return 'MANAGER_LEVEL_3';
+      return '3. Kademe Yönetici';
     case RoleAuthority.MANAGER_LEVEL_2:
-      return 'MANAGER_LEVEL_2';
+      return '2. Kademe Yönetici';
     case RoleAuthority.MANAGER_LEVEL_1:
-      return 'MANAGER_LEVEL_1';
+      return '1. Kademe Yönetici';
     case RoleAuthority.EMPLOYEE:
-      return 'EMPLOYEE';
+      return 'Çalışan';
   }
 }

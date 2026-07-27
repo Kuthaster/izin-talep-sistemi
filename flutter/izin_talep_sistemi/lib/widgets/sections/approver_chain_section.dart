@@ -1,10 +1,10 @@
-// widgets/sections/approver_chain_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/department_approver_assign.dart';
 import 'package:izin_talep_sistemi/providers/admin_departments_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_user_provider.dart';
 import 'package:izin_talep_sistemi/providers/department_approver_provider.dart';
+import 'package:izin_talep_sistemi/providers/department_provider.dart';
 import 'package:izin_talep_sistemi/services/department_approver_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 
@@ -20,8 +20,18 @@ class _ApproverChainSectionState extends ConsumerState<ApproverChainSection> {
   int? _selectedDepartmentId;
 
   Future<void> _assignApprover(int departmentId, int level) async {
+    final asyncDepartments = ref.watch(departmentsProvider);
+
+    final departments = ref.watch(departmentsProvider).value ?? [];
+    final matchingDepartment = departments.firstWhere(
+      (dept) => dept.id == departmentId,
+    );
+    final departmentName = matchingDepartment.name;
+
     final asyncUsers = ref.read(adminUsersProvider);
-    final users = asyncUsers.value ?? [];
+    final users = (asyncUsers.value ?? [])
+        .where((user) => user.departmentName == departmentName)
+        .toList();
 
     final selectedUserId = await showDialog<int>(
       context: context,

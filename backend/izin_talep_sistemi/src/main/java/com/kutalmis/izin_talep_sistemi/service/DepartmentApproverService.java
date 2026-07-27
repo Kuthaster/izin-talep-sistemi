@@ -21,8 +21,8 @@ public class DepartmentApproverService {
     private final UserRepository userRepository;
 
     public DepartmentApproverService(DepartmentApproverRepository departmentApproverRepository,
-                                      DepartmentRepository departmentRepository,
-                                      UserRepository userRepository) {
+            DepartmentRepository departmentRepository,
+            UserRepository userRepository) {
         this.departmentApproverRepository = departmentApproverRepository;
         this.departmentRepository = departmentRepository;
         this.userRepository = userRepository;
@@ -30,25 +30,31 @@ public class DepartmentApproverService {
 
     public List<DepartmentApproverDTO> getApproversForDepartment(Long departmentId) {
         return departmentApproverRepository.findByDepartment_Id(departmentId).stream()
-            .map(this::toDTO)
-            .collect(Collectors.toList());
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     public DepartmentApproverDTO assignApprover(DepartmentApproverAssignDTO dto) {
         Department department = departmentRepository.findById(dto.departmentId())
-            .orElseThrow(() -> new IllegalArgumentException(dto.departmentId() + " ID'li departman bulunamadı."));
+                .orElseThrow(() -> new IllegalArgumentException(dto.departmentId() + " ID'li departman bulunamadı."));
 
         User approver = userRepository.findById(dto.approverId())
-            .orElseThrow(() -> new IllegalArgumentException(dto.approverId() + " ID'li kullanıcı bulunamadı."));
+                .orElseThrow(() -> new IllegalArgumentException(dto.approverId() + " ID'li kullanıcı bulunamadı."));
 
         DepartmentApprover existing = departmentApproverRepository
-            .findByDepartment_IdAndLevel(dto.departmentId(), dto.level())
-            .orElse(null);
+                .findByDepartment_IdAndLevel(dto.departmentId(), dto.level())
+                .orElse(null);
 
         if (existing != null) {
             existing.setApprover(approver);
             return toDTO(departmentApproverRepository.save(existing));
+        }
+
+        if (approver.getDepartment() != department) {
+            new IllegalArgumentException(dto.approverId() + "ID'li kullanıcı(" + approver.getEmail() + "),"
+                    + department.getName() + "Departmanında değil.");
+
         }
 
         DepartmentApprover created = new DepartmentApprover(department, dto.level(), approver);
@@ -57,20 +63,19 @@ public class DepartmentApproverService {
 
     @Transactional
     public void removeApprover(Long departmentId, Integer level) {
-    if (departmentApproverRepository.findByDepartment_IdAndLevel(departmentId, level).isEmpty()) {
-        throw new IllegalArgumentException("Bu departman/seviye için atanmış bir onaylayıcı bulunamadı.");
+        if (departmentApproverRepository.findByDepartment_IdAndLevel(departmentId, level).isEmpty()) {
+            throw new IllegalArgumentException("Bu departman/seviye için atanmış bir onaylayıcı bulunamadı.");
+        }
+        departmentApproverRepository.deleteByDepartment_IdAndLevel(departmentId, level);
     }
-    departmentApproverRepository.deleteByDepartment_IdAndLevel(departmentId, level);
-}
 
     private DepartmentApproverDTO toDTO(DepartmentApprover da) {
         return new DepartmentApproverDTO(
-            da.getId(),
-            da.getDepartment().getId(),
-            da.getDepartment().getName(),
-            da.getLevel(),
-            da.getApprover().getId(),
-            da.getApprover().getFirstName() + " " + da.getApprover().getLastName()
-        );
+                da.getId(),
+                da.getDepartment().getId(),
+                da.getDepartment().getName(),
+                da.getLevel(),
+                da.getApprover().getId(),
+                da.getApprover().getFirstName() + " " + da.getApprover().getLastName());
     }
 }
