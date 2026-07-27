@@ -28,7 +28,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final DepartmentApproverRepository departmentApproverRepository;
 
-    public UserService(UserRepository userRepository, DepartmentRepository departmentRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, DepartmentApproverRepository departmentApproverRepository) {
+    public UserService(UserRepository userRepository, DepartmentRepository departmentRepository,
+            RoleRepository roleRepository, PasswordEncoder passwordEncoder,
+            DepartmentApproverRepository departmentApproverRepository) {
         this.userRepository = userRepository;
         this.departmentRepository = departmentRepository;
         this.roleRepository = roleRepository;
@@ -51,10 +53,10 @@ public class UserService {
     }
 
     public User getUserEntityByEmail(String email) {
-    return userRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException(email + " E-postasına sahip kullanıcı bulunamadı"));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(email + " E-postasına sahip kullanıcı bulunamadı"));
     }
-    
+
     @Transactional
     public UserResponseDTO createUser(UserCreateDTO dto) {
 
@@ -69,7 +71,6 @@ public class UserService {
             throw new IllegalArgumentException("Kullanıcı adı veya soyadı boş olamaz.");
         }
 
-        
         User user = new User();
         user.setFirstName(dto.firstName());
         user.setLastName(dto.lastName());
@@ -77,24 +78,25 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(dto.rawPassword()));
         user.setDepartment(department);
         user.setRole(role);
-        
+        user.setActive(true);
 
         User savedUser = userRepository.save(user);
 
         if (dto.assignAsApproverLevel() != null) {
             DepartmentApprover existing = departmentApproverRepository
-                .findByDepartment_IdAndLevel(department.getId(), dto.assignAsApproverLevel())
-                .orElse(null);
+                    .findByDepartment_IdAndLevel(department.getId(), dto.assignAsApproverLevel())
+                    .orElse(null);
 
-        if (existing != null) {
-            throw new DuplicateResourceException(
-            department.getName() + " departmanının " + dto.assignAsApproverLevel() + ". seviyesi zaten atanmış.");
+            if (existing != null) {
+                throw new DuplicateResourceException(
+                        department.getName() + " departmanının " + dto.assignAsApproverLevel()
+                                + ". seviyesi zaten atanmış.");
+            }
+
+            departmentApproverRepository.save(
+                    new DepartmentApprover(department, dto.assignAsApproverLevel(), savedUser));
         }
-
-        departmentApproverRepository.save(
-        new DepartmentApprover(department, dto.assignAsApproverLevel(), savedUser));
-    }
-    return mapperResponseDTO(savedUser);
+        return mapperResponseDTO(savedUser);
     }
 
     private UserResponseDTO mapperResponseDTO(User user) {
@@ -105,30 +107,34 @@ public class UserService {
                 user.getEmail(),
                 user.getDepartment().getName(),
                 user.getRole().getDisplayName(),
-                user.getRole().getName()
-        );
+                user.getRole().getName(),
+                user.getActive());
     }
-
 
     @Transactional
     public UserResponseDTO updateUser(Long userId, UserUpdateDTO dto) {
         User user = userRepository.findById(userId)
-        .orElseThrow(()-> new IllegalArgumentException(userId + " ID'li kullanıcı bulunamadı."));
+                .orElseThrow(() -> new IllegalArgumentException(userId + " ID'li kullanıcı bulunamadı."));
 
         Department department = departmentRepository.findById(dto.departmentId())
-        .orElseThrow(()  -> new IllegalArgumentException(dto.departmentId() + " Id'li departman bulunamadı."));
+                .orElseThrow(() -> new IllegalArgumentException(dto.departmentId() + " Id'li departman bulunamadı."));
 
-        Role role = roleRepository.findByDisplayName(dto.displayName())
-            .orElseThrow(() -> new IllegalArgumentException(dto.displayName() + " İsimli rol bulunamadı"));
-            
-            if(dto.departmentId() != null) { 
-                user.setDepartment(department);
-            }
-            if(dto.active() != null){
-                user.setActive(dto.active());
+        Role role = roleRepository.findById(dto.roleId())
+                .orElseThrow(() -> new IllegalArgumentException(dto.roleId() + "ID'li rol bulunamadı"));
+
+        if (dto.firstName() != null && !(dto.firstName().isBlank())) {
+            user.setFirstName(dto.firstName());
         }
-        if(dto.displayName() != null){
-            user.setRole(role);
+        if (dto.lastName() != null && !(dto.lastName().isBlank())) {
+            user.setLastName(dto.lastName());
+        }
+        if (dto.email() != null && !(dto.email().isBlank())) {
+            user.setEmail(dto.email());
+        }
+        user.setRole(role);
+        user.setDepartment(department);
+        if (dto.active() != null) {
+            user.setActive(dto.active());
         }
         User saved = userRepository.save(user);
         return mapperResponseDTO(saved);
@@ -147,5 +153,5 @@ public class UserService {
 
         caller.setPasswordHash(passwordEncoder.encode(dto.newPassword()));
         userRepository.save(caller);
-    }   
+    }
 }

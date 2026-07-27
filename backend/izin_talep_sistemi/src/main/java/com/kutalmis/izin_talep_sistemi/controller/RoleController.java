@@ -40,11 +40,10 @@ public class RoleController {
         return roleService.getAllRoles();
     }
 
-   
     @Operation(summary = "Rolü güncelle")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Rol güncellendi."),
-        @ApiResponse(responseCode = "400", description = "Geçersiz girdi veya rol bulunamadı.")
+            @ApiResponse(responseCode = "200", description = "Rol güncellendi."),
+            @ApiResponse(responseCode = "400", description = "Geçersiz girdi veya rol bulunamadı.")
     })
     @PutMapping("/{id}")
     public RoleDTO updateRole(@PathVariable Long id, @Valid @RequestBody RoleUpdateDTO dto) {
@@ -53,8 +52,8 @@ public class RoleController {
 
     @Operation(summary = "Yeni rol oluştur")
     @PostMapping
-    public RoleCreateDTO createRole(@RequestBody RoleCreateDTO dto) {
+    public RoleDTO createRole(@RequestBody RoleCreateDTO dto) {
         return roleService.createRole(dto);
     }
-    
+
 }

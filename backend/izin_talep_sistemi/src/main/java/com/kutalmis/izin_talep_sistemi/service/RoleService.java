@@ -28,7 +28,7 @@ public class RoleService {
     }
 
     @Transactional
-    public RoleCreateDTO createRole(RoleCreateDTO dto) {
+    public RoleDTO createRole(RoleCreateDTO dto) {
         roleRepository.findByDisplayName(dto.displayName()).ifPresent(existing -> {
             if (existing.getActive()) {
                 throw new DuplicateResourceException("Bu isimli aktif bir rol zaten var.");
@@ -42,7 +42,7 @@ public class RoleService {
         role.setActive(true); // Zaten initializer de de var, belli olsun diye
         Role saved = roleRepository.save(role);
 
-        return new RoleCreateDTO(saved.getDisplayName(), saved.getName());
+        return toDTO(saved);
     }
 
     @Transactional
@@ -50,7 +50,7 @@ public class RoleService {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " ID'li rol bulunamadı."));
 
-        if (dto.displayName() != null || dto.displayName().isBlank()) {
+        if (dto.displayName() != null && dto.displayName().isBlank()) {
             role.setDisplayName(dto.displayName());
         }
         if (dto.active() != null) {
