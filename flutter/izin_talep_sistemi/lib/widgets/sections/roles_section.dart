@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/role.dart';
 import 'package:izin_talep_sistemi/models/role_authority.dart';
 import 'package:izin_talep_sistemi/models/role_create.dart';
+import 'package:izin_talep_sistemi/models/role_update.dart';
 import 'package:izin_talep_sistemi/providers/admin_departments_provider.dart';
 import 'package:izin_talep_sistemi/providers/role_provider.dart';
 import 'package:izin_talep_sistemi/services/role_service.dart';
@@ -54,8 +55,9 @@ class RolesSection extends ConsumerWidget {
                   TextButton(
                     onPressed: () {
                       final displayName = controller.text.trim();
-                      if (displayName.isEmpty || selectedAuthority == null)
+                      if (displayName.isEmpty || selectedAuthority == null) {
                         return;
+                      }
 
                       Navigator.pop(
                         dialogContext,
@@ -86,6 +88,85 @@ class RolesSection extends ConsumerWidget {
     }
   }
 
+  Future<void> _editRole(BuildContext context, WidgetRef ref, Role role) async {
+    final displayNameController = TextEditingController(
+      text: role.displayName.toString(),
+    );
+    bool active = role.active;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('${role.name} Düzenle'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: displayNameController,
+                decoration: const InputDecoration(labelText: 'Rol Adı'),
+                keyboardType: TextInputType.number,
+              ),
+              SwitchListTile(
+                title: const Text('Aktif'),
+                value: active,
+                onChanged: (value) => setDialogState(() => active = value),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Vazgeç'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Kaydet'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await RoleService().updateRole(
+        role.id,
+        RoleUpdate(displayName: displayNameController.text, active: active),
+      );
+
+      ref.invalidate(rolesProvider);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Güncellenemedi: $e')));
+      }
+    }
+  }
+
+  Future<void> _activation(
+    BuildContext context,
+    WidgetRef ref,
+    Role role,
+  ) async {
+    bool active = !role.active;
+    try {
+      await RoleService().updateRole(
+        role.id,
+        RoleUpdate(displayName: null, active: active),
+      );
+      ref.invalidate(rolesProvider);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Güncellenemedi: $e')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncRoles = ref.watch(rolesProvider);
@@ -108,27 +189,32 @@ class RolesSection extends ConsumerWidget {
                 columns: const [
                   DataColumn(label: Text('Ad')),
                   DataColumn(label: Text('Yetki')),
+                  DataColumn(label: Text('Durum')),
                   DataColumn(label: Text('')),
                 ],
-                buildRows: (items) => items.map((Role) {
+                buildRows: (items) => items.map((role) {
                   return DataRow(
                     cells: [
-                      DataCell(Text(Role.displayName)),
-                      DataCell(Text(Role.name.toString())),
+                      DataCell(Text(role.displayName)),
+                      DataCell(Text(role.name.toString())),
                       DataCell(
-                        AdminStatusChip(
-                          status: Role.active
-                              ? StatusType.active
-                              : StatusType.inactive,
-                          label: Role.active ? 'Aktif' : 'Pasif',
+                        Material(
+                          color: Colors.transparent,
+                          child: AdminStatusChip(
+                            status: role.active
+                                ? StatusType.active
+                                : StatusType.inactive,
+                            label: role.active ? 'Aktif' : 'Pasif',
+                            onTap: () => _activation(context, ref, role),
+                          ),
                         ),
                       ),
-                      /* DataCell(
+                      DataCell(
                         IconButton(
                           icon: const Icon(Icons.edit, size: 18),
-                          onPressed: () => _editRole(context, ref, Role),
+                          onPressed: () => _editRole(context, ref, role),
                         ),
-                      ),*/
+                      ),
                     ],
                   );
                 }).toList(),
