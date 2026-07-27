@@ -1,15 +1,28 @@
 class UserUpdate {
- final bool? active;
- final int? departmentId;
- final String? displayName;
+  final String? firstName;
+  final String? lastName;
+  final String? email;
+  final int? departmentId;
+  final int? roleId;
+  final bool? active;
 
- UserUpdate({this.active, this.departmentId, this.displayName});
+  UserUpdate({
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.departmentId,
+    this.roleId,
+    this.active,
+  });
 
- Map<String , dynamic> toJson(){
-  return {
-    'active': active,
-    'departmentId': departmentId,
-    'displayName': displayName
-  };
- } 
+  Map<String, dynamic> toJson() {
+    return {
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'departmentId': departmentId,
+      'roleId': roleId,
+      'active': active,
+    };
+  }
 }

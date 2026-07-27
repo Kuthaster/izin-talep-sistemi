@@ -1,17 +1,27 @@
 import 'package:izin_talep_sistemi/models/role_authority.dart';
 
-class UserResponse{
-  final int    id;
+class UserResponse {
+  final int id;
   final String firstName;
   final String lastName;
   final String email;
   final String departmentName;
   final String roleDisplayName;
   final RoleAuthority roleAuthority;
+  final bool active;
 
-  UserResponse({required this.id, required this.firstName, required this.lastName, required this.email, required this.departmentName, required this.roleDisplayName, required this.roleAuthority});
-  factory UserResponse.fromJson(Map<String, dynamic> json){
-    return UserResponse( 
+  UserResponse({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.departmentName,
+    required this.roleDisplayName,
+    required this.roleAuthority,
+    required this.active,
+  });
+  factory UserResponse.fromJson(Map<String, dynamic> json) {
+    return UserResponse(
       id: json['id'],
       firstName: json['firstName'],
       lastName: json['lastName'],
@@ -19,6 +29,7 @@ class UserResponse{
       departmentName: json['departmentName'],
       roleDisplayName: json['roleDisplayName'],
       roleAuthority: RoleAuthority.values.byName(json['roleAuthority']),
+      active: json['active'],
     );
   }
 }

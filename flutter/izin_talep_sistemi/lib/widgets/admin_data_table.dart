@@ -32,22 +32,11 @@ class AdminDataTable<T> extends ConsumerStatefulWidget {
 
 class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
   int _currentPage = 0;
-  int _sortColumnIndex = 0;
-  bool _sortAscending = true;
+  final int _sortColumnIndex = 0;
+  final bool _sortAscending = true;
 
   @override
   Widget build(BuildContext context) {
-    /* if (widget.items.isEmpty) {
-      return _buildEmptyState();
-    }
-    final sortedItems = [... widget.items];
-    if (widget.sortComparators != null && _sortColumnIndex < widget.sortComparators!.length) {
-    sortedItems.sort((a, b) {
-    final result = widget.sortComparators![_sortColumnIndex](a, b);
-      return _sortAscending ? result : -result;
-    });
-    } */
-
     final startIndex = _currentPage * widget.itemsPerPage;
     final endIndex = (startIndex + widget.itemsPerPage).clamp(
       0,
@@ -64,18 +53,21 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
               border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
             ),
             child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: widget.columns,
-                rows: rows,
-                sortColumnIndex: _sortColumnIndex,
-                sortAscending: _sortAscending,
-                columnSpacing: 24,
-                dataRowMinHeight: 69,
-                dataRowMaxHeight: 70,
-                headingRowHeight: 65,
-                headingRowColor: WidgetStateColor.resolveWith(
-                  (states) => Colors.grey[100]!,
+              scrollDirection: Axis.vertical,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: DataTable(
+                  columns: widget.columns,
+                  rows: rows,
+                  sortColumnIndex: _sortColumnIndex,
+                  sortAscending: _sortAscending,
+                  columnSpacing: 24,
+                  dataRowMinHeight: 69,
+                  dataRowMaxHeight: 70,
+                  headingRowHeight: 65,
+                  headingRowColor: WidgetStateColor.resolveWith(
+                    (states) => Colors.grey[100]!,
+                  ),
                 ),
               ),
             ),
