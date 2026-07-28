@@ -36,9 +36,9 @@ public class LeaveRequestService {
     private final LeaveRequestApprovalRepository leaveRequestApprovalRepository;
 
     public LeaveRequestService(LeaveRequestRepository leaveRequestRepository,
-                                LeaveTypeRepository leaveTypeRepository,
-                                DepartmentApproverRepository departmentApproverRepository,
-                                LeaveRequestApprovalRepository leaveRequestApprovalRepository) {
+            LeaveTypeRepository leaveTypeRepository,
+            DepartmentApproverRepository departmentApproverRepository,
+            LeaveRequestApprovalRepository leaveRequestApprovalRepository) {
         this.leaveRequestRepository = leaveRequestRepository;
         this.leaveTypeRepository = leaveTypeRepository;
         this.departmentApproverRepository = departmentApproverRepository;
@@ -46,86 +46,86 @@ public class LeaveRequestService {
     }
 
     public List<LeaveRequestDTO> getMyLeaveRequests(User caller, String status, Long leaveTypeId,
-                                                 LocalDate startDateFrom, LocalDate startDateTo) {
-    Specification<LeaveRequest> spec = Specification
-        .where(LeaveRequestSpecifications.belongsToUser(caller.getId()))   // scope — mandatory
-        .and(LeaveRequestSpecifications.hasStatus(status))
-        .and(LeaveRequestSpecifications.hasLeaveType(leaveTypeId))
-        .and(LeaveRequestSpecifications.startDateFrom(startDateFrom))
-        .and(LeaveRequestSpecifications.startDateTo(startDateTo));
+            LocalDate startDateFrom, LocalDate startDateTo) {
+        Specification<LeaveRequest> spec = Specification
+                .where(LeaveRequestSpecifications.belongsToUser(caller.getId())) // scope — mandatory
+                .and(LeaveRequestSpecifications.hasStatus(status))
+                .and(LeaveRequestSpecifications.hasLeaveType(leaveTypeId))
+                .and(LeaveRequestSpecifications.startDateFrom(startDateFrom))
+                .and(LeaveRequestSpecifications.startDateTo(startDateTo));
 
-    return leaveRequestRepository.findAll(spec).stream()
-        .map(this::toDTO)
-        .collect(Collectors.toList());
+        return leaveRequestRepository.findAll(spec).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public LeaveRequestCountDTO getLeaveRequestCount(User caller){
-        
-        if (caller.getRole().getName() == RoleAuthority.ADMIN){
+    public LeaveRequestCountDTO getLeaveRequestCount(User caller) {
+
+        if (caller.getRole().getName() == RoleAuthority.ADMIN) {
             Long pending = leaveRequestRepository.countByStatus("PENDING");
             Long approved = leaveRequestRepository.countByStatus("APPROVED");
             Long rejected = leaveRequestRepository.countByStatus("REJECTED");
             Long cancelled = leaveRequestRepository.countByStatus("CANCELLED");
             Long total = cancelled + rejected + pending + approved;
-            return new LeaveRequestCountDTO(pending, approved,rejected,cancelled, total);       
+            return new LeaveRequestCountDTO(pending, approved, rejected, cancelled, total);
         }
-        
+
         List<Long> departmentIds = departmentApproverRepository.findByApprover_Id(caller.getId()).stream()
-        .map(da -> da.getDepartment().getId())
-        .distinct()
-        .collect(Collectors.toList());
-        
+                .map(da -> da.getDepartment().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
         if (departmentIds.isEmpty()) {
             return new LeaveRequestCountDTO(0L, 0L, 0L, 0L, 0L);
-            
+
         }
-        
+
         Long pending = leaveRequestRepository.countByStatusAndUser_Department_IdIn("PENDING", departmentIds);
         Long approved = leaveRequestRepository.countByStatusAndUser_Department_IdIn("APPROVED", departmentIds);
         Long rejected = leaveRequestRepository.countByStatusAndUser_Department_IdIn("REJECTED", departmentIds);
         Long cancelled = leaveRequestRepository.countByStatusAndUser_Department_IdIn("CANCELLED", departmentIds);
         Long total = cancelled + rejected + pending + approved;
-        
-        return new LeaveRequestCountDTO(pending, approved,rejected,cancelled, total);
+
+        return new LeaveRequestCountDTO(pending, approved, rejected, cancelled, total);
     }
-    
+
     public List<LeaveRequestDTO> getRequestsForApproval(User caller, LeaveRequestFilterDTO filter) {
-    Specification<LeaveRequest> filters = Specification
-        .where(LeaveRequestSpecifications.hasStatus(filter.status()))
-        .and(LeaveRequestSpecifications.hasLeaveType(filter.leaveTypeId()))
-        .and(LeaveRequestSpecifications.startDateFrom(filter.startDateFrom()))
-        .and(LeaveRequestSpecifications.startDateTo(filter.startDateTo()))
-        .and(LeaveRequestSpecifications.approvedByApprover(filter.approverId()))
-        .and(LeaveRequestSpecifications.hasCurrentLevel(filter.currentLevel()));
+        Specification<LeaveRequest> filters = Specification
+                .where(LeaveRequestSpecifications.hasStatus(filter.status()))
+                .and(LeaveRequestSpecifications.hasLeaveType(filter.leaveTypeId()))
+                .and(LeaveRequestSpecifications.startDateFrom(filter.startDateFrom()))
+                .and(LeaveRequestSpecifications.startDateTo(filter.startDateTo()))
+                .and(LeaveRequestSpecifications.approvedByApprover(filter.approverId()))
+                .and(LeaveRequestSpecifications.hasCurrentLevel(filter.currentLevel()));
 
-    if (caller.getRole().getName() == RoleAuthority.ADMIN) {
-        return leaveRequestRepository.findAll(filters).stream()
-            .map(this::toDTO)
-            .collect(Collectors.toList());
+        if (caller.getRole().getName() == RoleAuthority.ADMIN) {
+            return leaveRequestRepository.findAll(filters).stream()
+                    .map(this::toDTO)
+                    .collect(Collectors.toList());
+        }
+
+        List<Long> departmentIds = departmentApproverRepository.findByApprover_Id(caller.getId()).stream()
+                .map(da -> da.getDepartment().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (departmentIds.isEmpty()) {
+            return List.of();
+        }
+
+        Specification<LeaveRequest> spec = filters.and(LeaveRequestSpecifications.inDepartments(departmentIds));
+
+        return leaveRequestRepository.findAll(spec).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    List<Long> departmentIds = departmentApproverRepository.findByApprover_Id(caller.getId()).stream()
-        .map(da -> da.getDepartment().getId())
-        .distinct()
-        .collect(Collectors.toList());
-
-    if (departmentIds.isEmpty()) {
-        return List.of();
-    }
-
-    Specification<LeaveRequest> spec = filters.and(LeaveRequestSpecifications.inDepartments(departmentIds));
-
-    return leaveRequestRepository.findAll(spec).stream()
-        .map(this::toDTO)
-        .collect(Collectors.toList());
-    }
-    
     public LeaveRequestDTO createLeaveRequest(LeaveRequestCreateDTO dto, User caller) {
-        if (leaveRequestRepository.existsByUserIdAndStatus(caller.getId(), "PENDING")){
+        if (leaveRequestRepository.existsByUserIdAndStatus(caller.getId(), "PENDING")) {
             throw new IllegalStateException("Zaten bekleyen bir talebiniz var.");
         }
 
-        if(dto.startDate().isAfter(dto.endDate())){
+        if (dto.startDate().isAfter(dto.endDate())) {
             throw new IllegalArgumentException("Başlangıç tarihi bitiş tarihinden sonra olamaz.");
         }
 
@@ -134,7 +134,7 @@ public class LeaveRequestService {
         }
 
         LeaveType leaveType = leaveTypeRepository.findById(dto.leaveTypeId())
-            .orElseThrow(() -> new IllegalArgumentException("İzin türü bulunamadı."));
+                .orElseThrow(() -> new IllegalArgumentException("İzin türü bulunamadı."));
 
         if (!Boolean.TRUE.equals(leaveType.getActive())) {
             throw new IllegalArgumentException("Bu izin türü artık kullanılamıyor.");
@@ -150,7 +150,7 @@ public class LeaveRequestService {
 
         request.setCurrentLevel(1);
 
-        advanceChain(request, 1, 0);    
+        advanceChain(request, 1, 0);
 
         LeaveRequest savedRequest = leaveRequestRepository.save(request);
 
@@ -158,45 +158,46 @@ public class LeaveRequestService {
     }
 
     @Transactional
-    public LeaveRequestDTO decide(Long requestId,User caller, LeaveRequestDecisionDTO dto) {
-    
-    String managerNote = (dto != null) ? dto.managerNote() : null;
-    LeaveDecision decision = dto.decision();
+    public LeaveRequestDTO decide(Long requestId, User caller, LeaveRequestDecisionDTO dto) {
 
-    LeaveRequest request = leaveRequestRepository.findById(requestId)
-        .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
+        String managerNote = (dto != null) ? dto.managerNote() : null;
+        LeaveDecision decision = dto.decision();
 
-    if (!"PENDING".equals(request.getStatus())) {
-        throw new IllegalStateException("Bu talep zaten sonuçlandırılmış.");
-    }
+        LeaveRequest request = leaveRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
 
-    int level = request.getCurrentLevel();
-    assertAuthority(caller, request, level);
+        if (!"PENDING".equals(request.getStatus())) {
+            throw new IllegalStateException("Bu talep zaten sonuçlandırılmış.");
+        }
 
-    leaveRequestApprovalRepository.save(new LeaveRequestApproval(request, level, caller, decision ,managerNote));
+        int level = request.getCurrentLevel();
+        assertAuthority(caller, request, level);
 
-    if (decision == LeaveDecision.REJECTED) {
-        request.setStatus("REJECTED");
+        leaveRequestApprovalRepository.save(new LeaveRequestApproval(request, level, caller, decision, managerNote));
+
+        if (decision == LeaveDecision.REJECTED) {
+            request.setStatus("REJECTED");
+            return toDTO(leaveRequestRepository.save(request));
+        }
+
+        long approvalsSoFar = leaveRequestApprovalRepository.countByLeaveRequest_Id(requestId);
+        advanceChain(request, level + 1, (int) approvalsSoFar);
+
         return toDTO(leaveRequestRepository.save(request));
     }
 
-    long approvalsSoFar = leaveRequestApprovalRepository.countByLeaveRequest_Id(requestId);
-    advanceChain(request, level + 1, (int) approvalsSoFar);
-
-    return toDTO(leaveRequestRepository.save(request));
-    }
-
+    @SuppressWarnings("unused")
     private void advancePastSelfApprovals(LeaveRequest request) {
         int requiredLevels = request.getLeaveType().getRequiredLevels();
         int level = request.getCurrentLevel() + 1;
 
         while (level <= requiredLevels) {
             DepartmentApprover approver = departmentApproverRepository
-                .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)
-                .orElse(null);
+                    .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)
+                    .orElse(null);
 
             boolean isSelfApproval = approver != null
-                && approver.getApprover().getId().equals(request.getUser().getId());
+                    && approver.getApprover().getId().equals(request.getUser().getId());
 
             if (!isSelfApproval) {
                 break;
@@ -217,56 +218,57 @@ public class LeaveRequestService {
         }
 
         DepartmentApprover approver = departmentApproverRepository
-            .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)
-            .orElseThrow(() -> new IllegalStateException(
-                "Bu departmanın " + level + ". seviye onaylayıcısı atanmamış."));
+                .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Bu departmanın " + level + ". seviye onaylayıcısı atanmamış."));
 
         if (!approver.getApprover().getId().equals(caller.getId())) {
             throw new AccessDeniedException("Yetkisiz İşlem");
         }
     }
-    
+
     @Transactional
     public LeaveRequestDTO updateLeaveRequest(Long requestId, LeaveRequestCreateDTO dto, User caller) {
         LeaveRequest request = leaveRequestRepository.findById(requestId)
-            .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
+                .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
 
-    assertCanModify(caller, request);
+        assertCanModify(caller, request);
 
-    if (!"PENDING".equals(request.getStatus())) {
-        throw new IllegalStateException("Bu talep zaten sonuçlandırılmış, düzenlenemez.");
+        if (!"PENDING".equals(request.getStatus())) {
+            throw new IllegalStateException("Bu talep zaten sonuçlandırılmış, düzenlenemez.");
+        }
+
+        if (request.getCurrentLevel() > 1) {
+            throw new IllegalStateException("Bu talep onay sürecine girdiği için artık düzenlenemez.");
+        }
+
+        if (dto.startDate().isAfter(dto.endDate())) {
+            throw new IllegalArgumentException("Başlangıç tarihi bitiş tarihinden sonra olamaz.");
+        }
+
+        if (dto.startDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Geçmişteki bir tarihe izin alamazsınız.");
+        }
+
+        LeaveType leaveType = leaveTypeRepository.findById(dto.leaveTypeId())
+                .orElseThrow(() -> new IllegalArgumentException("İzin türü bulunamadı."));
+
+        if (!Boolean.TRUE.equals(leaveType.getActive())) {
+            throw new IllegalArgumentException("Bu izin türü artık kullanılamıyor.");
+        }
+
+        request.setLeaveType(leaveType);
+        request.setStartDate(dto.startDate());
+        request.setEndDate(dto.endDate());
+        request.setReason(dto.reason());
+
+        return toDTO(leaveRequestRepository.save(request));
     }
 
-    if (request.getCurrentLevel() > 1) {
-        throw new IllegalStateException("Bu talep onay sürecine girdiği için artık düzenlenemez.");
-    }
-
-    if (dto.startDate().isAfter(dto.endDate())) {
-        throw new IllegalArgumentException("Başlangıç tarihi bitiş tarihinden sonra olamaz.");
-    }
-
-    if (dto.startDate().isBefore(LocalDate.now())) {
-        throw new IllegalArgumentException("Geçmişteki bir tarihe izin alamazsınız.");
-    }
-
-    LeaveType leaveType = leaveTypeRepository.findById(dto.leaveTypeId())
-        .orElseThrow(() -> new IllegalArgumentException("İzin türü bulunamadı."));
-
-    if (!Boolean.TRUE.equals(leaveType.getActive())) {
-        throw new IllegalArgumentException("Bu izin türü artık kullanılamıyor.");
-    }
-
-    request.setLeaveType(leaveType);
-    request.setStartDate(dto.startDate());
-    request.setEndDate(dto.endDate());
-    request.setReason(dto.reason());
-
-    return toDTO(leaveRequestRepository.save(request));
-    }   
     @Transactional
     public LeaveRequestDTO cancelLeaveRequest(Long requestId, User caller) {
         LeaveRequest request = leaveRequestRepository.findById(requestId)
-            .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
+                .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
 
         assertCanModify(caller, request);
 
@@ -288,18 +290,17 @@ public class LeaveRequestService {
             throw new AccessDeniedException("Bu izin talebini değiştirme yetkiniz yok.");
         }
     }
-        
+
     private LeaveRequestDTO toDTO(LeaveRequest request) {
         List<LeaveRequestApprovalDTO> approvals = leaveRequestApprovalRepository
-        .findByLeaveRequest_IdOrderByLevelAsc(request.getId()).stream()
-        .map(a -> new LeaveRequestApprovalDTO(
-            a.getLevel(),
-            a.getApprover().getFirstName() + " " + a.getApprover().getLastName(),
-            a.getDecision(),
-            a.getManagerNote(),
-            a.getDecidedAt()
-        ))
-        .collect(Collectors.toList());
+                .findByLeaveRequest_IdOrderByLevelAsc(request.getId()).stream()
+                .map(a -> new LeaveRequestApprovalDTO(
+                        a.getLevel(),
+                        a.getApprover().getFirstName() + " " + a.getApprover().getLastName(),
+                        a.getDecision(),
+                        a.getManagerNote(),
+                        a.getDecidedAt()))
+                .collect(Collectors.toList());
 
         return new LeaveRequestDTO(
                 request.getId(),
@@ -310,8 +311,7 @@ public class LeaveRequestService {
                 request.getStatus(),
                 request.getCreatedAt(),
                 request.getCurrentLevel(),
-                approvals
-        );
+                approvals);
     }
 
     private static final int MAX_LEVEL = 3;
@@ -327,8 +327,8 @@ public class LeaveRequestService {
 
         while (level <= MAX_LEVEL) {
             DepartmentApprover approver = departmentApproverRepository
-                .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)
-                .orElse(null);
+                    .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)
+                    .orElse(null);
 
             if (approver == null) {
                 request.setCurrentLevel(level);
