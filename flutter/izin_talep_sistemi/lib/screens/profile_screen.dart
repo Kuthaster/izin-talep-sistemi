@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izin_talep_sistemi/models/role_authority.dart';
 import 'package:izin_talep_sistemi/providers/auth_provider.dart';
 import 'package:izin_talep_sistemi/widgets/change_password_form.dart';
+import 'package:izin_talep_sistemi/widgets/profile_avatar_widget.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -14,7 +14,6 @@ class ProfileScreen extends ConsumerWidget {
     final email = user?.email;
     final departmentName = user?.departmentName;
     final roleDisplayName = user?.roleDisplayName;
-    final roleAuthority = user?.roleAuthority;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
@@ -24,23 +23,11 @@ class ProfileScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: Color.fromRGBO(0, 189, 246, 0.959),
-              child: Text(
-                _getInitials(firstName, user?.lastName),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            ProfileAvatarWidget(),
             Column(
               children: [
                 Text('${firstName ?? ''} ${lastName ?? ''}'),
                 Text(roleDisplayName ?? 'BULUNAMADI'),
-                Text(authorityLabel(roleAuthority!)),
                 Text(departmentName ?? 'BULUNAMADI'),
               ],
             ),
@@ -89,11 +76,4 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
-}
-
-//TODO BU MAIN SCREEN DE DE KULLANILIYOR VE ILERIDE GUNCELLEYINCE APPROVAL EKRANINDA DA CALISANLAR ICIN KULLANILACAK PROFIL CEMBERI CIZMEYI AYRI BIR WIDGETE CEVIR ILERIDE
-String _getInitials(String? first, String? last) {
-  final f = (first != null && first.isNotEmpty) ? first[0] : '';
-  final l = (last != null && last.isNotEmpty) ? last[0] : '';
-  return (f + l).toUpperCase();
 }

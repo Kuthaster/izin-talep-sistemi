@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:izin_talep_sistemi/widgets/admin_sidebar.dart';
+import 'package:izin_talep_sistemi/widgets/sections/approvals_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/approver_chain_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/departments_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/leave_types_section.dart';
@@ -32,7 +33,7 @@ class AdminScreenState extends State<AdminScreen> {
   Widget _buildContent() {
     switch (_currentSection) {
       case AdminSection.approvals:
-        return const DepartmentsSection(); //const ApprovalsSection();
+        return const ApprovalsSection();
       case AdminSection.users:
         return const UsersSection();
       case AdminSection.departments:

@@ -4,7 +4,6 @@ import 'package:izin_talep_sistemi/models/role.dart';
 import 'package:izin_talep_sistemi/models/role_authority.dart';
 import 'package:izin_talep_sistemi/models/role_create.dart';
 import 'package:izin_talep_sistemi/models/role_update.dart';
-import 'package:izin_talep_sistemi/providers/admin_departments_provider.dart';
 import 'package:izin_talep_sistemi/providers/role_provider.dart';
 import 'package:izin_talep_sistemi/services/role_service.dart';
 
@@ -41,7 +40,7 @@ class RolesSection extends ConsumerWidget {
                       title: Text('Yetki seç'),
                       children: RoleAuthority.values.map((authority) {
                         return SimpleDialogOption(
-                          child: Text(authority.name),
+                          child: Text(authorityLabel(authority)),
                           onPressed: () {
                             selectedAuthority = authority;
                             setState(() {});
@@ -196,7 +195,7 @@ class RolesSection extends ConsumerWidget {
                   return DataRow(
                     cells: [
                       DataCell(Text(role.displayName)),
-                      DataCell(Text(role.name.toString())),
+                      DataCell(Text(authorityLabel(role.name))),
                       DataCell(
                         Material(
                           color: Colors.transparent,

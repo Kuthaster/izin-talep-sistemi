@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/screens/profile_screen.dart';
+import 'package:izin_talep_sistemi/widgets/profile_avatar_widget.dart';
 
 class AdminAppBar extends ConsumerWidget {
   final String title;
@@ -25,21 +27,6 @@ class AdminAppBar extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          // Title
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-
-          const Spacer(),
-          const SizedBox(width: 16),
-
-          // gerekise ekel
-          //if (additionalActions != null) ...additionalActions!,
           if (primaryActionLabel != null && onPrimaryAction != null)
             ElevatedButton.icon(
               onPressed: onPrimaryAction,
@@ -48,12 +35,25 @@ class AdminAppBar extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
               ),
             ),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const Spacer(flex: 15),
+
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            ),
+            child: ProfileAvatarWidget(),
+          ),
         ],
       ),
     );

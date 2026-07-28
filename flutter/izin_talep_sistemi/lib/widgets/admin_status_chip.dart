@@ -52,17 +52,17 @@ class AdminStatusChip extends ConsumerWidget {
   String _getDefaultLabel() {
     switch (status) {
       case StatusType.pending:
-        return 'Pending';
+        return 'Bekliyor';
       case StatusType.approved:
-        return 'Approved';
+        return 'Onay';
       case StatusType.rejected:
-        return 'Rejected';
+        return 'Ret';
       case StatusType.cancelled:
-        return 'Cancelled';
+        return 'İptal';
       case StatusType.active:
-        return 'Active';
+        return 'Aktif';
       case StatusType.inactive:
-        return 'Inactive';
+        return 'Pasif';
     }
   }
 
@@ -76,7 +76,9 @@ class AdminStatusChip extends ConsumerWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: radius,
-      splashColor: Colors.pinkAccent.withValues(alpha: 100),
+      splashColor: Colors.pinkAccent.withValues(
+        alpha: 100,
+      ), //TODO bunlar çalışmıyo çöz
       highlightColor: Colors.purpleAccent.withValues(alpha: 100),
       focusColor: Colors.amber.withValues(alpha: 100),
       child: Container(

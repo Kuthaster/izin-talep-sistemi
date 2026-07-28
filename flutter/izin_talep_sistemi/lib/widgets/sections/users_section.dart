@@ -14,7 +14,6 @@ import 'package:izin_talep_sistemi/services/user_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
-import 'package:izin_talep_sistemi/widgets/sections/roles_section.dart';
 
 class UsersSection extends ConsumerWidget {
   const UsersSection({super.key});
@@ -113,8 +112,9 @@ class UsersSection extends ConsumerWidget {
                           context,
                           departmentsAsync.value ?? [],
                         );
-                        if (id != null)
+                        if (id != null) {
                           setState(() => selectedDepartmentId = id);
+                        }
                       },
                     ),
                   ],

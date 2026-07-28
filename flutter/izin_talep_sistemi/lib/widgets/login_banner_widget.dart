@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:izin_talep_sistemi/widgets/text_anim.dart';
+import 'package:izin_talep_sistemi/theme/text/text_anim.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginBannerWidget extends StatelessWidget {
@@ -21,56 +21,66 @@ class LoginBannerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        color: purpleBg,
+        color: Theme.of(context).colorScheme.surfaceBright,
         padding: const EdgeInsets.all(40.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: purpleMedium,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Container(
-                  width: 26,
-                  height: 26,
+            Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: purpleBg,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                     shape: BoxShape.circle,
                   ),
-                ),
-              ),
-            ),
-
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hoşgeldiniz',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: purpleDark,
+                  child: Center(
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceBright,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
                 Text(
-                  'İzin Talep Sistemi',
-                  style: TextStyle(fontSize: 16, color: purpleMedium),
+                  'Hoşgeldiniz.',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),
 
+            Text(
+              'İzin Talep Sistemi', //TODO BURAYI DEĞİŞTİR, TYPEWRITE ETKISI EKLE, BÜYÜT, ÇOK YAZILI OLSUN
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+
             Row(
               children: [
-                CircleAvatar(radius: 12, backgroundColor: blueAccent1),
+                CircleAvatar(
+                  radius: 12,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                ),
                 InkWell(
                   onTap: openLink,
-                  child: TextAnim(text: "By Kuthaster"),
+                  child: TextAnim(
+                    textInput: "By: Kuthaster",
+                    isAnimated: true,
+                    textColor: Theme.of(context).colorScheme.tertiaryFixedDim,
+                    caretColor: Theme.of(context).colorScheme.tertiaryFixedDim,
+                    caretBlinkDuration: Duration(milliseconds: 1200),
+                  ),
                 ),
               ],
             ),

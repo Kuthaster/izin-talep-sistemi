@@ -3,18 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/auth_provider.dart';
 
 class LoginFormWidget extends ConsumerStatefulWidget {
-  final Color surface2;
-  final Color textColorSecondary;
-  final Color borderColor;
-  final Color purpleMedium;
-
-  const LoginFormWidget({
-    super.key,
-    this.surface2 = const Color(0xFFF8F9FA),
-    this.textColorSecondary = const Color(0xFF6C757D),
-    this.borderColor = const Color(0xFFE0E0E0),
-    this.purpleMedium = const Color(0xFF3C3489),
-  });
+  const LoginFormWidget({super.key});
 
   @override
   ConsumerState<LoginFormWidget> createState() => _LoginFormWidgetState();
@@ -38,8 +27,8 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
 
     return Expanded(
       child: Container(
-        color: widget.surface2,
         padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 32.0),
+        color: Theme.of(context).colorScheme.surface,
         child: Center(
           child: SingleChildScrollView(
             child: Container(
@@ -50,25 +39,25 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                 children: [
                   const Text(
                     'Giriş yap',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 24),
                   Text(
                     'Email',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: widget.textColorSecondary,
-                    ),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
                   TextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'adsoyad@yourcompany.com',
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                         fontSize: 14,
-                        color: Colors.black38,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -76,34 +65,30 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: widget.borderColor,
-                          width: 0.5,
-                        ),
+                        borderSide: BorderSide(width: 0.5),
                       ),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: Theme.of(context).colorScheme.inverseSurface,
                     ),
                   ),
+
                   const SizedBox(height: 16),
                   Text(
                     'Şifre',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: widget.textColorSecondary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
                   TextField(
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                    ),
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       hintText: 'Şifrenizi girin',
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                         fontSize: 14,
-                        color: Colors.black38,
-                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -111,13 +96,10 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: widget.borderColor,
-                          width: 0.5,
-                        ),
+                        borderSide: BorderSide(width: 0.5),
                       ),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: Theme.of(context).colorScheme.inverseSurface,
                       suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
@@ -147,8 +129,10 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                                   );
                             },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.purpleMedium,
-                        foregroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
@@ -156,12 +140,14 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                         elevation: 0,
                       ),
                       child: authState.isLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.secondaryFixedDim,
                               ),
                             )
                           : const Text(

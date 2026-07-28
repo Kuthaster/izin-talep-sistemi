@@ -12,7 +12,7 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
   final LeaveRequest request;
 
   const LeaveRequestForApprovalTile({super.key, required this.request});
-  
+
   Color _statusBg(String status) {
     switch (status) {
       case 'PENDING':
@@ -64,11 +64,25 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
     final parts = fullName.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
+    return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
+        .toUpperCase();
   }
 
   String _formatDateRange(DateTime start, DateTime end) {
-    const months = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+    const months = [
+      'Oca',
+      'Şub',
+      'Mar',
+      'Nis',
+      'May',
+      'Haz',
+      'Tem',
+      'Ağu',
+      'Eyl',
+      'Eki',
+      'Kas',
+      'Ara',
+    ];
     final startStr = '${start.day} ${months[start.month - 1]}';
     final endStr = '${end.day} ${months[end.month - 1]}';
     return '$startStr - $endStr';
@@ -78,7 +92,11 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
     return end.difference(start).inDays + 1;
   }
 
-  Future<void> _decide(BuildContext context, WidgetRef ref, LeaveRequestDecision dto) async {
+  Future<void> _decide(
+    BuildContext context,
+    WidgetRef ref,
+    LeaveRequestDecision dto,
+  ) async {
     try {
       await LeaveRequestService().decide(request.id, dto);
       ref.invalidate(leaveRequestsForApprovalProvider);
@@ -92,13 +110,23 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
   }
 
   Future<void> _approve(BuildContext context, WidgetRef ref) async {
-    await _decide(context, ref, LeaveRequestDecision(decision: LeaveDecision.APPROVED, managerNote: null));
+    await _decide(
+      context,
+      ref,
+      LeaveRequestDecision(decision: LeaveDecision.APPROVED, managerNote: null),
+    );
   }
 
   Future<void> _reject(BuildContext context, WidgetRef ref) async {
     final note = await _showRejectReasonDialog(context);
+    if (!context.mounted) return;
+
     if (note == null) return; // dialog cancelled
-    await _decide(context, ref, LeaveRequestDecision(decision: LeaveDecision.REJECTED, managerNote: note));
+    await _decide(
+      context,
+      ref,
+      LeaveRequestDecision(decision: LeaveDecision.REJECTED, managerNote: note),
+    );
   }
 
   Widget _buildRow(BuildContext context, WidgetRef ref) {
@@ -108,7 +136,7 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       margin: const EdgeInsets.symmetric(vertical: 4),
-      padding:  const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       child: Opacity(
         opacity: (request.status != 'PENDING') ? 1.0 : 0.7,
         child: Column(
@@ -122,7 +150,11 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                   backgroundColor: Colors.deepPurple.shade100,
                   child: Text(
                     _initials(request.userName),
-                    style: TextStyle(color: Colors.deepPurple.shade900, fontSize: 13, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      color: Colors.deepPurple.shade900,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -136,19 +168,28 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               request.userName,
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
                               overflow: TextOverflow.ellipsis,
-                             ),
+                            ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: _statusBg(request.status),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               _statusLabel(request.status),
-                              style: TextStyle(fontSize: 11, color: _statusColor(request.status)),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: _statusColor(request.status),
+                              ),
                             ),
                           ),
                         ],
@@ -156,7 +197,10 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                       const SizedBox(height: 2),
                       Text(
                         '${request.leaveTypeName} · ${_formatDateRange(request.startDate, request.endDate)} · ${_dayCount(request.startDate, request.endDate)} gün',
-                        style: const TextStyle(fontSize: 13, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
@@ -170,7 +214,10 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () => _approve(context, ref),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
                       icon: const Icon(Icons.check, size: 16),
                       label: const Text('Onayla'),
                     ),
@@ -179,7 +226,9 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () => _reject(context, ref),
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                      ),
                       icon: const Icon(Icons.close, size: 16),
                       label: const Text('Reddet'),
                     ),
@@ -242,7 +291,10 @@ Future<String?> _showRejectReasonDialog(BuildContext context) async {
         maxLines: 3,
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, null), child: const Text('Vazgeç')),
+        TextButton(
+          onPressed: () => Navigator.pop(context, null),
+          child: const Text('Vazgeç'),
+        ),
         TextButton(
           onPressed: () {
             final text = controller.text.trim();

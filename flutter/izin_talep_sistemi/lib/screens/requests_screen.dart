@@ -1,4 +1,3 @@
-
 import 'dart:core';
 
 import 'package:flutter/material.dart';
@@ -8,37 +7,35 @@ import 'package:izin_talep_sistemi/widgets/leave_request_list.dart';
 
 import '../providers/leave_request_provider.dart';
 
-class MyRequestsScreen extends ConsumerWidget {
-  const MyRequestsScreen({super.key});
+class RequestsScreen extends ConsumerWidget {
+  const RequestsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
-  return Scaffold(
+    return Scaffold(
       appBar: AppBar(
-      centerTitle: true, //başlık merkezleme
-      title: const Text('İzin Taleplerim'),
-      actions: [
+        centerTitle: true, //başlık merkezleme
+        title: const Text('İzin Taleplerim'),
+        actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(leaveRequestsProvider),
-          ),//sayfa yenileme appbarda
+          ), //sayfa yenileme appbarda
         ],
       ),
       body: Column(
         children: const [
-          Expanded(
-            child: LeaveRequestList())//liste
-            
-        ],),
-      floatingActionButton: FloatingActionButton(
-      onPressed: () => showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => const CreateRequestForm(),
+          Expanded(child: LeaveRequestList()), //liste
+        ],
       ),
-      child: const Icon(Icons.add),
-    ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) => const CreateRequestForm(),
+        ),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
