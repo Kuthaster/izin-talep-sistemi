@@ -119,7 +119,9 @@ public class UserService {
         Department department = departmentRepository.findById(dto.departmentId())
                 .orElseThrow(() -> new IllegalArgumentException(dto.departmentId() + " Id'li departman bulunamadı."));
 
-        Role role = roleRepository.findById(dto.roleId())
+        Role role = roleRepository.findById(dto.roleId()) // TODO BU EXCEPTION YÖNTEMLERİ ROL GÜNCELLEME İSTENMEDİĞİNDE
+                                                          // DE ROLÜN VE DEPARTMANIN GİRİLMESİNİ ZORUNLU KILIYOR BUNU
+                                                          // DEĞİŞTİR NULLANABİLİR OLSUN HATA BAŞKA ZAMAN OLSUN
                 .orElseThrow(() -> new IllegalArgumentException(dto.roleId() + "ID'li rol bulunamadı"));
 
         if (dto.firstName() != null && !(dto.firstName().isBlank())) {

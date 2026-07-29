@@ -22,8 +22,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-
-
 @Tag(name = "Admin - Users", description = "Kullanıcı yönetimi (Admin)")
 @RestController
 @RequestMapping("/api/admin/users")
@@ -35,22 +33,25 @@ public class AdminUserController {
     public AdminUserController(UserService userService) {
         this.userService = userService;
     }
+
     @Operation(summary = "Tüm kullanıcıları listele")
     @GetMapping
     public List<UserResponseDTO> getAllUsers() {
         return userService.getAllUsers();
     }
+
     @Operation(summary = "Yeni kullanıcı oluştur")
     @ApiResponses(value = {
-    @ApiResponse(responseCode = "400", description = "Rol veya Departman bulunamadı. / Kullanıcı ad soyad boş olamaz")
+            @ApiResponse(responseCode = "400", description = "Rol veya Departman bulunamadı. / Kullanıcı ad soyad boş olamaz")
     })
     @PostMapping
     public UserResponseDTO createUser(@RequestBody UserCreateDTO dto) {
         return userService.createUser(dto);
     }
+
     @Operation(summary = "Kullanıcını bilgilerini güncelle")
     @PutMapping("/{id}")
-    public UserResponseDTO updateUser(@PathVariable Long id,@Valid @RequestBody UserUpdateDTO dto){
+    public UserResponseDTO updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto) {
         return userService.updateUser(id, dto);
     }
 }
