@@ -9,8 +9,22 @@ import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
 
-class LeaveTypesSection extends ConsumerWidget {
+class LeaveTypesSection extends ConsumerStatefulWidget {
   const LeaveTypesSection({super.key});
+
+  @override
+  ConsumerState<LeaveTypesSection> createState() => _LeaveTypesSectionState();
+}
+
+class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> _createLeaveType(BuildContext context, WidgetRef ref) async {
     final nameController = TextEditingController();
@@ -184,7 +198,7 @@ class LeaveTypesSection extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final asyncLeaveTypes = ref.watch(adminLeaveTypesProvider);
 
     return Column(
@@ -193,6 +207,7 @@ class LeaveTypesSection extends ConsumerWidget {
           title: 'İzin Türleri',
           primaryActionLabel: 'Yeni İzin Türü',
           onPrimaryAction: () => _createLeaveType(context, ref),
+          onSearchChanged: (value) => setState(() => _searchQuery = value),
         ),
         Expanded(
           child: Padding(
@@ -201,42 +216,47 @@ class LeaveTypesSection extends ConsumerWidget {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Hata: $err')),
               data: (leaveTypes) => AdminDataTable<LeaveType>(
+                dataSpacing: 450,
                 items: leaveTypes,
-                columns: const [
-                  DataColumn(label: Text('Ad')),
-                  DataColumn(label: Text('Varsayılan Gün')),
-                  DataColumn(label: Text('Onay Seviyesi')),
-                  DataColumn(label: Text('Durum')),
-                  DataColumn(label: Text('')),
+                searchQuery: _searchQuery,
+                searchLabel: (leaveType, query) =>
+                    leaveType.name.toLowerCase().contains(query.toLowerCase()),
+                columnLabels: const [
+                  'Ad',
+                  'Varsayılan Gün',
+                  'Onay Seviyesi',
+                  'Durum',
+                  '',
                 ],
-                buildRows: (items) => items.map((leaveType) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(leaveType.name)),
-                      DataCell(Text(leaveType.defaultDays.toString())),
-                      DataCell(Text(leaveType.requiredLevels.toString())),
-                      DataCell(
-                        Material(
-                          color: Colors.transparent,
-                          child: AdminStatusChip(
-                            status: leaveType.active
-                                ? StatusType.active
-                                : StatusType.inactive,
-                            label: leaveType.active ? 'Aktif' : 'Pasif',
-                            onTap: () => _activation(context, ref, leaveType),
-                          ),
-                        ),
+                sortComparators: [
+                  (a, b) => a.name.compareTo(b.name),
+                  (a, b) => a.defaultDays.compareTo(b.defaultDays),
+                  (a, b) => a.requiredLevels.compareTo(b.requiredLevels),
+                  (a, b) => 0,
+                ],
+                buildCells: (leaveType) => [
+                  DataCell(Text(leaveType.name)),
+                  DataCell(Text(leaveType.defaultDays.toString())),
+                  DataCell(Text(leaveType.requiredLevels.toString())),
+                  DataCell(
+                    Material(
+                      color: Colors.transparent,
+                      child: AdminStatusChip(
+                        status: leaveType.active
+                            ? StatusType.active
+                            : StatusType.inactive,
+                        label: leaveType.active ? 'Aktif' : 'Pasif',
+                        onTap: () => _activation(context, ref, leaveType),
                       ),
-                      DataCell(
-                        IconButton(
-                          icon: const Icon(Icons.edit, size: 18),
-                          onPressed: () =>
-                              _editLeaveType(context, ref, leaveType),
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
+                    ),
+                  ),
+                  DataCell(
+                    IconButton(
+                      icon: const Icon(Icons.edit, size: 18),
+                      onPressed: () => _editLeaveType(context, ref, leaveType),
+                    ),
+                  ),
+                ],
                 emptyStateTitle: 'İzin türü yok',
                 emptyStateActionLabel: 'İzin Türü Oluştur',
                 onEmptyStateAction: () => _createLeaveType(context, ref),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:izin_talep_sistemi/screens/auth_gate.dart';
 import 'package:izin_talep_sistemi/theme/theme_data.dart';
 
@@ -22,8 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'İzin Talep Sistemi',
-      theme: lightTheme,
-      darkTheme: darkTheme,
+      theme: theme1,
       themeMode: ThemeMode.system,
       home: const AuthGate(),
     );

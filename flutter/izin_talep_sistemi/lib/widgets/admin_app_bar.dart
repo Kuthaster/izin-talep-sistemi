@@ -8,6 +8,8 @@ class AdminAppBar extends ConsumerWidget {
   final String? primaryActionLabel;
   final VoidCallback? onPrimaryAction;
   final List<Widget>? additionalActions;
+  final TextEditingController? searchController;
+  final ValueChanged<String>? onSearchChanged;
 
   const AdminAppBar({
     super.key,
@@ -15,6 +17,8 @@ class AdminAppBar extends ConsumerWidget {
     this.primaryActionLabel,
     this.onPrimaryAction,
     this.additionalActions,
+    this.searchController,
+    this.onSearchChanged,
   });
 
   @override
@@ -22,8 +26,10 @@ class AdminAppBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).colorScheme.secondary),
+        ),
       ),
       child: Row(
         children: [
@@ -33,19 +39,52 @@ class AdminAppBar extends ConsumerWidget {
               icon: const Icon(Icons.add),
               label: Text(primaryActionLabel!),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.tertiary,
+                foregroundColor: Theme.of(context).colorScheme.scrim,
               ),
             ),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Row(
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                SizedBox(
+                  width: 320,
+                  child: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Ara',
+                      prefixIcon: Icon(Icons.search),
+                      fillColor: Theme.of(
+                        context,
+                      ).colorScheme.inverseSurface, //TODO COLORTEST
+                      hoverColor: Theme.of(context).colorScheme.tertiary,
+                      focusColor: Theme.of(context).colorScheme.secondary,
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                    ),
+                    onChanged: onSearchChanged,
+                  ),
+                ),
+              ],
             ),
           ),
-          const Spacer(flex: 15),
+
+          const Spacer(),
 
           GestureDetector(
             onTap: () => Navigator.push(

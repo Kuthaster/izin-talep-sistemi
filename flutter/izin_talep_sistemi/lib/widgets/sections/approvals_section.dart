@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/ultilities/date_utilities.dart';
 
 import '../../providers/leave_request_approval_provider.dart';
 import '../../models/leave_request.dart';
@@ -10,8 +11,22 @@ import '../admin_app_bar.dart';
 import '../admin_data_table.dart';
 import '../admin_status_chip.dart';
 
-class ApprovalsSection extends ConsumerWidget {
+class ApprovalsSection extends ConsumerStatefulWidget {
   const ApprovalsSection({super.key});
+
+  @override
+  ConsumerState<ApprovalsSection> createState() => _ApprovalsSectionState();
+}
+
+class _ApprovalsSectionState extends ConsumerState<ApprovalsSection> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   StatusType _statusType(String status) {
     switch (status) {
@@ -74,7 +89,7 @@ class ApprovalsSection extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final asyncRequests = ref.watch(leaveRequestsForApprovalProvider);
 
     return Column(
@@ -95,73 +110,100 @@ class ApprovalsSection extends ConsumerWidget {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Hata: $err')),
               data: (requests) => AdminDataTable<LeaveRequest>(
+                dataSpacing: 75,
                 items: requests,
-                columns: const [
-                  DataColumn(label: Text('Çalışan')),
-                  DataColumn(label: Text('İzin Türü')),
-                  DataColumn(label: Text('Başlangıç')),
-                  DataColumn(label: Text('Bitiş')),
-                  DataColumn(label: Text('Seviye')),
-                  DataColumn(label: Text('Durum')),
-                  DataColumn(label: Text('')),
+                searchQuery: _searchQuery,
+                searchLabel: (request, query) => request.userName
+                    .toLowerCase()
+                    .contains(query.toLowerCase()),
+                columnLabels: const [
+                  'Çalışan',
+                  'İzin Türü',
+                  'Başlangıç',
+                  'Bitiş',
+                  'Gün',
+                  'Seviye',
+                  'Durum',
+                  'Onayla/Reddet',
                 ],
-                buildRows: (items) => items.map((request) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(request.userName)),
-                      DataCell(Text(request.leaveTypeName)),
-                      DataCell(
-                        Text(
-                          '${request.startDate.year}-${request.startDate.month}-${request.startDate.day}',
-                        ),
-                      ),
-                      DataCell(
-                        Text(
-                          '${request.endDate.year}-${request.endDate.month}-${request.endDate.day}',
-                        ),
-                      ),
-                      DataCell(Text(request.currentLevel.toString())),
-                      DataCell(
-                        AdminStatusChip(status: _statusType(request.status)),
-                      ),
-                      DataCell(
-                        request.status == 'PENDING'
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.check,
-                                      size: 18,
-                                      color: Colors.green,
-                                    ),
-                                    onPressed: () => _decide(
-                                      context,
-                                      ref,
-                                      request,
-                                      LeaveDecision.APPROVED,
-                                    ),
+                sortComparators: [
+                  (a, b) => a.userName.compareTo(b.userName),
+                  (a, b) => a.leaveTypeName.compareTo(b.leaveTypeName),
+                  (a, b) => a.startDate.compareTo(b.startDate),
+                  (a, b) => a.endDate.compareTo(b.endDate),
+                  (a, b) => leaveDayCount(
+                    a.startDate,
+                    a.endDate,
+                  ).compareTo(leaveDayCount(b.startDate, b.endDate)),
+                  (a, b) => a.currentLevel.compareTo(b.currentLevel),
+                  (a, b) => a.status.compareTo(b.status),
+                  (a, b) => 0,
+                ],
+                buildCells: (request) => [
+                  DataCell(Text(request.userName)),
+                  DataCell(Text(request.leaveTypeName)),
+                  DataCell(
+                    Text(
+                      '${request.startDate.year}-${request.startDate.month}-${request.startDate.day}',
+                    ),
+                  ),
+                  DataCell(
+                    Text(
+                      '${request.endDate.year}-${request.endDate.month}-${request.endDate.day}',
+                    ),
+                  ),
+                  DataCell(
+                    Text(
+                      leaveDayCount(
+                        request.startDate,
+                        request.endDate,
+                      ).toString(),
+                    ),
+                  ),
+                  DataCell(Text(request.currentLevel.toString())),
+                  DataCell(
+                    AdminStatusChip(status: _statusType(request.status)),
+                  ),
+                  DataCell(
+                    request.status == 'PENDING'
+                        ? Container(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.check,
+                                    size: 18,
+                                    color: Colors.green,
                                   ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.close,
-                                      size: 18,
-                                      color: Colors.red,
-                                    ),
-                                    onPressed: () => _decide(
-                                      context,
-                                      ref,
-                                      request,
-                                      LeaveDecision.REJECTED,
-                                    ),
+                                  onPressed: () => _decide(
+                                    context,
+                                    ref,
+                                    request,
+                                    LeaveDecision.APPROVED,
                                   ),
-                                ],
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ],
-                  );
-                }).toList(),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.close,
+                                    size: 18,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () => _decide(
+                                    context,
+                                    ref,
+                                    request,
+                                    LeaveDecision.REJECTED,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ],
                 emptyStateTitle: 'İzin talebi yok',
               ),
             ),

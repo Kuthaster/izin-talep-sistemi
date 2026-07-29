@@ -65,7 +65,7 @@ class PaletGecici extends StatelessWidget {
       body: ListView.separated(
         padding: const EdgeInsets.all(12),
         itemCount: entries.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
         itemBuilder: (context, i) {
           final e = entries[i];
           final color = e.value();
@@ -123,7 +123,7 @@ class PaletGecici extends StatelessWidget {
                         Container(
                           height: 34,
                           decoration: BoxDecoration(
-                            color: color.withOpacity(0.12),
+                            color: color.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: Colors.black12),
                           ),

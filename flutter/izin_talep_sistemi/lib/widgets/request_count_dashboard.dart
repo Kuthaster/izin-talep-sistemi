@@ -4,10 +4,9 @@ import 'package:izin_talep_sistemi/models/leave_request_count.dart';
 import 'package:izin_talep_sistemi/services/leave_request_service.dart';
 
 class RequestCountDashboard extends ConsumerWidget {
-    const RequestCountDashboard({super.key});
+  const RequestCountDashboard({super.key});
 
-
-@override
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final service = LeaveRequestService();
 
@@ -21,12 +20,11 @@ class RequestCountDashboard extends ConsumerWidget {
           return Center(child: Text("Error: ${snapshot.error}"));
         }
         if (!snapshot.hasData) {
-          return const Center(child: Text("No data"));
+          return const Center(child: Text("Veri yok"));
         }
 
         final data = snapshot.data!;
 
-        
         return SizedBox(
           width: double.infinity,
           child: Padding(
@@ -40,17 +38,15 @@ class RequestCountDashboard extends ConsumerWidget {
                 _NumberCard(value: data.cancelled, label: "İptal edilen"),
                 _NumberCard(value: data.total, label: "Toplam"),
               ],
-            )
-          )
+            ),
+          ),
         );
       },
     );
   }
 }
 
-
-  class _NumberCard extends StatelessWidget {
-
+class _NumberCard extends StatelessWidget {
   final String label;
   final int value;
 
@@ -62,41 +58,46 @@ class RequestCountDashboard extends ConsumerWidget {
       height: 85,
       width: 70,
       decoration: BoxDecoration(
-        border:Border(
-          left: BorderSide(
-            color: Color.fromRGBO(9, 138, 188, 0.929),
-            width: 3
-            ),
+        border: Border(
+          left: BorderSide(color: Color.fromRGBO(9, 138, 188, 0.929), width: 3),
           bottom: BorderSide(
             color: Color.fromRGBO(9, 138, 188, 0.929),
-            width: 3
-            )
-          )
+            width: 3,
+          ),
+        ),
       ),
       padding: EdgeInsets.symmetric(vertical: 15),
       child: Column(
         children: [
           FittedBox(
-          fit:  BoxFit.scaleDown,
-          child: Text(
-            value.toString(),
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 233, 215, 13)),
-            maxLines: 1,
-            overflow: TextOverflow.visible,
-          ),
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value.toString(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 233, 215, 13),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.visible,
+            ),
           ),
           Expanded(
             child: Center(
               child: Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.visible,
-              softWrap: true,
-              style: const TextStyle (fontSize: 12, color: Color.fromARGB(255, 233, 215, 13), fontWeight: FontWeight.bold)
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.visible,
+                softWrap: true,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color.fromARGB(255, 233, 215, 13),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-            )
           ),
         ],
       ),

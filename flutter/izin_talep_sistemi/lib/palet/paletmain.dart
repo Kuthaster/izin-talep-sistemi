@@ -13,8 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: lightTheme,
-      darkTheme: darkTheme,
+      theme: theme1,
       debugShowCheckedModeBanner: false,
       home: const PaletGecici(),
     );

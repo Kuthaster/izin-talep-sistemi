@@ -61,7 +61,7 @@ class _TextAnimState extends ConsumerState<TextAnim>
           style: TextStyle(
             fontSize: widget.fontSize,
             fontWeight: widget.fontWeight,
-            color: widget.textColor,
+            color: actualTextColor,
           ),
         ),
         FadeTransition(
@@ -71,7 +71,7 @@ class _TextAnimState extends ConsumerState<TextAnim>
             style: TextStyle(
               fontSize: widget.fontSize,
               fontWeight: widget.fontWeight,
-              color: widget.caretColor,
+              color: actualCaretColor,
             ),
           ),
         ),

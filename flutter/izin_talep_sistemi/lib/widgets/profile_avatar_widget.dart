@@ -27,7 +27,7 @@ class ProfileAvatarWidget extends ConsumerWidget {
     final lastName = user.lastName;
 
     return CircleAvatar(
-      radius: 25,
+      radius: 20,
       backgroundColor: _authorityColor(user.roleAuthority.name),
       child: Text(
         _getInitials(firstName, lastName),

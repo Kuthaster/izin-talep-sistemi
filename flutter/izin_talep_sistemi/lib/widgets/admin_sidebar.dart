@@ -15,24 +15,24 @@ class AdminSidebar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       width: 250,
-      color: const Color.fromARGB(255, 5, 57, 110),
+      color: Theme.of(context).colorScheme.primary,
       child: Column(
         children: [
-          // Header
           Container(
             padding: const EdgeInsets.all(20),
-            child: const Text(
+            child: Text(
               'ADMIN',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          // Navigation Items
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -80,19 +80,30 @@ class AdminSidebar extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: Color(0xFF34495E))),
+              border: Border(
+                top: BorderSide(color: Theme.of(context).colorScheme.onPrimary),
+              ),
             ),
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(scheme.tertiary),
+                  overlayColor: WidgetStateProperty.all(scheme.secondary),
+                ),
                 onPressed: () {
                   ref.read(authProvider.notifier).logout();
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
-                icon: const Icon(Icons.logout, color: Colors.white70),
-                label: const Text(
+                icon: Icon(
+                  Icons.logout,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                label: Text(
                   'Çıkış Yap',
-                  style: TextStyle(color: Colors.white70),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
                 ),
               ),
             ),
@@ -112,15 +123,19 @@ class AdminSidebar extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF3498DB) : Colors.transparent,
+        color: isActive
+            ? Theme.of(context).colorScheme.tertiary
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
-        leading: Icon(icon, color: Colors.white70),
+        leading: Icon(icon, color: Theme.of(context).colorScheme.onSecondary),
         title: Text(
           label,
           style: TextStyle(
-            color: isActive ? Colors.white : Colors.white70,
+            color: isActive
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSecondary,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
           ),
         ),

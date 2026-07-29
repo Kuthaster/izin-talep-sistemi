@@ -11,8 +11,22 @@ import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
 
-class RolesSection extends ConsumerWidget {
+class RolesSection extends ConsumerStatefulWidget {
   const RolesSection({super.key});
+
+  @override
+  ConsumerState<RolesSection> createState() => _RolesSectionState();
+}
+
+class _RolesSectionState extends ConsumerState<RolesSection> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> _createRole(BuildContext context, WidgetRef ref) async {
     try {
@@ -167,7 +181,7 @@ class RolesSection extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final asyncRoles = ref.watch(rolesProvider);
 
     return Column(
@@ -176,6 +190,8 @@ class RolesSection extends ConsumerWidget {
           title: 'Roller',
           primaryActionLabel: 'Yeni Rol',
           onPrimaryAction: () => _createRole(context, ref),
+          searchController: _searchController,
+          onSearchChanged: (value) => setState(() => _searchQuery = value),
         ),
         Expanded(
           child: Padding(
@@ -184,39 +200,40 @@ class RolesSection extends ConsumerWidget {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Hata: $err')),
               data: (roles) => AdminDataTable<Role>(
+                dataSpacing: 290,
                 items: roles,
-                columns: const [
-                  DataColumn(label: Text('Ad')),
-                  DataColumn(label: Text('Yetki')),
-                  DataColumn(label: Text('Durum')),
-                  DataColumn(label: Text('')),
+                searchQuery: _searchQuery,
+                searchLabel: (role, query) => role.displayName
+                    .toLowerCase()
+                    .contains(query.toLowerCase()),
+                columnLabels: const ['Ad', 'Yetki', 'Durum', ''],
+                sortComparators: [
+                  (a, b) => a.displayName.compareTo(b.displayName),
+                  (a, b) => a.name.toString().compareTo(b.name.toString()),
                 ],
-                buildRows: (items) => items.map((role) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(role.displayName)),
-                      DataCell(Text(authorityLabel(role.name))),
-                      DataCell(
-                        Material(
-                          color: Colors.transparent,
-                          child: AdminStatusChip(
-                            status: role.active
-                                ? StatusType.active
-                                : StatusType.inactive,
-                            label: role.active ? 'Aktif' : 'Pasif',
-                            onTap: () => _activation(context, ref, role),
-                          ),
-                        ),
+
+                buildCells: (role) => [
+                  DataCell(Text(role.displayName)),
+                  DataCell(Text(authorityLabel(role.name))),
+                  DataCell(
+                    Material(
+                      color: Colors.transparent,
+                      child: AdminStatusChip(
+                        status: role.active
+                            ? StatusType.active
+                            : StatusType.inactive,
+                        label: role.active ? 'Aktif' : 'Pasif',
+                        onTap: () => _activation(context, ref, role),
                       ),
-                      DataCell(
-                        IconButton(
-                          icon: const Icon(Icons.edit, size: 18),
-                          onPressed: () => _editRole(context, ref, role),
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
+                    ),
+                  ),
+                  DataCell(
+                    IconButton(
+                      icon: const Icon(Icons.edit, size: 18),
+                      onPressed: () => _editRole(context, ref, role),
+                    ),
+                  ),
+                ],
                 emptyStateTitle: 'Roller boş, bu ekranı nasıl görüyorsun?',
               ),
             ),

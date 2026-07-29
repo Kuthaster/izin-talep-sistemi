@@ -28,7 +28,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 32.0),
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.inverseSurface,
         child: Center(
           child: SingleChildScrollView(
             child: Container(
@@ -37,27 +37,35 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Giriş yap',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   Text(
                     'Email',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   TextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onInverseSurface,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
                       hintText: 'adsoyad@yourcompany.com',
                       hintStyle: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(context).colorScheme.onInverseSurface,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -68,19 +76,23 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                         borderSide: BorderSide(width: 0.5),
                       ),
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.inverseSurface,
+                      fillColor: Theme.of(context).colorScheme.surface,
                     ),
                   ),
 
                   const SizedBox(height: 16),
                   Text(
                     'Şifre',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onInverseSurface,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   TextField(
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onInverseSurface,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     controller: _passwordController,
                     obscureText: _obscurePassword,
@@ -88,7 +100,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                       hintText: 'Şifrenizi girin',
                       hintStyle: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(context).colorScheme.onInverseSurface,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -99,7 +111,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                         borderSide: BorderSide(width: 0.5),
                       ),
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.inverseSurface,
+                      fillColor: Theme.of(context).colorScheme.surface,
                       suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
@@ -113,8 +125,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 30),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

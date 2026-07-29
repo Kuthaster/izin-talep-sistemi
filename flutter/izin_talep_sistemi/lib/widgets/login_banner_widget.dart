@@ -3,25 +3,12 @@ import 'package:izin_talep_sistemi/theme/text/text_anim.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginBannerWidget extends StatelessWidget {
-  final Color purpleBg;
-  final Color purpleDark;
-  final Color purpleMedium;
-  final Color blueAccent1;
-  final Color blueAccent2;
-
-  const LoginBannerWidget({
-    super.key,
-    this.purpleBg = const Color(0xFFEEEDFE),
-    this.purpleDark = const Color(0xFF26215C),
-    this.purpleMedium = const Color(0xFF3C3489),
-    this.blueAccent1 = const Color(0xFF7F77DD),
-    this.blueAccent2 = const Color(0xFFAFA9EC),
-  });
+  const LoginBannerWidget({super.key});
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        color: Theme.of(context).colorScheme.surfaceBright,
+        color: Theme.of(context).colorScheme.surface,
         padding: const EdgeInsets.all(40.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -33,7 +20,7 @@ class LoginBannerWidget extends StatelessWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    color: Theme.of(context).colorScheme.primaryFixed,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -41,7 +28,7 @@ class LoginBannerWidget extends StatelessWidget {
                       width: 26,
                       height: 26,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceBright,
+                        color: Theme.of(context).colorScheme.surface,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -58,29 +45,33 @@ class LoginBannerWidget extends StatelessWidget {
               ],
             ),
 
-            Text(
-              'İzin Talep Sistemi', //TODO BURAYI DEĞİŞTİR, TYPEWRITE ETKISI EKLE, BÜYÜT, ÇOK YAZILI OLSUN
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 12,
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                ),
-                InkWell(
-                  onTap: openLink,
-                  child: TextAnim(
-                    textInput: "By: Kuthaster",
-                    isAnimated: true,
-                    textColor: Theme.of(context).colorScheme.tertiaryFixedDim,
-                    caretColor: Theme.of(context).colorScheme.tertiaryFixedDim,
-                    caretBlinkDuration: Duration(milliseconds: 1200),
+                Text(
+                  'İzin Talep Sistemi',
+                  style: TextStyle(
+                    fontSize: 30,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+
+                  children: [
+                    InkWell(
+                      onTap: openLink,
+                      child: TextAnim(
+                        textInput: "By: Kuthaster",
+                        isAnimated: true,
+                        textColor: Theme.of(context).colorScheme.secondary,
+                        caretColor: Theme.of(context).colorScheme.secondary,
+                        caretBlinkDuration: Duration(milliseconds: 1200),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

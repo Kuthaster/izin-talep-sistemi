@@ -15,8 +15,22 @@ import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
 
-class UsersSection extends ConsumerWidget {
+class UsersSection extends ConsumerStatefulWidget {
   const UsersSection({super.key});
+
+  @override
+  ConsumerState<UsersSection> createState() => _UsersSectionState();
+}
+
+class _UsersSectionState extends ConsumerState<UsersSection> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> _createUser(
     BuildContext context,
@@ -51,10 +65,7 @@ class UsersSection extends ConsumerWidget {
                       controller: lastNameController,
                       decoration: const InputDecoration(labelText: 'Soyad'),
                     ),
-                    TextField(
-                      controller: lastNameController,
-                      decoration: const InputDecoration(labelText: 'Soyad'),
-                    ),
+
                     TextField(
                       controller: emailController,
                       decoration: const InputDecoration(labelText: 'e-posta'),
@@ -283,8 +294,10 @@ class UsersSection extends ConsumerWidget {
     }
   }
 
+  String normalize(String? s) => (s ?? '').toLowerCase();
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final asyncUsers = ref.watch(adminUsersProvider);
     final rolesAsync = ref.watch(rolesProvider);
     final departmentsAsync = ref.watch(adminDepartmentsProvider);
@@ -295,6 +308,8 @@ class UsersSection extends ConsumerWidget {
           primaryActionLabel: 'Yeni Kullanıcı',
           onPrimaryAction: () =>
               _createUser(context, ref, rolesAsync, departmentsAsync),
+          searchController: _searchController,
+          onSearchChanged: (value) => setState(() => _searchQuery = value),
         ),
         Expanded(
           child: Padding(
@@ -303,56 +318,71 @@ class UsersSection extends ConsumerWidget {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Hata: $err')),
               data: (users) => AdminDataTable<UserResponse>(
+                dataSpacing: 42,
                 items: users,
-                columns: const [
-                  DataColumn(label: Text('ID')),
-                  DataColumn(label: Text('Ad')),
-                  DataColumn(label: Text('Soyad')),
-                  DataColumn(label: Text('E-Posta')),
-                  DataColumn(label: Text('Departman')),
-                  DataColumn(label: Text('Rol')),
-                  DataColumn(label: Text('Yetki')),
-                  DataColumn(label: Text('Durum')),
-                  DataColumn(label: Text('')),
+                searchQuery: _searchQuery,
+                searchLabel: (user, query) {
+                  final q = normalize(query);
+                  return normalize(user.firstName).contains(q) ||
+                      normalize(user.lastName).contains(q);
+                },
+
+                columnLabels: const [
+                  'ID',
+                  'Ad',
+                  'Soyad',
+                  'E-posta',
+                  'Departman',
+                  'Rol',
+                  'Yetki',
+                  'Durum',
+                  '',
                 ],
-                buildRows: (items) => items.map((user) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(user.id.toString())),
-                      DataCell(Text(user.firstName)),
-                      DataCell(Text(user.lastName)),
-                      DataCell(Text(user.email)),
-                      DataCell(Text(user.departmentName.toString())),
-                      DataCell(Text(user.roleDisplayName.toString())),
-                      DataCell(
-                        Text(authorityLabel(user.roleAuthority).toString()),
+                sortComparators: [
+                  (a, b) => a.id.compareTo(b.id),
+                  (a, b) => a.firstName.compareTo(b.firstName),
+                  (a, b) => a.lastName.compareTo(b.lastName),
+                  (a, b) => a.email.compareTo(b.email),
+                  (a, b) => a.departmentName.compareTo(b.departmentName),
+                  (a, b) => a.roleDisplayName.compareTo(b.roleDisplayName),
+                  (a, b) => authorityLabel(
+                    a.roleAuthority,
+                  ).compareTo(authorityLabel(b.roleAuthority)),
+                  (a, b) => 0,
+                ],
+                buildCells: (user) => [
+                  DataCell(Text(user.id.toString())),
+                  DataCell(Text(user.firstName)),
+                  DataCell(Text(user.lastName)),
+                  DataCell(Text(user.email)),
+                  DataCell(Text(user.departmentName.toString())),
+                  DataCell(Text(user.roleDisplayName.toString())),
+                  DataCell(Text(authorityLabel(user.roleAuthority).toString())),
+                  DataCell(
+                    Material(
+                      color: Colors.transparent,
+                      child: AdminStatusChip(
+                        status: user.active
+                            ? StatusType.active
+                            : StatusType.inactive,
+                        label: user.active ? 'Aktif' : 'Pasif',
                       ),
-                      DataCell(
-                        Material(
-                          color: Colors.transparent,
-                          child: AdminStatusChip(
-                            status: user.active
-                                ? StatusType.active
-                                : StatusType.inactive,
-                            label: user.active ? 'Aktif' : 'Pasif',
-                          ),
-                        ),
+                    ),
+                  ),
+                  DataCell(
+                    IconButton(
+                      icon: const Icon(Icons.edit, size: 18),
+                      onPressed: () => _editUser(
+                        context,
+                        ref,
+                        user,
+                        rolesAsync,
+                        departmentsAsync,
                       ),
-                      DataCell(
-                        IconButton(
-                          icon: const Icon(Icons.edit, size: 18),
-                          onPressed: () => _editUser(
-                            context,
-                            ref,
-                            user,
-                            rolesAsync,
-                            departmentsAsync,
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
+                    ),
+                  ),
+                ],
+
                 emptyStateTitle: 'Hiç Bir Kullanıcı Bulunamadı????',
               ),
             ),

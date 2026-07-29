@@ -1,80 +1,132 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AdminDataTable<T> extends ConsumerStatefulWidget {
+class AdminDataTable<T> extends StatefulWidget {
   final List<T> items;
-  final List<DataColumn> columns;
-  final List<DataRow> Function(List<T>) buildRows;
-  // final List<int Function(T, T)>? sortComparators;
+  final List<String> columnLabels;
+  final List<int Function(T, T)> sortComparators;
+  final List<DataCell> Function(T) buildCells;
+  final bool Function(T, String)? searchLabel;
+  final String searchQuery;
   final int itemsPerPage;
   final bool showPagination;
   final String? emptyStateTitle;
   final String? emptyStateMessage;
   final VoidCallback? onEmptyStateAction;
   final String? emptyStateActionLabel;
+  final double? dataSpacing;
 
   const AdminDataTable({
     super.key,
     required this.items,
-    required this.columns,
-    required this.buildRows,
-    /* required this.sortComparators,*/ this.itemsPerPage = 10,
+    required this.columnLabels,
+    required this.sortComparators,
+    required this.buildCells,
+    this.searchLabel,
+    this.searchQuery = '',
+    this.itemsPerPage = 10,
     this.showPagination = true,
     this.emptyStateTitle,
     this.emptyStateMessage,
     this.onEmptyStateAction,
     this.emptyStateActionLabel,
+    this.dataSpacing,
   });
 
   @override
-  ConsumerState<AdminDataTable<T>> createState() => _AdminDataTableState<T>();
+  State<AdminDataTable<T>> createState() => _AdminDataTableState<T>();
 }
 
-class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
-  int _currentPage = 0;
-  final int _sortColumnIndex = 0;
-  final bool _sortAscending = true;
+class _AdminDataSource<T> extends DataTableSource {
+  final List<T> items;
+  final List<DataCell> Function(T) buildCells;
+
+  _AdminDataSource({required this.items, required this.buildCells});
+
+  @override
+  DataRow? getRow(int index) {
+    if (index < 0 || index >= items.length) return null;
+    final item = items[index];
+    return DataRow(cells: buildCells(item));
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => items.length;
+
+  @override
+  int get selectedRowCount => 0;
+}
+
+class _AdminDataTableState<T> extends State<AdminDataTable<T>> {
+  int _sortColumnIndex = 0;
+  bool _sortAscending = true;
+
+  @override
+  void didUpdateWidget(covariant AdminDataTable<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
+
+  List<T> _filteredSortedItems() {
+    var filtered = widget.items;
+    if (widget.searchLabel != null && widget.searchQuery.trim().isNotEmpty) {
+      filtered = filtered
+          .where((item) => widget.searchLabel!(item, widget.searchQuery.trim()))
+          .toList();
+    }
+
+    if (filtered.isEmpty) return const [];
+
+    final sorted = [...filtered];
+    if (_sortColumnIndex < widget.sortComparators.length) {
+      sorted.sort((a, b) {
+        final result = widget.sortComparators[_sortColumnIndex](a, b);
+        return _sortAscending ? result : -result;
+      });
+    }
+    return sorted;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final startIndex = _currentPage * widget.itemsPerPage;
-    final endIndex = (startIndex + widget.itemsPerPage).clamp(
-      0,
-      widget.items.length,
-    );
-    final pageItems = widget.items.sublist(startIndex, endIndex);
-    final rows = widget.buildRows(pageItems);
+    final data = _filteredSortedItems();
+    if (data.isEmpty) return _buildEmptyState();
 
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: DataTable(
-                  columns: widget.columns,
-                  rows: rows,
-                  sortColumnIndex: _sortColumnIndex,
-                  sortAscending: _sortAscending,
-                  columnSpacing: 24,
-                  dataRowMinHeight: 69,
-                  dataRowMaxHeight: 70,
-                  headingRowHeight: 65,
-                  headingRowColor: WidgetStateColor.resolveWith(
-                    (states) => Colors.grey[100]!,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        if (widget.showPagination) _buildPagination(),
-      ],
+    final columns = widget.columnLabels.asMap().entries.map((entry) {
+      final label = entry.value;
+      return DataColumn(
+        label: Text(label),
+        onSort: (columnIndex, ascending) {
+          setState(() {
+            _sortColumnIndex = columnIndex;
+            _sortAscending = ascending;
+          });
+        },
+      );
+    }).toList();
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        cardTheme: CardThemeData(
+          color: Theme.of(context).colorScheme.surface,
+        ), //TODO buraya bak renk
+      ),
+      child: PaginatedDataTable(
+        rowsPerPage: widget.itemsPerPage,
+        showFirstLastButtons: true,
+        showEmptyRows: false,
+
+        header: null,
+        columns: columns,
+        source: _AdminDataSource<T>(items: data, buildCells: widget.buildCells),
+        sortColumnIndex: _sortColumnIndex,
+        columnSpacing: widget.dataSpacing ?? 40,
+        sortAscending: _sortAscending,
+        dataRowMaxHeight: 50,
+        dataRowMinHeight: 30,
+        dividerThickness: 0.4,
+      ),
     );
   }
 
@@ -83,15 +135,15 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inbox_outlined, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 18),
+          Icon(
+            Icons.indeterminate_check_box_sharp,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
           Text(
-            widget.emptyStateTitle ?? 'No data',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
+            widget.emptyStateTitle ?? 'Veri Yok',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           if (widget.emptyStateMessage != null) ...[
             const SizedBox(height: 8),
@@ -104,44 +156,9 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: widget.onEmptyStateAction,
-              child: Text(widget.emptyStateActionLabel ?? 'Create new'),
+              child: Text(widget.emptyStateActionLabel ?? 'Yeni oluştur'),
             ),
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPagination() {
-    final totalPages = (widget.items.length / widget.itemsPerPage).ceil();
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey[300]!)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Page ${_currentPage + 1} of $totalPages',
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left),
-                onPressed: _currentPage > 0
-                    ? () => setState(() => _currentPage--)
-                    : null,
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right),
-                onPressed: _currentPage < totalPages - 1
-                    ? () => setState(() => _currentPage++)
-                    : null,
-              ),
-            ],
-          ),
         ],
       ),
     );

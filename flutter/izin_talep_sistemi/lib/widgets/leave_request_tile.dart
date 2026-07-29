@@ -12,6 +12,21 @@ class LeaveRequestTile extends ConsumerWidget {
 
   const LeaveRequestTile({super.key, required this.request});
 
+  Color _statusBg(String status) {
+    switch (status) {
+      case 'PENDING':
+        return Colors.orange.shade100;
+      case 'APPROVED':
+        return Colors.green.shade100;
+      case 'REJECTED':
+        return Colors.red.shade100;
+      case 'CANCELLED':
+        return Colors.grey.shade300;
+      default:
+        return Colors.grey.shade200;
+    }
+  }
+
   Color _statusColor(String status) {
     switch (status) {
       case 'PENDING':
@@ -30,7 +45,7 @@ class LeaveRequestTile extends ConsumerWidget {
   String _statusLabel(String status) {
     switch (status) {
       case 'PENDING':
-        return 'Bekliyor · Sv ${request.currentLevel.toString()}';
+        return 'Bekliyor · Sv ${request.currentLevel}';
       case 'APPROVED':
         return 'Onaylandı';
       case 'REJECTED':
@@ -42,7 +57,26 @@ class LeaveRequestTile extends ConsumerWidget {
     }
   }
 
-  String get currentLevelPlaceholder => request.currentLevel.toString();
+  String _formatDateRange(DateTime start, DateTime end) {
+    const months = [
+      'Oca',
+      'Şub',
+      'Mar',
+      'Nis',
+      'May',
+      'Haz',
+      'Tem',
+      'Ağu',
+      'Eyl',
+      'Eki',
+      'Kas',
+      'Ara',
+    ];
+    return '${start.day} ${months[start.month - 1]} - ${end.day} ${months[end.month - 1]}';
+  }
+
+  int _dayCount(DateTime start, DateTime end) =>
+      end.difference(start).inDays + 1;
 
   Future<void> _cancel(BuildContext context, WidgetRef ref) async {
     try {
@@ -57,7 +91,7 @@ class LeaveRequestTile extends ConsumerWidget {
     }
   }
 
-  void _edit(BuildContext context, WidgetRef ref) {
+  void _edit(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -66,39 +100,84 @@ class LeaveRequestTile extends ConsumerWidget {
   }
 
   Widget _buildRow(BuildContext context, WidgetRef ref) {
+    final isPending = request.status == 'PENDING';
+
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: const Color.fromARGB(255, 243, 8, 8)),
+        border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(10),
       ),
       margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        title: Text(request.leaveTypeName),
-        subtitle: Text(
-          '${_statusLabel(request.status)} — Kademe ${request.currentLevel}',
-        ),
-        trailing: request.status == 'PENDING'
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, size: 20),
-                    onPressed: () => _edit(context, ref),
+      padding: const EdgeInsets.all(12),
+      child: Opacity(
+        opacity: isPending ? 1.0 : 0.7,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    request.leaveTypeName,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 20),
-                    onPressed: () => _cancel(context, ref),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _statusBg(request.status),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _statusLabel(request.status),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: _statusColor(request.status),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${_formatDateRange(request.startDate, request.endDate)} · ${_dayCount(request.startDate, request.endDate)} gün',
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+            if (isPending) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _edit(context),
+                      icon: const Icon(Icons.edit, size: 16),
+                      label: const Text('Düzenle'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _cancel(context, ref),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                      ),
+                      icon: const Icon(Icons.close, size: 16),
+                      label: const Text('İptal Et'),
+                    ),
                   ),
                 ],
-              )
-            : Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: _statusColor(request.status),
-                  shape: BoxShape.circle,
-                ),
               ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -107,9 +186,7 @@ class LeaveRequestTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final row = _buildRow(context, ref);
 
-    if (request.status != 'PENDING') {
-      return row;
-    }
+    if (request.status != 'PENDING') return row;
 
     return Slidable(
       key: ValueKey(request.id),
@@ -117,7 +194,7 @@ class LeaveRequestTile extends ConsumerWidget {
         motion: const DrawerMotion(),
         children: [
           SlidableAction(
-            onPressed: (_) => _edit(context, ref),
+            onPressed: (_) => _edit(context),
             backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
             icon: Icons.edit,

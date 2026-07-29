@@ -20,8 +20,6 @@ class _ApproverChainSectionState extends ConsumerState<ApproverChainSection> {
   int? _selectedDepartmentId;
 
   Future<void> _assignApprover(int departmentId, int level) async {
-    final asyncDepartments = ref.watch(departmentsProvider);
-
     final departments = ref.watch(departmentsProvider).value ?? [];
     final matchingDepartment = departments.firstWhere(
       (dept) => dept.id == departmentId,
