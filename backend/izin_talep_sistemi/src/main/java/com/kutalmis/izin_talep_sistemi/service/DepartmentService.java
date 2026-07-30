@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentDTO;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Department;
+import com.kutalmis.izin_talep_sistemi.entity.LeaveRequest;
 import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
 import com.kutalmis.izin_talep_sistemi.repository.DepartmentRepository;
 
@@ -23,40 +24,50 @@ public class DepartmentService {
 
     public List<DepartmentDTO> getAllDepartments() {
         return departmentRepository.findAll().stream()
-            .map(dept -> new DepartmentDTO(dept.getId(), dept.getName()))
-            .collect(Collectors.toList());
+                .map(dept -> new DepartmentDTO(dept.getId(), dept.getName()))
+                .collect(Collectors.toList());
     }
 
     public List<DepartmentDTO> getAllDepartmentsForAdmin() {
         return departmentRepository.findAll().stream()
-            .map(dept -> new DepartmentDTO(dept.getId(), dept.getName()))
-            .collect(Collectors.toList());
+                .map(dept -> new DepartmentDTO(dept.getId(), dept.getName()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public Department createDepartment(Department department) {
-        if (department.getName() == null || department.getName().trim().isEmpty()) {
+    public DepartmentDTO createDepartment(DepartmentUpdateDTO dto) {
+        if (dto.departmentName() == null || dto.departmentName().trim().isEmpty()) {
             throw new IllegalArgumentException("Departman ismi boş olamaz.");
         }
 
-        if (departmentRepository.existsByName(department.getName())){
-            throw new DuplicateResourceException(department.getName() + " isimli bir departman zaten var.");
+        if (departmentRepository.existsByName(dto.departmentName())) {
+            throw new DuplicateResourceException(dto.departmentName() + " isimli bir departman zaten var.");
         }
-        return departmentRepository.save(department);
+
+        Department department = new Department();
+        department.setName(dto.departmentName());
+
+        Department savedDepartment = departmentRepository.save(department);
+
+        return new DepartmentDTO(
+                savedDepartment.getId(),
+                savedDepartment.getName());
+
     }
+
     @Transactional
-    public DepartmentDTO updateDepartment(Long id, DepartmentUpdateDTO dto){
+    public DepartmentDTO updateDepartment(Long id, DepartmentUpdateDTO dto) {
         String newDepartmentName = dto.departmentName();
         if (newDepartmentName == null || newDepartmentName.trim().isEmpty()) {
             throw new IllegalArgumentException("Departman ismi boş olamaz.");
         }
 
-        if (departmentRepository.existsByName(newDepartmentName)){
+        if (departmentRepository.existsByName(newDepartmentName)) {
             throw new DuplicateResourceException(newDepartmentName + " isimli bir departman zaten var.");
         }
 
         Department department = departmentRepository.findById(id)
-         .orElseThrow(() -> new IllegalArgumentException(newDepartmentName + " ID'li departman bulunamadı."));
+                .orElseThrow(() -> new IllegalArgumentException(newDepartmentName + " ID'li departman bulunamadı."));
 
         department.setName(newDepartmentName);
 
