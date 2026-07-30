@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 
-class AdminDataTable<T> extends StatefulWidget {
+class AdminDataTable<T> extends ConsumerStatefulWidget {
   final List<T> items;
   final List<String> columnLabels;
   final List<int Function(T, T)> sortComparators;
   final List<DataCell> Function(T) buildCells;
   final bool Function(T, String)? searchLabel;
-  final String searchQuery;
   final int itemsPerPage;
   final bool showPagination;
   final String? emptyStateTitle;
@@ -22,7 +23,6 @@ class AdminDataTable<T> extends StatefulWidget {
     required this.sortComparators,
     required this.buildCells,
     this.searchLabel,
-    this.searchQuery = '',
     this.itemsPerPage = 10,
     this.showPagination = true,
     this.emptyStateTitle,
@@ -33,7 +33,7 @@ class AdminDataTable<T> extends StatefulWidget {
   });
 
   @override
-  State<AdminDataTable<T>> createState() => _AdminDataTableState<T>();
+  ConsumerState<AdminDataTable<T>> createState() => _AdminDataTableState<T>();
 }
 
 class _AdminDataSource<T> extends DataTableSource {
@@ -59,20 +59,16 @@ class _AdminDataSource<T> extends DataTableSource {
   int get selectedRowCount => 0;
 }
 
-class _AdminDataTableState<T> extends State<AdminDataTable<T>> {
+class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
   int _sortColumnIndex = 0;
   bool _sortAscending = true;
 
-  @override
-  void didUpdateWidget(covariant AdminDataTable<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-  }
-
-  List<T> _filteredSortedItems() {
+  List<T> _filteredSortedItems(String searchQuery) {
     var filtered = widget.items;
-    if (widget.searchLabel != null && widget.searchQuery.trim().isNotEmpty) {
+
+    if (widget.searchLabel != null && searchQuery.trim().isNotEmpty) {
       filtered = filtered
-          .where((item) => widget.searchLabel!(item, widget.searchQuery.trim()))
+          .where((item) => widget.searchLabel!(item, searchQuery.trim()))
           .toList();
     }
 
@@ -90,7 +86,11 @@ class _AdminDataTableState<T> extends State<AdminDataTable<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final data = _filteredSortedItems();
+    final appBarState = ref.watch(adminAppBarProvider);
+    final String currentSearchQuery = appBarState.searchQuery;
+
+    final data = _filteredSortedItems(currentSearchQuery);
+
     if (data.isEmpty) return _buildEmptyState();
 
     final columns = widget.columnLabels.asMap().entries.map((entry) {

@@ -6,12 +6,12 @@ import 'package:izin_talep_sistemi/models/role_authority.dart';
 import 'package:izin_talep_sistemi/models/user_create.dart';
 import 'package:izin_talep_sistemi/models/user_response.dart';
 import 'package:izin_talep_sistemi/models/user_update.dart';
+import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_departments_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_user_provider.dart';
 import 'package:izin_talep_sistemi/providers/department_provider.dart';
 import 'package:izin_talep_sistemi/providers/role_provider.dart';
 import 'package:izin_talep_sistemi/services/user_service.dart';
-import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
 
@@ -23,15 +23,6 @@ class UsersSection extends ConsumerStatefulWidget {
 }
 
 class _UsersSectionState extends ConsumerState<UsersSection> {
-  final _searchController = TextEditingController();
-  String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   Future<void> _createUser(
     BuildContext context,
     WidgetRef ref,
@@ -301,16 +292,20 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
     final asyncUsers = ref.watch(adminUsersProvider);
     final rolesAsync = ref.watch(rolesProvider);
     final departmentsAsync = ref.watch(adminDepartmentsProvider);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(adminAppBarProvider.notifier)
+          .updateAppBar(
+            title: 'Kullanıcılar',
+            primaryActionLabel: 'Yeni Kullanıcı Oluştur',
+            onPrimaryAction: () =>
+                _createUser(context, ref, rolesAsync, departmentsAsync),
+          );
+    });
+
     return Column(
       children: [
-        AdminAppBar(
-          title: 'Kullanıcılar',
-          primaryActionLabel: 'Yeni Kullanıcı',
-          onPrimaryAction: () =>
-              _createUser(context, ref, rolesAsync, departmentsAsync),
-          searchController: _searchController,
-          onSearchChanged: (value) => setState(() => _searchQuery = value),
-        ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -320,7 +315,6 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
               data: (users) => AdminDataTable<UserResponse>(
                 dataSpacing: 42,
                 items: users,
-                searchQuery: _searchQuery,
                 searchLabel: (user, query) {
                   final q = normalize(query);
                   return normalize(user.firstName).contains(q) ||

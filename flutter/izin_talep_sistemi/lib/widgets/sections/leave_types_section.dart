@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/leave_type.dart';
 import 'package:izin_talep_sistemi/models/leave_type_create.dart';
 import 'package:izin_talep_sistemi/models/leave_type_update.dart';
+import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_leave_type_provider.dart';
 import 'package:izin_talep_sistemi/services/leave_type_service.dart';
-import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
 
@@ -17,15 +17,6 @@ class LeaveTypesSection extends ConsumerStatefulWidget {
 }
 
 class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
-  final _searchController = TextEditingController();
-  String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   Future<void> _createLeaveType(BuildContext context, WidgetRef ref) async {
     final nameController = TextEditingController();
     final daysController = TextEditingController();
@@ -201,14 +192,18 @@ class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
   Widget build(BuildContext context) {
     final asyncLeaveTypes = ref.watch(adminLeaveTypesProvider);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(adminAppBarProvider.notifier)
+          .updateAppBar(
+            title: 'İzin Türleri',
+            primaryActionLabel: 'Yeni İzin Türü Oluştur',
+            onPrimaryAction: () => _createLeaveType(context, ref),
+          );
+    });
+
     return Column(
       children: [
-        AdminAppBar(
-          title: 'İzin Türleri',
-          primaryActionLabel: 'Yeni İzin Türü',
-          onPrimaryAction: () => _createLeaveType(context, ref),
-          onSearchChanged: (value) => setState(() => _searchQuery = value),
-        ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -218,7 +213,6 @@ class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
               data: (leaveTypes) => AdminDataTable<LeaveType>(
                 dataSpacing: 450,
                 items: leaveTypes,
-                searchQuery: _searchQuery,
                 searchLabel: (leaveType, query) =>
                     leaveType.name.toLowerCase().contains(query.toLowerCase()),
                 columnLabels: const [

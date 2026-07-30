@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
+import 'package:izin_talep_sistemi/screens/profile_drawer.dart';
+import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_sidebar.dart';
 import 'package:izin_talep_sistemi/widgets/sections/approvals_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/approver_chain_section.dart';
@@ -16,14 +20,14 @@ enum AdminSection {
   roles,
 }
 
-class AdminScreen extends StatefulWidget {
+class AdminScreen extends ConsumerStatefulWidget {
   const AdminScreen({super.key});
 
   @override
-  State<AdminScreen> createState() => AdminScreenState();
+  ConsumerState<AdminScreen> createState() => AdminScreenState();
 }
 
-class AdminScreenState extends State<AdminScreen> {
+class AdminScreenState extends ConsumerState<AdminScreen> {
   AdminSection _currentSection = AdminSection.approvals;
 
   void _selectSection(AdminSection section) {
@@ -49,14 +53,44 @@ class AdminScreenState extends State<AdminScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appBarState = ref.watch(adminAppBarProvider);
+
     return Scaffold(
-      body: Row(
+      appBar: AdminAppBar(
+        title: appBarState.title,
+        primaryActionLabel: appBarState.primaryActionLabel,
+        onPrimaryAction: appBarState.onPrimaryAction,
+        additionalActions: appBarState.additionalActions,
+        onSearchChanged: appBarState.onSearchChanged,
+      ),
+      drawer: Drawer(
+        child: AdminSidebar(
+          currentSection: _currentSection,
+          onSectionSelected: _selectSection,
+        ),
+      ),
+      endDrawer: ProfileDrawer(),
+      body: Stack(
         children: [
-          AdminSidebar(
-            currentSection: _currentSection,
-            onSectionSelected: _selectSection,
+          Column(children: [Expanded(child: (_buildContent()))]),
+          Positioned(
+            left: 0,
+            top: ((MediaQuery.sizeOf(context).height - 80) / 2),
+            child: Builder(
+              builder: (context) => GestureDetector(
+                onTap: () => Scaffold.of(context).openDrawer(),
+                child: Container(
+                  width: 25,
+                  height: 40,
+
+                  child: Icon(
+                    Icons.arrow_right_outlined,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                ),
+              ),
+            ),
           ),
-          Expanded(child: _buildContent()),
         ],
       ),
     );

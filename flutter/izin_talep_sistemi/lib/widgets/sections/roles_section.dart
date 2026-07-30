@@ -4,10 +4,10 @@ import 'package:izin_talep_sistemi/models/role.dart';
 import 'package:izin_talep_sistemi/models/role_authority.dart';
 import 'package:izin_talep_sistemi/models/role_create.dart';
 import 'package:izin_talep_sistemi/models/role_update.dart';
+import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/role_provider.dart';
 import 'package:izin_talep_sistemi/services/role_service.dart';
 
-import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
 
@@ -19,15 +19,6 @@ class RolesSection extends ConsumerStatefulWidget {
 }
 
 class _RolesSectionState extends ConsumerState<RolesSection> {
-  final _searchController = TextEditingController();
-  String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   Future<void> _createRole(BuildContext context, WidgetRef ref) async {
     try {
       final roleCreate = await showDialog<RoleCreate>(
@@ -184,15 +175,18 @@ class _RolesSectionState extends ConsumerState<RolesSection> {
   Widget build(BuildContext context) {
     final asyncRoles = ref.watch(rolesProvider);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(adminAppBarProvider.notifier)
+          .updateAppBar(
+            title: 'Roller',
+            primaryActionLabel: 'Yeni Rol Oluştur',
+            onPrimaryAction: () => _createRole(context, ref),
+          );
+    });
+
     return Column(
       children: [
-        AdminAppBar(
-          title: 'Roller',
-          primaryActionLabel: 'Yeni Rol',
-          onPrimaryAction: () => _createRole(context, ref),
-          searchController: _searchController,
-          onSearchChanged: (value) => setState(() => _searchQuery = value),
-        ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -202,7 +196,6 @@ class _RolesSectionState extends ConsumerState<RolesSection> {
               data: (roles) => AdminDataTable<Role>(
                 dataSpacing: 290,
                 items: roles,
-                searchQuery: _searchQuery,
                 searchLabel: (role, query) => role.displayName
                     .toLowerCase()
                     .contains(query.toLowerCase()),

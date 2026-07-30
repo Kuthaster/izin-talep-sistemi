@@ -1,6 +1,7 @@
 // widgets/sections/departments_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_departments_provider.dart';
 
 import 'package:izin_talep_sistemi/models/department.dart';
@@ -9,9 +10,14 @@ import 'package:izin_talep_sistemi/services/department_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 
-class DepartmentsSection extends ConsumerWidget {
+class DepartmentsSection extends ConsumerStatefulWidget {
   const DepartmentsSection({super.key});
 
+  @override
+  ConsumerState<DepartmentsSection> createState() => _DepartmentsSectionState();
+}
+
+class _DepartmentsSectionState extends ConsumerState<DepartmentsSection> {
   Future<void> _createDepartment(BuildContext context, WidgetRef ref) async {
     final nameController = TextEditingController();
 
@@ -24,7 +30,10 @@ class DepartmentsSection extends ConsumerWidget {
           decoration: const InputDecoration(labelText: 'Departman Adı'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Vazgeç')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Vazgeç'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, nameController.text.trim()),
             child: const Text('Oluştur'),
@@ -36,16 +45,24 @@ class DepartmentsSection extends ConsumerWidget {
     if (name == null || name.isEmpty) return;
 
     try {
-      await DepartmentService().createDepartment(Department(id: 0, name: name));
+      await DepartmentService().createDepartment(
+        DepartmentUpdate(departmentName: name),
+      );
       ref.invalidate(adminDepartmentsProvider);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Oluşturulamadı: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Oluşturulamadı: $e')));
       }
     }
   }
 
-  Future<void> _editDepartment(BuildContext context, WidgetRef ref, Department department) async {
+  Future<void> _editDepartment(
+    BuildContext context,
+    WidgetRef ref,
+    Department department,
+  ) async {
     final nameController = TextEditingController(text: department.name);
 
     final name = await showDialog<String>(
@@ -57,7 +74,10 @@ class DepartmentsSection extends ConsumerWidget {
           decoration: const InputDecoration(labelText: 'Departman Adı'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Vazgeç')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Vazgeç'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, nameController.text.trim()),
             child: const Text('Kaydet'),
@@ -69,26 +89,36 @@ class DepartmentsSection extends ConsumerWidget {
     if (name == null || name.isEmpty || name == department.name) return;
 
     try {
-      await DepartmentService().updateDepartment(department.id, DepartmentUpdate(departmentName: name));
+      await DepartmentService().updateDepartment(
+        department.id,
+        DepartmentUpdate(departmentName: name),
+      );
       ref.invalidate(adminDepartmentsProvider);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Güncellenemedi: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Güncellenemedi: $e')));
       }
     }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final asyncDepartments = ref.watch(adminDepartmentsProvider);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(adminAppBarProvider.notifier)
+          .updateAppBar(
+            title: 'Roller',
+            primaryActionLabel: 'Yeni Rol Oluştur',
+            onPrimaryAction: () => _createDepartment(context, ref),
+          );
+    });
 
     return Column(
       children: [
-        AdminAppBar(
-          title: 'Departmanlar',
-          primaryActionLabel: 'Yeni Departman',
-          onPrimaryAction: () => _createDepartment(context, ref),
-        ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -96,24 +126,29 @@ class DepartmentsSection extends ConsumerWidget {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Hata: $err')),
               data: (departments) => AdminDataTable<Department>(
+                dataSpacing: 500,
                 items: departments,
-                columns: const [
-                  DataColumn(label: Text('ID',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text('Ad',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text('')),
+                searchLabel: (department, query) =>
+                    department.name.toLowerCase().contains(query.toLowerCase()),
+                columnLabels: const ['ID', 'Ad', ''],
+                sortComparators: [
+                  (a, b) => a.id.compareTo(b.id),
+                  (a, b) => a.name.compareTo(b.name),
+                  (a, b) => 0,
                 ],
-                buildRows: (items) => items.map((department) {
-                  return DataRow(cells: [
-                    DataCell(Text(department.id.toString())),
-                    DataCell(Text(department.name, style: TextStyle(fontSize: 15),)),
-                    DataCell(
-                      IconButton(
-                        icon: const Icon(Icons.edit, size: 18),
-                        onPressed: () => _editDepartment(context, ref, department),
-                      ),
+                buildCells: (department) => [
+                  DataCell(Text(department.id.toString())),
+                  DataCell(
+                    Text(department.name, style: TextStyle(fontSize: 15)),
+                  ),
+                  DataCell(
+                    IconButton(
+                      icon: const Icon(Icons.edit, size: 18),
+                      onPressed: () =>
+                          _editDepartment(context, ref, department),
                     ),
-                  ]);
-                }).toList(),
+                  ),
+                ],
                 emptyStateTitle: 'Departman yok',
                 emptyStateMessage: 'Henüz hiç departman oluşturulmamış.',
                 emptyStateActionLabel: 'Departman Oluştur',

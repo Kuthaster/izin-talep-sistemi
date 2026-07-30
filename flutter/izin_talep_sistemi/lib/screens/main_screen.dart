@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/role_authority.dart';
 import 'package:izin_talep_sistemi/screens/approvals_screen.dart';
+import 'package:izin_talep_sistemi/screens/profile_drawer.dart';
 import 'package:izin_talep_sistemi/screens/profile_screen.dart';
 import 'package:izin_talep_sistemi/screens/requests_screen.dart';
 import 'package:izin_talep_sistemi/widgets/create_request_form.dart';
@@ -22,17 +23,19 @@ class MainScreen extends ConsumerWidget {
         title: const Text('Ana Sayfa'),
         centerTitle: true,
         actions: [
-          IconButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ProfileScreen(),
-              ), //TODO BURAYI BIR SIDE PANEL DRAWERLA DEĞİŞTİR
-            ),
-            icon: ProfileAvatarWidget(),
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const ProfileAvatarWidget(),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              );
+            },
           ),
         ],
       ),
+      endDrawer: ProfileDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
