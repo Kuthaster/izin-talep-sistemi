@@ -6,6 +6,7 @@ import 'package:izin_talep_sistemi/models/role_create.dart';
 import 'package:izin_talep_sistemi/models/role_update.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/role_provider.dart';
+import 'package:izin_talep_sistemi/providers/role_service_provider.dart';
 import 'package:izin_talep_sistemi/services/role_service.dart';
 
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
@@ -19,6 +20,8 @@ class RolesSection extends ConsumerStatefulWidget {
 }
 
 class _RolesSectionState extends ConsumerState<RolesSection> {
+  RoleService get _roleService => ref.read(roleServiceProvider);
+
   Future<void> _createRole(BuildContext context, WidgetRef ref) async {
     try {
       final roleCreate = await showDialog<RoleCreate>(
@@ -82,7 +85,7 @@ class _RolesSectionState extends ConsumerState<RolesSection> {
 
       if (roleCreate == null) return;
 
-      await RoleService().createRole(roleCreate);
+      await _roleService.createRole(roleCreate);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
@@ -135,7 +138,7 @@ class _RolesSectionState extends ConsumerState<RolesSection> {
     if (confirmed != true) return;
 
     try {
-      await RoleService().updateRole(
+      await _roleService.updateRole(
         role.id,
         RoleUpdate(displayName: displayNameController.text, active: active),
       );
@@ -150,6 +153,47 @@ class _RolesSectionState extends ConsumerState<RolesSection> {
     }
   }
 
+  Future<void> _delete(BuildContext context, WidgetRef ref, Role role) async {
+    final id = role.id;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Rolü Silme Onayı"),
+          content: Text(
+            "ID: ${role.id} • Rol Adı: ${role.displayName}/n"
+            "Yetki: ${authorityLabel(role.name)}/n"
+            "İzin Türünü Silmek İstediğinizden Emin misiniz?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('İPTAL ET'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context, true);
+              },
+              child: const Text('İZİN TÜRÜNÜ SİL'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true) return;
+
+    try {
+      await _roleService.deleteRole(id);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('İşlem başarısız: $e')));
+      }
+    }
+  }
+
   Future<void> _activation(
     BuildContext context,
     WidgetRef ref,
@@ -157,7 +201,7 @@ class _RolesSectionState extends ConsumerState<RolesSection> {
   ) async {
     bool active = !role.active;
     try {
-      await RoleService().updateRole(
+      await _roleService.updateRole(
         role.id,
         RoleUpdate(displayName: null, active: active),
       );

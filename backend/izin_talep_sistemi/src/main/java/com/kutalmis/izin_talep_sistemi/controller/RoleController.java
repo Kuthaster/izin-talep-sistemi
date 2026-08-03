@@ -3,6 +3,7 @@ package com.kutalmis.izin_talep_sistemi.controller;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,6 +55,12 @@ public class RoleController {
     @PostMapping
     public RoleDTO createRole(@RequestBody RoleCreateDTO dto) {
         return roleService.createRole(dto);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public void deleteRole(@PathVariable Long id) {
+        roleService.deleteRole(id);
     }
 
 }

@@ -4,9 +4,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:izin_talep_sistemi/models/leave_decision.dart';
 import 'package:izin_talep_sistemi/models/leave_request_decision.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_approval_provider.dart';
+import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
 
 import '../models/leave_request.dart';
-import '../services/leave_request_service.dart';
 
 class LeaveRequestForApprovalTile extends ConsumerWidget {
   final LeaveRequest request;
@@ -98,7 +98,8 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
     LeaveRequestDecision dto,
   ) async {
     try {
-      await LeaveRequestService().decide(request.id, dto);
+      final leaveRequestService = ref.read(leaveRequestServiceProvider);
+      await leaveRequestService.decide(request.id, dto);
       ref.invalidate(leaveRequestsForApprovalProvider);
     } catch (e) {
       if (context.mounted) {

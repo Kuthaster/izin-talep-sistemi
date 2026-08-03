@@ -67,12 +67,19 @@ public class DepartmentService {
         }
 
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(newDepartmentName + " ID'li departman bulunamadı."));
+                .orElseThrow(() -> new IllegalArgumentException(id + " ID'li departman bulunamadı."));
 
         department.setName(newDepartmentName);
 
         Department saved = departmentRepository.save(department);
 
         return new DepartmentDTO(saved.getId(), newDepartmentName);
+    }
+
+    public void deleteDepartment(Long departmentId) {
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new IllegalArgumentException(departmentId + " ID' li departman bulunamadı."));
+
+        departmentRepository.deleteById(department.getId());
     }
 }

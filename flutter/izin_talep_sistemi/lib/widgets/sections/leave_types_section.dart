@@ -5,6 +5,7 @@ import 'package:izin_talep_sistemi/models/leave_type_create.dart';
 import 'package:izin_talep_sistemi/models/leave_type_update.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_leave_type_provider.dart';
+import 'package:izin_talep_sistemi/providers/leave_type_service_provider.dart';
 import 'package:izin_talep_sistemi/services/leave_type_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
@@ -17,6 +18,8 @@ class LeaveTypesSection extends ConsumerStatefulWidget {
 }
 
 class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
+  LeaveTypeService get _leaveTypeService => ref.read(leaveTypeServiceProvider);
+
   Future<void> _createLeaveType(BuildContext context, WidgetRef ref) async {
     final nameController = TextEditingController();
     final daysController = TextEditingController();
@@ -69,7 +72,7 @@ class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
     if (nameController.text.trim().isEmpty || days == null) return;
 
     try {
-      await LeaveTypesService().createLeaveType(
+      await _leaveTypeService.createLeaveType(
         LeaveTypeCreate(
           name: nameController.text.trim(),
           defaultDays: days,
@@ -93,7 +96,7 @@ class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
   ) async {
     bool active = !leaveType.active;
     try {
-      await LeaveTypesService().updateLeaveType(
+      await _leaveTypeService.updateLeaveType(
         leaveType.id,
         LeaveTypeUpdate(
           defaultDays: null,
@@ -107,6 +110,52 @@ class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Güncellenemedi: $e')));
+      }
+    }
+  }
+
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    LeaveType leaveType,
+  ) async {
+    final id = leaveType.id;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Talep Türü Silme Onayı"),
+          content: Text(
+            "ID: ${leaveType.id} • İzin Türü Adı: ${leaveType.name}/n"
+            "Cinsiyet gereksinimi: ${leaveType.genderRestriction}/n"
+            "Gün Sayısı: ${leaveType.defaultDays} "
+            "İzin Türünü Silmek İstediğinizden Emin misiniz?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('İPTAL ET'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context, true);
+              },
+              child: const Text('İZİN TÜRÜNÜ SİL'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true) return;
+
+    try {
+      await _leaveTypeService.deleteLeaveType(id);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('İşlem başarısız: $e')));
       }
     }
   }
@@ -170,7 +219,7 @@ class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
     if (confirmed != true) return;
 
     try {
-      await LeaveTypesService().updateLeaveType(
+      await _leaveTypeService.updateLeaveType(
         leaveType.id,
         LeaveTypeUpdate(
           defaultDays: int.tryParse(daysController.text),

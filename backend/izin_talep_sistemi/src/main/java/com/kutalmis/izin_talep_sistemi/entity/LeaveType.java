@@ -1,5 +1,6 @@
 package com.kutalmis.izin_talep_sistemi.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
 @Entity
@@ -18,9 +19,13 @@ public class LeaveType {
 
     @Column(nullable = false)
     private Boolean active = true;
-    
+
     @Column(name = "required_levels", nullable = false)
     private Integer requiredLevels = 1;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private Gender genderRestriction;
 
     public Integer getRequiredLevels() {
         return requiredLevels;
@@ -29,9 +34,9 @@ public class LeaveType {
     public void setRequiredLevels(Integer requiredLevels) {
         this.requiredLevels = requiredLevels;
     }
+
     public LeaveType() {
     }
-    
 
     public Long getId() {
         return id;
@@ -60,4 +65,12 @@ public class LeaveType {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+    public void setGenderRestriction(Gender genderRestriction) {
+        this.genderRestriction = genderRestriction;
+    }
+
+    public Gender getGenderRestriction() {
+        return genderRestriction;
+    };
 }

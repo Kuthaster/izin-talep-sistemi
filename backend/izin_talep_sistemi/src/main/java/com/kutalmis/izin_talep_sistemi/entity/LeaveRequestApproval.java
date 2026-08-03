@@ -45,7 +45,8 @@ public class LeaveRequestApproval {
     public LeaveRequestApproval() {
     }
 
-    public LeaveRequestApproval(LeaveRequest leaveRequest, Integer level, User approver, LeaveDecision decision, String managerNote) {
+    public LeaveRequestApproval(LeaveRequest leaveRequest, Integer level, User approver, LeaveDecision decision,
+            String managerNote) {
         this.leaveRequest = leaveRequest;
         this.level = level;
         this.approver = approver;
@@ -53,23 +54,31 @@ public class LeaveRequestApproval {
         this.managerNote = managerNote;
     }
 
-    public Long getId() { 
-    return id; 
+    public Long getId() {
+        return id;
     }
-    public LeaveRequest getLeaveRequest(){ return leaveRequest; }
-    public Integer getLevel(){ 
-    return level;
+
+    public LeaveRequest getLeaveRequest() {
+        return leaveRequest;
     }
-    public User getApprover(){ 
-    return approver;
+
+    public Integer getLevel() {
+        return level;
     }
-    public LeaveDecision getDecision(){ 
-    return decision; 
+
+    public User getApprover() {
+        return approver;
     }
-    public String getManagerNote(){
+
+    public LeaveDecision getDecision() {
+        return decision;
+    }
+
+    public String getManagerNote() {
         return managerNote;
-     }
-    public LocalDateTime getDecidedAt(){
-    return decidedAt;
-     }
+    }
+
+    public LocalDateTime getDecidedAt() {
+        return decidedAt;
+    }
 }

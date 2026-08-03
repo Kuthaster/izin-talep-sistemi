@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/leave_request_count.dart';
-import 'package:izin_talep_sistemi/services/leave_request_service.dart';
+import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
 
 class RequestCountDashboard extends ConsumerWidget {
   const RequestCountDashboard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final service = LeaveRequestService();
+    final service = ref.read(leaveRequestServiceProvider);
 
     return FutureBuilder<LeaveRequestCount>(
       future: service.getLeaveRequestCount(),

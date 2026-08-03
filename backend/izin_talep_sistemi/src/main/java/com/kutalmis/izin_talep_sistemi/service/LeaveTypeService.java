@@ -38,15 +38,19 @@ public class LeaveTypeService {
         LeaveType leaveType = leaveTypeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + " ID'li izin türü bulunamadı."));
 
-        if (dto.defaultDays() != null){
+        if (dto.defaultDays() != null) {
             leaveType.setDefaultDays(dto.defaultDays());
         }
 
-        if (dto.active() != null){
+        if (dto.active() != null) {
             leaveType.setActive(dto.active());
         }
-        if (dto.requiredLevels() != null){
+        if (dto.requiredLevels() != null) {
             leaveType.setRequiredLevels(dto.requiredLevels());
+        }
+
+        if (dto.genderRestriction() != null) {
+            leaveType.setGenderRestriction(dto.genderRestriction());
         }
 
         LeaveType saved = leaveTypeRepository.save(leaveType);
@@ -58,24 +62,34 @@ public class LeaveTypeService {
         if (leaveTypeRepository.existsByName(dto.name())) {
             throw new DuplicateResourceException(dto.name() + " adlı bir izin türü zaten var.");
         }
-        
+
         LeaveType leaveType = new LeaveType();
         leaveType.setName(dto.name());
         leaveType.setDefaultDays(dto.defaultDays());
         leaveType.setActive(true);
         leaveType.setRequiredLevels(dto.requiredLevels() != null ? dto.requiredLevels() : 1);
-        
+        if (dto.genderRestriction() != null) {
+            leaveType.setGenderRestriction(dto.genderRestriction());
+        }
+
         return toDTO(leaveTypeRepository.save(leaveType));
     }
-    
+
     private LeaveTypeDTO toDTO(LeaveType leaveType) {
         return new LeaveTypeDTO(
                 leaveType.getId(),
                 leaveType.getName(),
                 leaveType.getDefaultDays(),
                 leaveType.getActive(),
-                leaveType.getRequiredLevels() 
-        );
+                leaveType.getRequiredLevels(),
+                leaveType.getGenderRestriction());
     }
-    
+
+    public void deleteLeaveType(Long leaveTypeId) {
+        LeaveType leaveType = leaveTypeRepository.findById(leaveTypeId)
+                .orElseThrow(() -> new IllegalArgumentException(leaveTypeId + " ID'li rol bulunamadı."));
+
+        leaveTypeRepository.deleteById(leaveType.getId());
+    }
+
 }

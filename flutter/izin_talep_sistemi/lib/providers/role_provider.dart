@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/providers/role_service_provider.dart';
 
-import '../services/role_service.dart';
 import '../models/role.dart';
 
 final rolesProvider = FutureProvider<List<Role>>((ref) async {
-  return RoleService().getAllRoles();
+  final roleService = ref.watch(roleServiceProvider);
+
+  return roleService.getAllRoles();
 });

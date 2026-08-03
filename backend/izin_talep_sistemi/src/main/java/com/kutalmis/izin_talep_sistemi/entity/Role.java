@@ -14,19 +14,21 @@ public class Role {
     @Column(nullable = false, unique = false, length = 20)
     private RoleAuthority name;
 
-    @Column(name = "display_name",nullable = true, unique = true)
+    @Column(name = "display_name", nullable = true, unique = true)
     private String displayName;
-    
+
     @Column(nullable = false)
     private Boolean active = true;
+
     public Role(RoleAuthority name, String displayName) {
         this.name = name;
         this.displayName = displayName;
     }
 
-    public Role(){
-        
+    public Role() {
+
     }
+
     public Boolean getActive() {
         return active;
     }

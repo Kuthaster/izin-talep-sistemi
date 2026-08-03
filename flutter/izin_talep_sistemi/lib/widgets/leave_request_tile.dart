@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
 
 import '../models/leave_request.dart';
 import '../providers/leave_request_provider.dart';
-import '../services/leave_request_service.dart';
 import 'create_request_form.dart';
 
 class LeaveRequestTile extends ConsumerWidget {
@@ -80,7 +80,8 @@ class LeaveRequestTile extends ConsumerWidget {
 
   Future<void> _cancel(BuildContext context, WidgetRef ref) async {
     try {
-      await LeaveRequestService().cancelLeaveRequest(request.id);
+      final leaveRequestService = ref.read(leaveRequestServiceProvider);
+      await leaveRequestService.cancelLeaveRequest(request.id);
       ref.invalidate(leaveRequestsProvider);
     } catch (e) {
       if (context.mounted) {

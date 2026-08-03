@@ -3,6 +3,7 @@ package com.kutalmis.izin_talep_sistemi.controller;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,4 +59,15 @@ public class AdminDepartmentController {
         return departmentService.updateDepartment(id, dto);
     }
 
+    @Operation(summary = "Departmanı Sil (ADMİN)", description = "Bunun yerine deaktivasyon yapmak önerilir")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Departman başarıyla silindi."),
+            @ApiResponse(responseCode = "403", description = "Bu departmanı silme yetkiniz yok."),
+            @ApiResponse(responseCode = "400", description = "Geçersiz girdi: Departman bulunamadı.")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public void deleteLeaveType(@PathVariable Long id) {
+        departmentService.deleteDepartment(id);
+    }
 }

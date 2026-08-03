@@ -1,3 +1,4 @@
+import 'package:izin_talep_sistemi/models/Gender.dart';
 import 'package:izin_talep_sistemi/models/role_authority.dart';
 
 class UserResponse {
@@ -9,6 +10,7 @@ class UserResponse {
   final String roleDisplayName;
   final RoleAuthority roleAuthority;
   final bool active;
+  final Gender gender;
 
   UserResponse({
     required this.id,
@@ -19,6 +21,7 @@ class UserResponse {
     required this.roleDisplayName,
     required this.roleAuthority,
     required this.active,
+    required this.gender,
   });
   factory UserResponse.fromJson(Map<String, dynamic> json) {
     return UserResponse(
@@ -30,6 +33,7 @@ class UserResponse {
       roleDisplayName: json['roleDisplayName'],
       roleAuthority: RoleAuthority.values.byName(json['roleAuthority']),
       active: json['active'],
+      gender: json['gender'],
     );
   }
 }

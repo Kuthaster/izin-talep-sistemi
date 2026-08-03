@@ -4,6 +4,7 @@ import 'package:izin_talep_sistemi/models/department_approver_assign.dart';
 import 'package:izin_talep_sistemi/providers/admin_departments_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_user_provider.dart';
 import 'package:izin_talep_sistemi/providers/department_approver_provider.dart';
+import 'package:izin_talep_sistemi/providers/department_approver_service_provider.dart';
 import 'package:izin_talep_sistemi/providers/department_provider.dart';
 import 'package:izin_talep_sistemi/services/department_approver_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
@@ -18,7 +19,8 @@ class ApproverChainSection extends ConsumerStatefulWidget {
 
 class _ApproverChainSectionState extends ConsumerState<ApproverChainSection> {
   int? _selectedDepartmentId;
-
+  DepartmentApproverService get _departmentApproverService =>
+      ref.read(departmentApproverServiceProvider);
   Future<void> _assignApprover(int departmentId, int level) async {
     final departments = ref.watch(departmentsProvider).value ?? [];
     final matchingDepartment = departments.firstWhere(
@@ -47,7 +49,7 @@ class _ApproverChainSectionState extends ConsumerState<ApproverChainSection> {
     if (selectedUserId == null) return;
 
     try {
-      await DepartmentApproverService().assignApprover(
+      await _departmentApproverService.assignApprover(
         DepartmentApproverAssign(
           departmentId: departmentId,
           level: level,
@@ -88,7 +90,7 @@ class _ApproverChainSectionState extends ConsumerState<ApproverChainSection> {
     if (confirmed != true) return;
 
     try {
-      await DepartmentApproverService().removeApprover(departmentId, level);
+      await _departmentApproverService.removeApprover(departmentId, level);
       ref.invalidate(departmentApproversProvider(departmentId));
     } catch (e) {
       if (mounted) {

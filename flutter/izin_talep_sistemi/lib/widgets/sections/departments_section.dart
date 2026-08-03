@@ -6,8 +6,8 @@ import 'package:izin_talep_sistemi/providers/admin_departments_provider.dart';
 
 import 'package:izin_talep_sistemi/models/department.dart';
 import 'package:izin_talep_sistemi/models/department_update.dart';
+import 'package:izin_talep_sistemi/providers/department_service_provider.dart';
 import 'package:izin_talep_sistemi/services/department_service.dart';
-import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 
 class DepartmentsSection extends ConsumerStatefulWidget {
@@ -18,6 +18,9 @@ class DepartmentsSection extends ConsumerStatefulWidget {
 }
 
 class _DepartmentsSectionState extends ConsumerState<DepartmentsSection> {
+  DepartmentService get _departmentService =>
+      ref.read(departmentServiceProvider);
+
   Future<void> _createDepartment(BuildContext context, WidgetRef ref) async {
     final nameController = TextEditingController();
 
@@ -45,7 +48,7 @@ class _DepartmentsSectionState extends ConsumerState<DepartmentsSection> {
     if (name == null || name.isEmpty) return;
 
     try {
-      await DepartmentService().createDepartment(
+      await _departmentService.createDepartment(
         DepartmentUpdate(departmentName: name),
       );
       ref.invalidate(adminDepartmentsProvider);
@@ -89,7 +92,7 @@ class _DepartmentsSectionState extends ConsumerState<DepartmentsSection> {
     if (name == null || name.isEmpty || name == department.name) return;
 
     try {
-      await DepartmentService().updateDepartment(
+      await _departmentService.updateDepartment(
         department.id,
         DepartmentUpdate(departmentName: name),
       );
@@ -99,6 +102,50 @@ class _DepartmentsSectionState extends ConsumerState<DepartmentsSection> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Güncellenemedi: $e')));
+      }
+    }
+  }
+
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    Department department,
+  ) async {
+    final id = department.id;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Departman Silme Onayı"),
+          content: Text(
+            "ID: ${department.id} • Departman Adı: ${department.name}/n"
+            "Departmanı Silmek İstediğinizden Emin misiniz?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('İPTAL ET'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context, true);
+              },
+              child: const Text('DEPARTMANI SİL'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true) return;
+
+    try {
+      await _departmentService.deleteDepartment(id);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('İşlem başarısız: $e')));
       }
     }
   }

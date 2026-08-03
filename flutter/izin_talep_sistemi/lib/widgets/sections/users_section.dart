@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/exceptions/api_exception.dart';
+import 'package:izin_talep_sistemi/models/Gender.dart';
 import 'package:izin_talep_sistemi/models/department.dart';
 import 'package:izin_talep_sistemi/models/role.dart';
 import 'package:izin_talep_sistemi/models/role_authority.dart';
@@ -11,6 +14,7 @@ import 'package:izin_talep_sistemi/providers/admin_departments_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_user_provider.dart';
 import 'package:izin_talep_sistemi/providers/department_provider.dart';
 import 'package:izin_talep_sistemi/providers/role_provider.dart';
+import 'package:izin_talep_sistemi/providers/user_service.provider.dart';
 import 'package:izin_talep_sistemi/services/user_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
@@ -23,6 +27,7 @@ class UsersSection extends ConsumerStatefulWidget {
 }
 
 class _UsersSectionState extends ConsumerState<UsersSection> {
+  UserService get _userService => ref.read(userServiceProvider);
   Future<void> _createUser(
     BuildContext context,
     WidgetRef ref,
@@ -40,6 +45,7 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
           int? selectedDepartmentId;
           int? selectedRoleId;
           bool obscurePassword = true;
+          Gender? selectedGender;
 
           return StatefulBuilder(
             builder: (context, setState) {
@@ -119,6 +125,35 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
                         }
                       },
                     ),
+                    PopupMenuButton<Gender>(
+                      initialValue: selectedGender,
+                      onSelected: (Gender newValue) {
+                        setState(() {
+                          selectedGender = newValue;
+                        });
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<Gender>>[
+                            const PopupMenuItem<Gender>(
+                              value: Gender.MALE,
+                              child: Text('Erkek'),
+                            ),
+                            const PopupMenuItem<Gender>(
+                              value: Gender.FEMALE,
+                              child: Text('Kadın'),
+                            ),
+                          ],
+                      child: ListTile(
+                        title: Text(
+                          selectedGender == null
+                              ? 'Cinsiyet seç'
+                              : (selectedGender == Gender.MALE
+                                    ? 'Erkek'
+                                    : 'Kadın'),
+                        ),
+                        trailing: const Icon(Icons.arrow_drop_down),
+                      ),
+                    ),
                   ],
                 ),
                 actions: [
@@ -146,6 +181,7 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
                           rawPassword: rawPassword,
                           departmentId: selectedDepartmentId!,
                           roleId: selectedRoleId!,
+                          gender: selectedGender!,
                         ),
                       );
                     },
@@ -160,12 +196,69 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
 
       if (userCreate == null) return;
 
-      await UserService().createUser(userCreate);
+      await _userService.createUser(userCreate);
+    } on DioException catch (e) {
+      final errorMessage = (e.error is ApiException)
+          ? (e.error as ApiException).message
+          : 'Bilinmeyen bir ağ hatası oluştu.';
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('İşlem başarısız: $errorMessage')),
+        );
+      }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Oluşturulamadı: $e')));
+      }
+    }
+  }
+
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    UserResponse user,
+  ) async {
+    final id = user.id;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Silme Onayı"),
+          content: Text(
+            "ID: ${user.id} Adı: ${user.firstName} ${user.lastName}/n"
+            "Cinsiyet: ${user.gender}}/n"
+            "Departman: ${user.departmentName}}/n"
+            "E-posta: ${user.email}/n "
+            "Rol: ${user.roleDisplayName}/n "
+            "Kullanıcıyı Silmek İstediğinizden Emin misiniz?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('İPTAL ET'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context, true);
+              },
+              child: const Text('SİL'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true) return;
+
+    try {
+      await _userService.deleteUser(id);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('İşlem başarısız: $e')));
       }
     }
   }
@@ -183,6 +276,7 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
     int? selectedDepartmentId;
     int? selectedRoleId;
     bool active = user.active;
+    Gender? selectedGender;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -238,6 +332,32 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
                   if (id != null) setState(() => selectedDepartmentId = id);
                 },
               ),
+              PopupMenuButton<Gender>(
+                initialValue: selectedGender,
+                onSelected: (Gender newValue) {
+                  setState(() {
+                    selectedGender = newValue;
+                  });
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<Gender>>[
+                  const PopupMenuItem<Gender>(
+                    value: Gender.MALE,
+                    child: Text('Erkek'),
+                  ),
+                  const PopupMenuItem<Gender>(
+                    value: Gender.FEMALE,
+                    child: Text('Kadın'),
+                  ),
+                ],
+                child: ListTile(
+                  title: Text(
+                    selectedGender == null
+                        ? 'Cinsiyet seç'
+                        : (selectedGender == Gender.MALE ? 'Erkek' : 'Kadın'),
+                  ),
+                  trailing: const Icon(Icons.arrow_drop_down),
+                ),
+              ),
               SwitchListTile(
                 title: Text(active ? 'Aktif' : 'Pasif'),
                 value: active,
@@ -262,7 +382,7 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
     if (confirmed != true) return;
 
     try {
-      await UserService().updateUser(
+      await _userService.updateUser(
         user.id,
         UserUpdate(
           firstName: firstNameController.text,
@@ -271,6 +391,7 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
           departmentId: selectedDepartmentId,
           roleId: selectedRoleId,
           active: active,
+          gender: selectedGender,
         ),
       );
 

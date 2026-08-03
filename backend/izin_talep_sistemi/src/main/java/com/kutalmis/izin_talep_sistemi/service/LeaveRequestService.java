@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestApprovalDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCountDTO;
@@ -45,11 +47,12 @@ public class LeaveRequestService {
         this.leaveRequestApprovalRepository = leaveRequestApprovalRepository;
     }
 
-    public List<LeaveRequestDTO> getMyLeaveRequests(User caller, String status, Long leaveTypeId,
+    public List<LeaveRequestDTO> getMyLeaveRequests(User caller, String status, String reason, Long leaveTypeId,
             LocalDate startDateFrom, LocalDate startDateTo) {
         Specification<LeaveRequest> spec = Specification
                 .where(LeaveRequestSpecifications.belongsToUser(caller.getId())) // scope — mandatory
                 .and(LeaveRequestSpecifications.hasStatus(status))
+                .and(LeaveRequestSpecifications.hasReason(reason))
                 .and(LeaveRequestSpecifications.hasLeaveType(leaveTypeId))
                 .and(LeaveRequestSpecifications.startDateFrom(startDateFrom))
                 .and(LeaveRequestSpecifications.startDateTo(startDateTo));
@@ -92,6 +95,7 @@ public class LeaveRequestService {
     public List<LeaveRequestDTO> getRequestsForApproval(User caller, LeaveRequestFilterDTO filter) {
         Specification<LeaveRequest> filters = Specification
                 .where(LeaveRequestSpecifications.hasStatus(filter.status()))
+                .and(LeaveRequestSpecifications.hasReason(filter.reason()))
                 .and(LeaveRequestSpecifications.hasLeaveType(filter.leaveTypeId()))
                 .and(LeaveRequestSpecifications.startDateFrom(filter.startDateFrom()))
                 .and(LeaveRequestSpecifications.startDateTo(filter.startDateTo()))
@@ -121,6 +125,10 @@ public class LeaveRequestService {
     }
 
     public LeaveRequestDTO createLeaveRequest(LeaveRequestCreateDTO dto, User caller) {
+
+        LeaveType leaveType = leaveTypeRepository.findById(dto.leaveTypeId())
+                .orElseThrow(() -> new IllegalArgumentException("İzin türü bulunamadı."));
+
         if (leaveRequestRepository.existsByUserIdAndStatus(caller.getId(), "PENDING")) {
             throw new IllegalStateException("Zaten bekleyen bir talebiniz var.");
         }
@@ -133,11 +141,14 @@ public class LeaveRequestService {
             throw new IllegalArgumentException("Geçmişteki bir tarihe izin alamazsınız.");
         }
 
-        LeaveType leaveType = leaveTypeRepository.findById(dto.leaveTypeId())
-                .orElseThrow(() -> new IllegalArgumentException("İzin türü bulunamadı."));
-
-        if (!Boolean.TRUE.equals(leaveType.getActive())) {
+        if (!(leaveType.getActive())) {
             throw new IllegalArgumentException("Bu izin türü artık kullanılamıyor.");
+        }
+
+        if (leaveType.getGenderRestriction() != null) {
+            if (!(caller.getGender()).equals(leaveType.getGenderRestriction())) { // TODO TEST THIS
+                throw new AccessDeniedException("Cinsiyetinizden dolayı bu izin türünde talep yapamazsınız.");
+            }
         }
 
         LeaveRequest request = new LeaveRequest();
@@ -145,7 +156,7 @@ public class LeaveRequestService {
         request.setLeaveType(leaveType);
         request.setStartDate(dto.startDate());
         request.setEndDate(dto.endDate());
-        request.setReason(dto.reason());
+        request.setReason(toNullable(dto.reason()));
         request.setStatus("PENDING");
 
         request.setCurrentLevel(1);
@@ -160,14 +171,14 @@ public class LeaveRequestService {
     @Transactional
     public LeaveRequestDTO decide(Long requestId, User caller, LeaveRequestDecisionDTO dto) {
 
-        String managerNote = (dto != null) ? dto.managerNote() : null;
+        String managerNote = toNullable(dto.managerNote());
         LeaveDecision decision = dto.decision();
 
         LeaveRequest request = leaveRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
 
         if (!"PENDING".equals(request.getStatus())) {
-            throw new IllegalStateException("Bu talep zaten sonuçlandırılmış.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Bu talep zaten sonuçlandırılmış.");
         }
 
         int level = request.getCurrentLevel();
@@ -260,7 +271,9 @@ public class LeaveRequestService {
         request.setLeaveType(leaveType);
         request.setStartDate(dto.startDate());
         request.setEndDate(dto.endDate());
-        request.setReason(dto.reason());
+        if (dto.reason() != null && !dto.reason().isBlank()) {
+            request.setReason(dto.reason().trim());
+        }
 
         return toDTO(leaveRequestRepository.save(request));
     }
@@ -309,6 +322,7 @@ public class LeaveRequestService {
                 request.getStartDate(),
                 request.getEndDate(),
                 request.getStatus(),
+                toNullable(request.getReason()),
                 request.getCreatedAt(),
                 request.getCurrentLevel(),
                 approvals);
@@ -343,6 +357,26 @@ public class LeaveRequestService {
             level++;
         }
         request.setCurrentLevel(MAX_LEVEL + 1);
+    }
+
+    public void deleteLeaveRequest(Long leaveRequestId) {
+        LeaveRequest leaveRequest = leaveRequestRepository.findById(leaveRequestId)
+                .orElseThrow(() -> new IllegalArgumentException(leaveRequestId + " ID'li rol bulunamadı."));
+
+        if ("PENDING".equals(leaveRequest.getStatus())) {
+            // TODO buraya balanc reelase mantığını koy
+        }
+        if ("APPROVED".equals(leaveRequest.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Zaten onaylanmış izinler silinemez.");
+        }
+        leaveRequestRepository.deleteById(leaveRequest.getId());
+    }
+
+    private static String toNullable(String s) {
+        if (s == null)
+            return null; // field missing => null
+        String trimmed = s.trim(); // handles "" and " "
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
 }

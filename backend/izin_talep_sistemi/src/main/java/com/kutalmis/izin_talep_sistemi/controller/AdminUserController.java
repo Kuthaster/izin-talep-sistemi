@@ -3,6 +3,7 @@ package com.kutalmis.izin_talep_sistemi.controller;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,5 +54,17 @@ public class AdminUserController {
     @PutMapping("/{id}")
     public UserResponseDTO updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto) {
         return userService.updateUser(id, dto);
+    }
+
+    @Operation(summary = "Kullanıcıyı Sil (ADMİN)", description = "Bunun yerine deaktivasyon yapmak önerilir")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Kullanıcı başarıyla silindi."),
+            @ApiResponse(responseCode = "403", description = "Bu kullanıcıyı silme yetkiniz yok."),
+            @ApiResponse(responseCode = "400", description = "Geçersiz girdi: Kullanıcı bulunamadı.")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
     }
 }

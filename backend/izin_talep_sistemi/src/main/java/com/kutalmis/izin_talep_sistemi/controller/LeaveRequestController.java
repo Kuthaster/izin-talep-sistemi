@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,11 +58,12 @@ public class LeaveRequestController {
     public List<LeaveRequestDTO> getMyLeaveRequests(
             Principal principal,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String reason,
             @RequestParam(required = false) Long leaveTypeId,
             @RequestParam(required = false) LocalDate startDateFrom,
             @RequestParam(required = false) LocalDate startDateTo) {
         User caller = userService.getUserEntityByEmail(principal.getName());
-        return leaveRequestService.getMyLeaveRequests(caller, status, leaveTypeId, startDateFrom, startDateTo);
+        return leaveRequestService.getMyLeaveRequests(caller, status, reason, leaveTypeId, startDateFrom, startDateTo);
     }
 
     @Operation(summary = "Onaylayıcısı olduğum departmanların taleplerini listele", description = "Admin tüm talepleri, yönetici ise onaylayıcı olarak atandığı departman(lar)ın tüm taleplerini görür.")
@@ -70,13 +72,15 @@ public class LeaveRequestController {
     public List<LeaveRequestDTO> getRequestsForApproval(
             Principal principal,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String reason,
             @RequestParam(required = false) Long leaveTypeId,
             @RequestParam(required = false) LocalDate startDateFrom,
             @RequestParam(required = false) LocalDate startDateTo,
             @RequestParam(required = false) Long approverId,
             @RequestParam(required = false) Integer currentLevel) {
         User caller = userService.getUserEntityByEmail(principal.getName());
-        LeaveRequestFilterDTO filter = new LeaveRequestFilterDTO(status, leaveTypeId, startDateFrom, startDateTo,
+        LeaveRequestFilterDTO filter = new LeaveRequestFilterDTO(status, reason, leaveTypeId, startDateFrom,
+                startDateTo,
                 approverId, currentLevel);
         return leaveRequestService.getRequestsForApproval(caller, filter);
     }
@@ -103,7 +107,7 @@ public class LeaveRequestController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER_LEVEL_1', 'MANAGER_LEVEL_2','MANAGER_LEVEL_3')")
     @PatchMapping("/forApproval/{id}")
     public LeaveRequestDTO decide(@Valid @PathVariable Long id, Principal principal,
-            @RequestBody LeaveRequestDecisionDTO dto) {
+            @Valid @RequestBody LeaveRequestDecisionDTO dto) {
         User caller = userService.getUserEntityByEmail(principal.getName());
         return leaveRequestService.decide(id, caller, dto);
     }
@@ -134,5 +138,17 @@ public class LeaveRequestController {
     public LeaveRequestDTO cancelLeaveRequest(@PathVariable Long id, Principal principal) {
         User caller = userService.getUserEntityByEmail(principal.getName());
         return leaveRequestService.cancelLeaveRequest(id, caller);
+    }
+
+    @Operation(summary = "İzin Talebini Sil (ADMİN)", description = "Bunun yerine deaktivasyon yapmak önerilir")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Talep başarıyla silindi."),
+            @ApiResponse(responseCode = "403", description = "Bu talebi silme yetkiniz yok."),
+            @ApiResponse(responseCode = "400", description = "Geçersiz girdi: Talep bulunamadı.")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public void deleteLeaveRequest(@PathVariable Long id) {
+        leaveRequestService.deleteLeaveRequest(id);
     }
 }

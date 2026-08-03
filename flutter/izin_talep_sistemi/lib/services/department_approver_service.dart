@@ -1,12 +1,17 @@
+import 'package:dio/dio.dart';
 import 'package:izin_talep_sistemi/models/department_approver.dart';
 import 'package:izin_talep_sistemi/models/department_approver_assign.dart';
 import 'package:izin_talep_sistemi/services/api_client.dart';
 
 class DepartmentApproverService {
+  final Dio _dio;
+
+  DepartmentApproverService({Dio? dio}) : _dio = dio ?? dioClient;
+
   Future<List<DepartmentApprover>> getApproversForDepartment(
     int departmentId,
   ) async {
-    final response = await DioClient().dio.get(
+    final response = await _dio.get(
       '/api/admin/departmentApprovers/department/$departmentId',
     );
 
@@ -18,7 +23,7 @@ class DepartmentApproverService {
   Future<DepartmentApprover> assignApprover(
     DepartmentApproverAssign dto,
   ) async {
-    final response = await DioClient().dio.post(
+    final response = await _dio.post(
       '/api/admin/departmentApprovers',
       data: dto.toJson(),
     );
@@ -27,7 +32,7 @@ class DepartmentApproverService {
   }
 
   Future<void> removeApprover(int departmentId, int level) async {
-    await DioClient().dio.delete(
+    await _dio.delete(
       '/api/admin/departmentApprovers/department/$departmentId/level/$level',
     );
   }

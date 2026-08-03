@@ -79,7 +79,7 @@ class AdminScreenState extends ConsumerState<AdminScreen> {
             child: Builder(
               builder: (context) => GestureDetector(
                 onTap: () => Scaffold.of(context).openDrawer(),
-                child: Container(
+                child: SizedBox(
                   width: 25,
                   height: 40,
 

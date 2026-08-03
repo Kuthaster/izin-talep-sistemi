@@ -1,18 +1,38 @@
-// providers/auth_provider.dart
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../services/api_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/services/api_client.dart';
 import '../services/auth_service.dart';
 import '../services/auth_interceptor.dart';
 import '../models/user_response.dart';
 
-class AuthNotifier extends StateNotifier<AsyncValue<UserResponse?>> {
-  final AuthService _authService = AuthService();
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
+final dioProvider = Provider<Dio>((ref) {
+  return ApiClient().dio;
+});
 
-  AuthNotifier() : super(const AsyncValue.loading()) {
+final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
+  return const FlutterSecureStorage();
+});
+
+final authServiceProvider = Provider<AuthService>((ref) {
+  final dio = ref.watch(dioProvider);
+  return AuthService(dio: dio);
+});
+
+class AuthNotifier extends StateNotifier<AsyncValue<UserResponse?>> {
+  final AuthService _authService;
+  final FlutterSecureStorage _storage;
+
+  final Dio _dio;
+
+  AuthNotifier({
+    required this._authService,
+    required Dio dio,
+    required this._storage,
+  }) : _dio = dio,
+       super(const AsyncValue.loading()) {
     _restoreSession();
   }
 
@@ -39,16 +59,23 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserResponse?>> {
       state = AsyncValue.error(e, StackTrace.current);
     }
   }
-  Future<UserResponse> _loadCurrentUser() async {
-    final response = await DioClient().dio.get('/api/users/profile');
-    return(UserResponse.fromJson(response.data));
 
+  Future<UserResponse> _loadCurrentUser() async {
+    final response = await _dio.get('/api/users/profile');
+    return (UserResponse.fromJson(response.data));
   }
-    Future<void> logout() async {
-      await _storage.delete(key: authTokenKey);
-      state = const AsyncValue.data(null);
-    }
+
+  Future<void> logout() async {
+    await _storage.delete(key: authTokenKey);
+    state = const AsyncValue.data(null);
+  }
 }
-  final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<UserResponse?>>(
-    (ref) => AuthNotifier(),
-);
+
+final authProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<UserResponse?>>((ref) {
+      final authService = ref.watch(authServiceProvider);
+      final dio = ref.watch(dioProvider);
+      final storage = ref.watch(secureStorageProvider);
+
+      return AuthNotifier(authService: authService, dio: dio, storage: storage);
+    });

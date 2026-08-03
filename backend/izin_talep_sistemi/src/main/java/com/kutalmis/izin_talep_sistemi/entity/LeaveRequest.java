@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "leave_requests")
 
-    
 public class LeaveRequest {
 
     @Id
@@ -23,7 +22,6 @@ public class LeaveRequest {
     @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
-
     @Column(name = "start_date")
     private LocalDate startDate;
 
@@ -37,7 +35,7 @@ public class LeaveRequest {
     private String reason;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "current_level", nullable = false)
     private Integer currentLevel = 1;
@@ -45,9 +43,13 @@ public class LeaveRequest {
     public LeaveRequest() {
     }
 
+    @PrePersist
+    private void onPrePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
     // getter setters
 
-     public Integer getCurrentLevel() {
+    public Integer getCurrentLevel() {
         return currentLevel;
     }
 
@@ -63,11 +65,11 @@ public class LeaveRequest {
         this.id = id;
     }
 
-    public String getReason(){
+    public String getReason() {
         return reason;
-    } 
+    }
 
-    public void setReason(String reason){
+    public void setReason(String reason) {
         this.reason = reason;
     }
 
@@ -86,31 +88,26 @@ public class LeaveRequest {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
-    
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
     public User getUser() {
         return user;
     }
 
-   public void setUser(User user){
-        this.user = user;   
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LeaveType getLeaveType() {
         return leaveType;
     }
 
-    public void setLeaveType(LeaveType leaveType){
-        this.leaveType = leaveType;   
+    public void setLeaveType(LeaveType leaveType) {
+        this.leaveType = leaveType;
     }
-
 
     public String getStatus() {
         return status;
@@ -119,6 +116,5 @@ public class LeaveRequest {
     public void setStatus(String status) {
         this.status = status;
     }
-
 
 }

@@ -79,6 +79,7 @@ public class UserService {
         user.setDepartment(department);
         user.setRole(role);
         user.setActive(true);
+        user.setGender(dto.gender());
 
         User savedUser = userRepository.save(user);
 
@@ -108,7 +109,8 @@ public class UserService {
                 user.getDepartment().getName(),
                 user.getRole().getDisplayName(),
                 user.getRole().getName(),
-                user.getActive());
+                user.getActive(),
+                user.getGender());
     }
 
     @Transactional
@@ -134,10 +136,16 @@ public class UserService {
             user.setEmail(dto.email());
         }
         user.setRole(role);
+
         user.setDepartment(department);
         if (dto.active() != null) {
             user.setActive(dto.active());
         }
+
+        if (dto.gender() != null) {
+            user.setGender(dto.gender());
+        }
+
         User saved = userRepository.save(user);
         return mapperResponseDTO(saved);
     }
@@ -155,5 +163,12 @@ public class UserService {
 
         caller.setPasswordHash(passwordEncoder.encode(dto.newPassword()));
         userRepository.save(caller);
+    }
+
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(id + " ID' li kullanıcı bulunamadı."));
+
+        departmentRepository.deleteById(user.getId());
     }
 }

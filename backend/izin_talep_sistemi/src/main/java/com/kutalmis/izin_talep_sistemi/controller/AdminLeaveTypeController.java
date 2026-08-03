@@ -36,8 +36,8 @@ public class AdminLeaveTypeController {
 
     @Operation(summary = "Izin türünü güncelle")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "İzin türü başarıyla güncellendi."),
-        @ApiResponse(responseCode = "400", description = "Geçersiz girdi veya izin türü bulunamadı.")
+            @ApiResponse(responseCode = "200", description = "İzin türü başarıyla güncellendi."),
+            @ApiResponse(responseCode = "400", description = "Geçersiz girdi veya izin türü bulunamadı.")
     })
     @PutMapping("/{id}")
     public LeaveTypeDTO updateLeaveType(@PathVariable Long id, @Valid @RequestBody LeaveTypeUpdateDTO dto) {
@@ -46,13 +46,25 @@ public class AdminLeaveTypeController {
 
     @Operation(summary = "Yeni izin türü oluştur")
     @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "İzin türü başarıyla oluşturuldu."),
-    @ApiResponse(responseCode = "400", description = "İzin türü adı boş olamaz veya gün sayısı geçersiz."),
-    @ApiResponse(responseCode = "409", description = "Bu isimli bir izin türü zaten var.")
+            @ApiResponse(responseCode = "200", description = "İzin türü başarıyla oluşturuldu."),
+            @ApiResponse(responseCode = "400", description = "İzin türü adı boş olamaz veya gün sayısı geçersiz."),
+            @ApiResponse(responseCode = "409", description = "Bu isimli bir izin türü zaten var.")
     })
     @PostMapping
     public LeaveTypeDTO createLeaveType(@Valid @RequestBody LeaveTypeCreateDTO dto) {
         return leaveTypeService.createLeaveType(dto);
 
-    }   
+    }
+
+    @Operation(summary = "İzin Türünü Sil (ADMİN)", description = "Bunun yerine deaktivasyon yapmak önerilir")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Talep türü başarıyla silindi."),
+            @ApiResponse(responseCode = "403", description = "Bu talep türünü silme yetkiniz yok."),
+            @ApiResponse(responseCode = "400", description = "Geçersiz girdi: Talep türü bulunamadı.")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public void deleteLeaveType(@PathVariable Long id) {
+        leaveTypeService.deleteLeaveType(id);
+    }
 }

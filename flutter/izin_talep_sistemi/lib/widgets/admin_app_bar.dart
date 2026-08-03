@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
-import 'package:izin_talep_sistemi/screens/profile_screen.dart';
 import 'package:izin_talep_sistemi/widgets/profile_avatar_widget.dart';
 
 class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {

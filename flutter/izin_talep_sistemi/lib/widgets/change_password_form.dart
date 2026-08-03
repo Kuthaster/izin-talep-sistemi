@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/change_password.dart';
-import 'package:izin_talep_sistemi/services/user_service.dart';
+import 'package:izin_talep_sistemi/providers/user_service.provider.dart';
 
-class ChangePasswordForm extends StatefulWidget {
+class ChangePasswordForm extends ConsumerStatefulWidget {
   const ChangePasswordForm({super.key});
 
   @override
-  State<ChangePasswordForm> createState() => _ChangePasswordFormState();
+  ConsumerState<ChangePasswordForm> createState() => _ChangePasswordFormState();
 }
 
-class _ChangePasswordFormState extends State<ChangePasswordForm> {
+class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   bool _isSubmitting = false;
@@ -23,7 +24,8 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
   }
 
   Future<void> _submit() async {
-    if (_currentPasswordController.text.isEmpty || _newPasswordController.text.isEmpty) {
+    if (_currentPasswordController.text.isEmpty ||
+        _newPasswordController.text.isEmpty) {
       setState(() => _errorMessage = 'Lütfen tüm alanları doldurun.');
       return;
     }
@@ -39,7 +41,7 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
         newPassword: _newPasswordController.text,
       );
 
-      await UserService().changePassword(dto);
+      await ref.read(userServiceProvider).changePassword(dto);
 
       if (mounted) Navigator.pop(context);
     } catch (e) {
@@ -62,7 +64,10 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Şifre Değiştir', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+          const Text(
+            'Şifre Değiştir',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+          ),
           const SizedBox(height: 16),
 
           TextField(
@@ -89,7 +94,11 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
             child: ElevatedButton(
               onPressed: _isSubmitting ? null : _submit,
               child: _isSubmitting
-                  ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const SizedBox(
+                      height: 16,
+                      width: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Text('Şifreyi Değiştir'),
             ),
           ),

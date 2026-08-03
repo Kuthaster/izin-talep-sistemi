@@ -1,3 +1,5 @@
+import 'package:izin_talep_sistemi/models/Gender.dart';
+
 class UserUpdate {
   final String? firstName;
   final String? lastName;
@@ -5,6 +7,7 @@ class UserUpdate {
   final int? departmentId;
   final int? roleId;
   final bool? active;
+  final Gender? gender;
 
   UserUpdate({
     this.firstName,
@@ -13,6 +16,7 @@ class UserUpdate {
     this.departmentId,
     this.roleId,
     this.active,
+    this.gender,
   });
 
   Map<String, dynamic> toJson() {
@@ -23,6 +27,7 @@ class UserUpdate {
       'departmentId': departmentId,
       'roleId': roleId,
       'active': active,
+      'gender': gender,
     };
   }
 }

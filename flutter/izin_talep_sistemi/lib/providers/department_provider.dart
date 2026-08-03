@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/department.dart';
-import 'package:izin_talep_sistemi/services/department_service.dart';
+import 'package:izin_talep_sistemi/providers/department_service_provider.dart';
 
 final departmentsProvider = FutureProvider<List<Department>>((ref) async {
-  return DepartmentService().getAllDepartments();
+  final departmentService = ref.watch(departmentServiceProvider);
+
+  return departmentService.getAllDepartments();
 });

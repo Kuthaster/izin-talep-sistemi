@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/role_authority.dart';
 import 'package:izin_talep_sistemi/screens/approvals_screen.dart';
 import 'package:izin_talep_sistemi/screens/profile_drawer.dart';
-import 'package:izin_talep_sistemi/screens/profile_screen.dart';
 import 'package:izin_talep_sistemi/screens/requests_screen.dart';
 import 'package:izin_talep_sistemi/widgets/create_request_form.dart';
 import 'package:izin_talep_sistemi/widgets/profile_avatar_widget.dart';

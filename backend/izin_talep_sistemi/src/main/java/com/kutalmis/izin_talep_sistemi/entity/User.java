@@ -2,7 +2,6 @@ package com.kutalmis.izin_talep_sistemi.entity;
 
 import jakarta.persistence.*;
 
-
 @Entity
 @Table(name = "users")
 
@@ -14,21 +13,25 @@ public class User {
     private Long id;
 
     @Column(name = "first_name", nullable = false)
-        private String firstName;
-    
-    @Column(name = "last_name", nullable = false)
-        private String lastName;
+    private String firstName;
 
-    @Column(name = "email",nullable = false, unique = true)
-        private String email;
-        
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
     @Column(name = "password_hash", nullable = false)
-        private String passwordHash;
+    private String passwordHash;
 
     @Column(nullable = false)
     private Boolean active = true;
-    
-    //İlişkiler
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender;
+
+    // İlişkiler
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
@@ -38,40 +41,40 @@ public class User {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
-    public User(){
+    public User() {
     }
 
     // Getter Setter
 
-    public void setId(Long id){
+    public void setId(Long id) {
         this.id = id;
-    } 
+    }
 
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 
-   public void setFirstName(String FirstName){
-    this.firstName = FirstName;
-   }
+    public void setFirstName(String FirstName) {
+        this.firstName = FirstName;
+    }
 
-   public String getFirstName(){
-    return firstName;
-   }
+    public String getFirstName() {
+        return firstName;
+    }
 
-    public void setLastName(String LastName){
+    public void setLastName(String LastName) {
         this.lastName = LastName;
     }
 
-    public String getLastName(){
+    public String getLastName() {
         return lastName;
     }
 
-    public String getEmail(){
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email){
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -99,12 +102,19 @@ public class User {
         this.department = department;
     }
 
-    public void setActive(Boolean active){
+    public void setActive(Boolean active) {
         this.active = active;
     }
 
-    public Boolean getActive(){
+    public Boolean getActive() {
         return active;
     }
 
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
 }

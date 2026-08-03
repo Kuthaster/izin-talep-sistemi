@@ -6,22 +6,23 @@ import 'api_client.dart';
 import 'auth_interceptor.dart';
 
 class AuthService {
-  
+  final Dio _dio;
+
+  AuthService({Dio? dio}) : _dio = dio ?? dioClient;
+
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  Future <LoginResponse> login(String email, String password) async{
-  
-  try{
+  Future<LoginResponse> login(String email, String password) async {
+    try {
+      final response = await _dio.post(
+        '/api/auth/login',
+        data: {'email': email, 'password': password},
+      );
 
-  final response =  await DioClient().dio.post('/api/auth/login', data: {
-    'email': email,
-    'password': password,
-    });
-
-    final loginResponse = LoginResponse.fromJson(response.data);
-    await _storage.write(key: authTokenKey, value: loginResponse.token);
-    return loginResponse;
-  } on DioException catch (_) {
+      final loginResponse = LoginResponse.fromJson(response.data);
+      await _storage.write(key: authTokenKey, value: loginResponse.token);
+      return loginResponse;
+    } on DioException catch (_) {
       throw Exception('E-posta veya şifre hatalı');
     }
   }

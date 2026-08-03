@@ -1,12 +1,13 @@
+import 'package:dio/dio.dart';
 import 'package:izin_talep_sistemi/models/department_approver.dart';
-import 'package:izin_talep_sistemi/services/api_client.dart';
 
 class DepartmentApproverRepository {
-  final DioClient dioClient;
-  DepartmentApproverRepository(this.dioClient);
+  final Dio _dio;
+
+  DepartmentApproverRepository(this._dio);
 
   Future<List<DepartmentApprover>> fetch(int departmentId) async {
-    final response = await dioClient.dio.get(
+    final response = await _dio.get(
       '/api/admin/departmentApprovers/department/$departmentId',
     );
 
