@@ -290,44 +290,6 @@ class _ApprovalsSectionState extends ConsumerState<ApprovalsSection> {
                   ],
                 ),
               ),
-              /*request.status == 'PENDING'
-                    ? Container(
-                        padding: EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.check,
-                                size: 18,
-                                color: Colors.green,
-                              ),
-                              onPressed: () => _decide(
-                                context,
-                                ref,
-                                request,
-                                LeaveDecision.APPROVED,
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.close,
-                                size: 18,
-                                color: Colors.red,
-                              ),
-                              onPressed: () => _decide(
-                                context,
-                                ref,
-                                request,
-                                LeaveDecision.REJECTED,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : const SizedBox.shrink(), 
-              ),*/
             ],
             emptyStateTitle: 'İzin talebi yok',
           ),

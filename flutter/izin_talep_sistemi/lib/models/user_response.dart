@@ -33,7 +33,7 @@ class UserResponse {
       roleDisplayName: json['roleDisplayName'],
       roleAuthority: RoleAuthority.values.byName(json['roleAuthority']),
       active: json['active'],
-      gender: json['gender'],
+      gender: Gender.values.byName(json['gender']),
     );
   }
 }

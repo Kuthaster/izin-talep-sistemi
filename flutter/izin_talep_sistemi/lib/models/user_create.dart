@@ -27,7 +27,7 @@ class UserCreate {
       'rawPassword': rawPassword,
       'departmentId': departmentId,
       'roleId': roleId,
-      'gender': gender,
+      'gender': gender.name,
     };
   }
 }

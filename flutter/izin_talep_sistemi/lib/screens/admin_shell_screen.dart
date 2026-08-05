@@ -56,39 +56,25 @@ class AdminScreenState extends ConsumerState<AdminScreen> {
     final appBarState = ref.watch(adminAppBarProvider);
 
     return Scaffold(
-      appBar: AdminAppBar(
-        title: appBarState.title,
-        primaryActionLabel: appBarState.primaryActionLabel,
-        onPrimaryAction: appBarState.onPrimaryAction,
-        additionalActions: appBarState.additionalActions,
-        onSearchChanged: appBarState.onSearchChanged,
-      ),
-      drawer: Drawer(
-        child: AdminSidebar(
-          currentSection: _currentSection,
-          onSectionSelected: _selectSection,
-        ),
-      ),
       endDrawer: ProfileDrawer(),
-      body: Stack(
+      body: Row(
         children: [
-          Column(children: [Expanded(child: (_buildContent()))]),
-          Positioned(
-            left: 0,
-            top: ((MediaQuery.sizeOf(context).height - 80) / 2),
-            child: Builder(
-              builder: (context) => GestureDetector(
-                onTap: () => Scaffold.of(context).openDrawer(),
-                child: SizedBox(
-                  width: 25,
-                  height: 40,
-
-                  child: Icon(
-                    Icons.arrow_right_outlined,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
+          AdminSidebar(
+            currentSection: _currentSection,
+            onSectionSelected: _selectSection,
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                AdminAppBar(
+                  title: appBarState.title,
+                  primaryActionLabel: appBarState.primaryActionLabel,
+                  onPrimaryAction: appBarState.onPrimaryAction,
+                  additionalActions: appBarState.additionalActions,
+                  onSearchChanged: appBarState.onSearchChanged,
                 ),
-              ),
+                Expanded(child: _buildContent()),
+              ],
             ),
           ),
         ],

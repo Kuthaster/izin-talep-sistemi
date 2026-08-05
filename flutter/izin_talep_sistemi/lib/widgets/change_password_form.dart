@@ -62,36 +62,62 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'Şifre Değiştir',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 20,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
 
           TextField(
             controller: _currentPasswordController,
             obscureText: true,
-            decoration: const InputDecoration(labelText: 'Mevcut Şifre'),
+            decoration: InputDecoration(
+              labelText: 'Mevcut Şifre',
+              labelStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
           const SizedBox(height: 12),
 
           TextField(
             controller: _newPasswordController,
             obscureText: true,
-            decoration: const InputDecoration(labelText: 'Yeni Şifre'),
+            decoration: InputDecoration(
+              labelText: 'Yeni Şifre',
+              labelStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
 
           if (_errorMessage != null) ...[
             const SizedBox(height: 8),
-            Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+            Text(
+              _errorMessage!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
           ],
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           SizedBox(
-            width: double.infinity,
+            width: double.maxFinite,
             child: ElevatedButton(
+              style: ButtonStyle(
+                overlayColor: WidgetStateProperty.all(
+                  Theme.of(context).colorScheme.secondary,
+                ),
+                backgroundColor: WidgetStateProperty.all(
+                  Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
               onPressed: _isSubmitting ? null : _submit,
               child: _isSubmitting
                   ? const SizedBox(
@@ -99,7 +125,12 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
                       width: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Şifreyi Değiştir'),
+                  : Text(
+                      'Uygula',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
             ),
           ),
         ],

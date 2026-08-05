@@ -19,87 +19,110 @@ class ProfileDrawer extends ConsumerWidget {
 
     return Drawer(
       width: 250,
-      backgroundColor: scheme.primary,
-      child: Column(
-        children: [
-          Card(
-            color: Theme.of(context).colorScheme.primary,
-            margin: EdgeInsets.all(15),
-            child: Column(
-              children: [
-                ProfileAvatarWidget(),
-
-                Text(
-                  '${firstName ?? 'AD'} ${lastName ?? 'SOYAD'}',
-                  style: TextStyle(color: scheme.onPrimary),
-                ),
-                Text(roleDisplayName ?? 'ROL'),
-                Text(departmentName ?? 'DEPARTMAN'),
-
-                Icon(
-                  Icons.email,
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
-                SizedBox(width: 8),
-                Text(
-                  email ?? 'BULUNAMADI',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(child: ListView()),
-
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.zero,
-              minimumSize: Size(160, 40),
-            ),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                builder: (context) => const ChangePasswordForm(),
-              );
-            },
-            child: Text("ŞİFREYİ DEĞİŞTİR"), //TODO BURAYI STILIZE ET
-          ),
-
-          //button
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Theme.of(context).colorScheme.onPrimary),
-              ),
-            ),
-            child: SizedBox(
+      child: Container(
+        color: scheme.primary,
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 5),
               width: double.infinity,
-              child: OutlinedButton.icon(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(scheme.tertiary),
-                  overlayColor: WidgetStateProperty.all(scheme.secondary),
-                ),
-                onPressed: () {
-                  ref.read(authProvider.notifier).logout();
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                icon: Icon(
-                  Icons.logout,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                label: Text(
-                  'Çıkış Yap',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
+              decoration: BoxDecoration(
+                color: scheme.tertiary,
+                borderRadius: BorderRadiusGeometry.all(Radius.elliptical(1, 6)),
+              ),
+              child: Column(
+                children: [
+                  ProfileAvatarWidget(),
+
+                  Text(
+                    '${firstName ?? 'AD'} ${lastName ?? 'SOYAD'}',
+                    style: TextStyle(color: scheme.onPrimary),
                   ),
-                ),
+                  Text(
+                    roleDisplayName ?? 'ROL',
+                    style: TextStyle(color: scheme.onPrimary),
+                  ),
+                  Text(
+                    departmentName ?? 'DEPARTMAN',
+                    style: TextStyle(color: scheme.onPrimary),
+                  ),
+
+                  Icon(Icons.email, size: 16, color: scheme.primaryFixed),
+                  SizedBox(width: 8, height: 1),
+                  Text(
+                    email ?? 'BULUNAMADI',
+                    style: TextStyle(color: scheme.primaryFixed),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+
+            Expanded(child: ListView()),
+
+            //button
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: scheme.onPrimary)),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.maxFinite,
+                    child: OutlinedButton.icon(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          scheme.tertiary,
+                        ),
+                        overlayColor: WidgetStateProperty.all(scheme.secondary),
+                      ),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.surface,
+                          isDismissible: true,
+                          enableDrag: true,
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) => const ChangePasswordForm(),
+                        );
+                      },
+                      icon: Icon(Icons.key, color: scheme.onPrimary),
+                      label: Text(
+                        'Şifre Değiştir',
+                        style: TextStyle(color: scheme.onPrimary),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: double.infinity, height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          scheme.tertiary,
+                        ),
+                        overlayColor: WidgetStateProperty.all(scheme.secondary),
+                      ),
+                      onPressed: () {
+                        ref.read(authProvider.notifier).logout();
+                        Navigator.of(
+                          context,
+                        ).popUntil((route) => route.isFirst);
+                      },
+                      icon: Icon(Icons.logout, color: scheme.onPrimary),
+                      label: Text(
+                        'Çıkış Yap',
+                        style: TextStyle(color: scheme.onPrimary),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

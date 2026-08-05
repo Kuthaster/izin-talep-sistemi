@@ -10,6 +10,7 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final List<Widget>? additionalActions;
   final TextEditingController? searchController;
   final ValueChanged<String>? onSearchChanged;
+  final bool hasSearch;
 
   const AdminAppBar({
     super.key,
@@ -19,10 +20,11 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
     this.additionalActions,
     this.searchController,
     this.onSearchChanged,
+    this.hasSearch = true,
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(80);
+  Size get preferredSize => const Size.fromHeight(60);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,53 +35,60 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
       elevation: 1,
       automaticallyImplyActions: false,
       automaticallyImplyLeading: false,
-      title: Expanded(
+      title: SizedBox(
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          spacing: 12,
           children: [
-            if (primaryActionLabel != null && onPrimaryAction != null)
-              ElevatedButton.icon(
-                onPressed: onPrimaryAction,
-                icon: const Icon(Icons.add),
-                label: Text(primaryActionLabel!),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.tertiary,
-                  foregroundColor: Theme.of(context).colorScheme.scrim,
-                ),
-              ),
-            const SizedBox(width: 12),
             Text(
               title,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: TextField(
-                onChanged: (value) {
-                  appBarState.onSearchChanged?.call(value);
-                  ref
-                      .read(adminAppBarProvider.notifier)
-                      .updateSearchQuery(value);
-                },
-                decoration: InputDecoration(
-                  hintText: 'Ara',
-                  prefixIcon: const Icon(Icons.search),
-                  fillColor: Theme.of(context).colorScheme.inverseSurface,
-                  hoverColor: Theme.of(context).colorScheme.tertiary,
-                  focusColor: Theme.of(context).colorScheme.secondary,
-                  border: const OutlineInputBorder(),
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
+            if (primaryActionLabel != null && onPrimaryAction != null)
+              IconButton(
+                onPressed: onPrimaryAction,
+                icon: const Icon(Icons.add),
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+
+            if (hasSearch)
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: TextField(
+                    onChanged: (value) {
+                      appBarState.onSearchChanged?.call(value);
+                      ref
+                          .read(adminAppBarProvider.notifier)
+                          .updateSearchQuery(value);
+                    },
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Ara',
+                      prefixIcon: const Icon(Icons.search),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.inverseSurface,
+                      hoverColor: Theme.of(context).colorScheme.secondary,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(width: 1.8),
+                      ),
+                      isDense: false,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const Spacer(),
+            Spacer(flex: 4),
           ],
         ),
       ),

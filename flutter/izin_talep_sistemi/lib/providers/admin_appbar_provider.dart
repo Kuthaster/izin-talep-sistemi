@@ -8,6 +8,7 @@ class AdminAppBarState {
   final List<Widget>? additionalActions;
   final ValueChanged<String>? onSearchChanged;
   final String searchQuery;
+  final bool hasSearch;
 
   const AdminAppBarState({
     required this.title,
@@ -16,6 +17,7 @@ class AdminAppBarState {
     this.additionalActions,
     this.onSearchChanged,
     this.searchQuery = '',
+    this.hasSearch = true,
   });
 
   AdminAppBarState copyWith({
@@ -26,6 +28,7 @@ class AdminAppBarState {
     TextEditingController? searchController,
     ValueChanged<String>? onSearchChanged,
     String? searchQuery,
+    bool? hasSearch,
   }) {
     return AdminAppBarState(
       title: title ?? this.title,
@@ -34,6 +37,7 @@ class AdminAppBarState {
       additionalActions: additionalActions ?? this.additionalActions,
       onSearchChanged: onSearchChanged ?? this.onSearchChanged,
       searchQuery: searchQuery ?? this.searchQuery,
+      hasSearch: hasSearch ?? this.hasSearch,
     );
   }
 }
@@ -49,6 +53,7 @@ class AdminAppBarNotifier extends StateNotifier<AdminAppBarState> {
     TextEditingController? searchController,
     ValueChanged<String>? onSearchChanged,
     String? searchQuery,
+    bool? hasSearch,
   }) {
     state = state.copyWith(
       title: title,
@@ -57,15 +62,12 @@ class AdminAppBarNotifier extends StateNotifier<AdminAppBarState> {
       additionalActions: additionalActions,
       onSearchChanged: onSearchChanged,
       searchQuery: '',
+      hasSearch: hasSearch,
     );
   }
 
   void updateSearchQuery(String query) {
     state = state.copyWith(searchQuery: query);
-  }
-
-  void reset() {
-    state = const AdminAppBarState(title: 'Admin Panel');
   }
 }
 

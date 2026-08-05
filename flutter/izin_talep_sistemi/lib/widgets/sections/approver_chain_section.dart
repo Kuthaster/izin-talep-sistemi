@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/department_approver_assign.dart';
+import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_departments_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_user_provider.dart';
 import 'package:izin_talep_sistemi/providers/department_approver_provider.dart';
@@ -105,9 +106,14 @@ class _ApproverChainSectionState extends ConsumerState<ApproverChainSection> {
   Widget build(BuildContext context) {
     final asyncDepartments = ref.watch(adminDepartmentsProvider);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(adminAppBarProvider.notifier)
+          .updateAppBar(title: 'Departmanlar', hasSearch: false);
+    });
+
     return Column(
       children: [
-        const AdminAppBar(title: 'Onay Zinciri'),
         Expanded(
           child: asyncDepartments.when(
             loading: () => const Center(child: CircularProgressIndicator()),

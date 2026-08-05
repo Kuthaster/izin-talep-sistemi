@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:izin_talep_sistemi/models/Gender.dart';
 
 class UserUpdate {
@@ -27,7 +29,7 @@ class UserUpdate {
       'departmentId': departmentId,
       'roleId': roleId,
       'active': active,
-      'gender': gender,
+      'gender': gender?.name,
     };
   }
 }
