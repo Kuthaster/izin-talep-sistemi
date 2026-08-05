@@ -35,12 +35,13 @@ class MainScreen extends ConsumerWidget {
         ],
       ),
       endDrawer: ProfileDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: Container(
+        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Card.outlined(
+              color: Theme.of(context).colorScheme.tertiary,
               child: InkWell(
                 onTap: () => Navigator.push(
                   context,
@@ -56,6 +57,7 @@ class MainScreen extends ConsumerWidget {
                 roleAuthority == RoleAuthority.MANAGER_LEVEL_2 ||
                 roleAuthority == RoleAuthority.MANAGER_LEVEL_3)
               Card.outlined(
+                color: Theme.of(context).colorScheme.tertiary,
                 child: InkWell(
                   onTap: () => Navigator.push(
                     context,

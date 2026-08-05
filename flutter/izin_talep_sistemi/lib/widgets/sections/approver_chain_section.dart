@@ -8,7 +8,6 @@ import 'package:izin_talep_sistemi/providers/department_approver_provider.dart';
 import 'package:izin_talep_sistemi/providers/department_approver_service_provider.dart';
 import 'package:izin_talep_sistemi/providers/department_provider.dart';
 import 'package:izin_talep_sistemi/services/department_approver_service.dart';
-import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 
 class ApproverChainSection extends ConsumerStatefulWidget {
   const ApproverChainSection({super.key});
@@ -109,7 +108,7 @@ class _ApproverChainSectionState extends ConsumerState<ApproverChainSection> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(adminAppBarProvider.notifier)
-          .updateAppBar(title: 'Departmanlar', hasSearch: false);
+          .updateAppBar(title: 'Departman Zinciri', hasSearch: false);
     });
 
     return Column(

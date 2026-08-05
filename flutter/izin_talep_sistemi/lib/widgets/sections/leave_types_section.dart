@@ -248,6 +248,7 @@ class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
             title: 'İzin Türleri',
             primaryActionLabel: 'Yeni İzin Türü Oluştur',
             onPrimaryAction: () => _createLeaveType(context, ref),
+            hasSearch: true,
           );
     });
 

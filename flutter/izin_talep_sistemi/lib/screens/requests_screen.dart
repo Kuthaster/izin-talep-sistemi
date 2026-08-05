@@ -24,12 +24,14 @@ class RequestsScreen extends ConsumerWidget {
         ],
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: const [
           Expanded(child: LeaveRequestList()), //liste
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showModalBottomSheet(
+          backgroundColor: Theme.of(context).colorScheme.surface,
           context: context,
           isScrollControlled: true,
           builder: (context) => const CreateRequestForm(),

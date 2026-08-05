@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
 import 'package:izin_talep_sistemi/ultilities/date_utilities.dart';
 
@@ -139,6 +140,12 @@ class _ApprovalsSectionState extends ConsumerState<ApprovalsSection> {
   Widget build(BuildContext context) {
     final asyncRequests = ref.watch(leaveRequestsForApprovalProvider);
     final scheme = Theme.of(context).colorScheme;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(adminAppBarProvider.notifier)
+          .updateAppBar(title: 'İzinler', hasSearch: true);
+    });
 
     return Expanded(
       child: Padding(

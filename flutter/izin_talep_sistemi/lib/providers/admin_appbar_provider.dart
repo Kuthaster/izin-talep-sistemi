@@ -17,7 +17,7 @@ class AdminAppBarState {
     this.additionalActions,
     this.onSearchChanged,
     this.searchQuery = '',
-    this.hasSearch = true,
+    this.hasSearch = false,
   });
 
   AdminAppBarState copyWith({
@@ -53,7 +53,7 @@ class AdminAppBarNotifier extends StateNotifier<AdminAppBarState> {
     TextEditingController? searchController,
     ValueChanged<String>? onSearchChanged,
     String? searchQuery,
-    bool? hasSearch,
+    bool hasSearch = false,
   }) {
     state = state.copyWith(
       title: title,

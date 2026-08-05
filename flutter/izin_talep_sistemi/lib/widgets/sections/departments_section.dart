@@ -158,9 +158,10 @@ class _DepartmentsSectionState extends ConsumerState<DepartmentsSection> {
       ref
           .read(adminAppBarProvider.notifier)
           .updateAppBar(
-            title: 'Roller',
-            primaryActionLabel: 'Yeni Rol Oluştur',
+            title: 'Departmanlar',
+            primaryActionLabel: 'Yeni Departman Oluştur',
             onPrimaryAction: () => _createDepartment(context, ref),
+            hasSearch: true,
           );
     });
 
