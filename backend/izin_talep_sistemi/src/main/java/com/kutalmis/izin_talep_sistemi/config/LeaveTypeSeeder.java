@@ -29,6 +29,7 @@ public class LeaveTypeSeeder implements CommandLineRunner {
             leaveType.setName(name);
             leaveType.setDefaultDays(defaultDays);
             leaveType.setActive(true);
+            leaveType.setGenderRestriction(null);
             leaveTypeRepository.save(leaveType);
         }
     }

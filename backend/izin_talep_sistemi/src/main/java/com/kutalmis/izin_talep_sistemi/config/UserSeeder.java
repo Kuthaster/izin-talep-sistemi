@@ -1,6 +1,7 @@
 package com.kutalmis.izin_talep_sistemi.config;
 
 import com.kutalmis.izin_talep_sistemi.entity.Department;
+import com.kutalmis.izin_talep_sistemi.entity.Gender;
 import com.kutalmis.izin_talep_sistemi.entity.Role;
 import com.kutalmis.izin_talep_sistemi.entity.RoleAuthority;
 import com.kutalmis.izin_talep_sistemi.entity.User;
@@ -15,7 +16,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @Order(2)
 public class UserSeeder implements CommandLineRunner {
@@ -28,7 +28,6 @@ public class UserSeeder implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-
     @Value("${app.bootstrap-admin.email:admin@company.local}")
     private String bootstrapAdminEmail;
 
@@ -36,15 +35,14 @@ public class UserSeeder implements CommandLineRunner {
     private String bootstrapAdminPassword;
 
     public UserSeeder(UserRepository userRepository,
-                       DepartmentRepository departmentRepository,
-                       RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder) {
+            DepartmentRepository departmentRepository,
+            RoleRepository roleRepository,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.departmentRepository = departmentRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
 
     @Override
     public void run(String... args) {
@@ -53,15 +51,15 @@ public class UserSeeder implements CommandLineRunner {
         }
 
         Role adminRole = roleRepository.findByName(RoleAuthority.ADMIN)
-            .orElseThrow(() -> new IllegalStateException(
-                "ADMIN rolü bulunamadı. RoleSeeder, UserSeeder'dan önce çalışmalıdır."));
+                .orElseThrow(() -> new IllegalStateException(
+                        "ADMIN rolü bulunamadı. RoleSeeder, UserSeeder'dan önce çalışmalıdır."));
 
         Department bootstrapDepartment = departmentRepository.findByName(BOOTSTRAP_DEPARTMENT_NAME)
-            .orElseGet(() -> {
-                Department dept = new Department();
-                dept.setName(BOOTSTRAP_DEPARTMENT_NAME);
-                return departmentRepository.save(dept);
-            });
+                .orElseGet(() -> {
+                    Department dept = new Department();
+                    dept.setName(BOOTSTRAP_DEPARTMENT_NAME);
+                    return departmentRepository.save(dept);
+                });
 
         User admin = new User();
         admin.setFirstName("Sistem");
@@ -70,10 +68,12 @@ public class UserSeeder implements CommandLineRunner {
         admin.setPasswordHash(passwordEncoder.encode(bootstrapAdminPassword));
         admin.setDepartment(bootstrapDepartment);
         admin.setRole(adminRole);
+        admin.setActive(Boolean.TRUE);
+        admin.setGender(Gender.MALE);
 
         userRepository.save(admin);
 
         log.warn("Bootstrap ADMIN hesabı oluşturuldu (email: {}). " +
-                 "Bu hesabın şifresini ilk girişten sonra değiştirin.", bootstrapAdminEmail);
+                "Bu hesabın şifresini ilk girişten sonra değiştirin.", bootstrapAdminEmail);
     }
 }
