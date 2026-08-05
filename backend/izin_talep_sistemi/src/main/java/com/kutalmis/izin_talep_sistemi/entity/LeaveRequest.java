@@ -43,6 +43,17 @@ public class LeaveRequest {
     public LeaveRequest() {
     }
 
+    @Column(name = "requested_days", nullable = false)
+    private Integer requestedDays;
+
+    public Integer getRequestedDays() {
+        return requestedDays;
+    }
+
+    public void setRequestedDays(Integer requestedDays) {
+        this.requestedDays = requestedDays;
+    }
+
     @PrePersist
     private void onPrePersist() {
         this.createdAt = LocalDateTime.now();

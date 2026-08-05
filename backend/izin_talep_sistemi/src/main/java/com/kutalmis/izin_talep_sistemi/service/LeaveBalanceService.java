@@ -1,24 +1,34 @@
-
 package com.kutalmis.izin_talep_sistemi.service;
 
+import com.kutalmis.izin_talep_sistemi.dto.LeaveBalanceDTO;
+import com.kutalmis.izin_talep_sistemi.dto.LeaveBalanceUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveBalance;
+import com.kutalmis.izin_talep_sistemi.entity.LeaveBalanceAudit;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveType;
 import com.kutalmis.izin_talep_sistemi.entity.User;
+import com.kutalmis.izin_talep_sistemi.repository.LeaveBalanceAuditRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveBalanceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LeaveBalanceService {
 
     private final LeaveBalanceRepository leaveBalanceRepository;
+    private final LeaveBalanceAuditRepository leaveBalanceAuditRepository;
 
-    public LeaveBalanceService(LeaveBalanceRepository leaveBalanceRepository) {
+    public LeaveBalanceService(LeaveBalanceRepository leaveBalanceRepository,
+            LeaveBalanceAuditRepository leaveBalanceAuditRepository) {
         this.leaveBalanceRepository = leaveBalanceRepository;
+        this.leaveBalanceAuditRepository = leaveBalanceAuditRepository;
     }
+
+    // --- FROM YOUR IMPLEMENTATION ---
 
     public int countBusinessDays(LocalDate start, LocalDate end) {
         int count = 0;
@@ -66,7 +76,7 @@ public class LeaveBalanceService {
     }
 
     @Transactional
-    public void releaseReservation(User user, LeaveType leaveType, int year, int days) {
+    public void releaseReservedDays(User user, LeaveType leaveType, int year, int days) {
         leaveBalanceRepository
                 .findByUser_IdAndLeaveType_IdAndYear(user.getId(), leaveType.getId(), year)
                 .ifPresent(balance -> {
@@ -92,7 +102,6 @@ public class LeaveBalanceService {
         LeaveBalance balance = getOrCreateBalance(user, leaveType, year);
         int delta = newDays - oldDays;
         if (delta > 0) {
-            // requesting more days — validate the extra
             if (delta > balance.getAvailableDays()) {
                 throw new IllegalArgumentException(
                         "Yetersiz izin bakiyesi. Kullanılabilir: " + balance.getAvailableDays()
@@ -101,5 +110,43 @@ public class LeaveBalanceService {
         }
         balance.setReservedDays(Math.max(0, balance.getReservedDays() + delta));
         leaveBalanceRepository.save(balance);
+    }
+
+    // --- ADDED FOR CONTROLLER AND ADMIN AUDIT ---
+
+    public List<LeaveBalanceDTO> getUserBalances(Long userId) {
+        return leaveBalanceRepository.findAll().stream()
+                .filter(b -> b.getUser().getId().equals(userId))
+                .map(b -> new LeaveBalanceDTO(
+                        b.getId(),
+                        b.getLeaveType().getName(),
+                        b.getYear(),
+                        b.getTotalDays(),
+                        b.getUsedDays(),
+                        b.getReservedDays(),
+                        b.getAvailableDays()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public LeaveBalanceDTO updateBalanceAsAdmin(Long balanceId, LeaveBalanceUpdateDTO dto, User admin) {
+        LeaveBalance balance = leaveBalanceRepository.findById(balanceId)
+                .orElseThrow(() -> new IllegalArgumentException("Bakiye bulunamadı."));
+
+        Integer oldTotal = balance.getTotalDays();
+        balance.setTotalDays(dto.newTotalDays());
+
+        leaveBalanceAuditRepository
+                .save(new LeaveBalanceAudit(balance, admin, oldTotal, dto.newTotalDays(), dto.reason()));
+        LeaveBalance saved = leaveBalanceRepository.save(balance);
+
+        return new LeaveBalanceDTO(
+                saved.getId(),
+                saved.getLeaveType().getName(),
+                saved.getYear(),
+                saved.getTotalDays(),
+                saved.getUsedDays(),
+                saved.getReservedDays(),
+                saved.getAvailableDays());
     }
 }

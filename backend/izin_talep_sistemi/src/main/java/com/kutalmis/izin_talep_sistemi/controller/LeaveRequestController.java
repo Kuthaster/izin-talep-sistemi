@@ -85,15 +85,16 @@ public class LeaveRequestController {
         return leaveRequestService.getRequestsForApproval(caller, filter);
     }
 
-    @Operation(summary = "Yeni bir izin talebi oluştur", description = "Giriş yapmış kullanıcı adına yeni izin talebi oluşturur, default status PENDING")
+    @Operation(summary = "Yeni bir izin talebi oluştur", description = "Tarihler yılı aşıyorsa ayrı taleplere bölünür.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "İzin talebi başarıyla oluşturuldu."),
             @ApiResponse(responseCode = "400", description = "Geçersiz tarih veya eksik veri."),
-            @ApiResponse(responseCode = "409", description = "Kullanıcı zaten bekleyen bir talebe sahip.")
+            @ApiResponse(responseCode = "409", description = "Çakışan tarihler veya yetersiz bakiye.")
     })
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public LeaveRequestDTO createLeaveRequest(@Valid @RequestBody LeaveRequestCreateDTO dto, Principal principal) {
+    public List<LeaveRequestDTO> createLeaveRequest(@Valid @RequestBody LeaveRequestCreateDTO dto,
+            Principal principal) {
         User caller = userService.getUserEntityByEmail(principal.getName());
         return leaveRequestService.createLeaveRequest(dto, caller);
     }
