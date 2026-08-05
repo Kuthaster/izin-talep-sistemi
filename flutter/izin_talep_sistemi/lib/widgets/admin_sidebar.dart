@@ -21,7 +21,7 @@ class AdminSidebar extends ConsumerStatefulWidget {
 
 class _AdminSidebarState extends ConsumerState<AdminSidebar> {
   static const double _expandedWidth = 250;
-  static const double _collapsedWidth = 60;
+  static const double _collapsedWidth = 64;
 
   late bool _collapsed;
 
@@ -45,15 +45,15 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
         clipBehavior: Clip.none,
         children: [
           AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeInOut,
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.decelerate,
             width: width,
             child: Column(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 12,
+                    vertical: 26,
+                    horizontal: 8,
                   ),
                   alignment: Alignment.center,
                   child: _collapsed
@@ -77,7 +77,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                 ),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     children: [
                       _buildNavItem(
                         context,

@@ -72,6 +72,7 @@ class AdminScreenState extends ConsumerState<AdminScreen> {
                   onPrimaryAction: appBarState.onPrimaryAction,
                   additionalActions: appBarState.additionalActions,
                   onSearchChanged: appBarState.onSearchChanged,
+                  hasSearch: appBarState.hasSearch,
                 ),
                 Expanded(child: _buildContent()),
               ],

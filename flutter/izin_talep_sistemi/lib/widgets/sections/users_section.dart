@@ -422,6 +422,7 @@ class _UsersSectionState extends ConsumerState<UsersSection> {
             primaryActionLabel: 'Yeni Kullanıcı Oluştur',
             onPrimaryAction: () =>
                 _createUser(context, ref, rolesAsync, departmentsAsync),
+            hasSearch: true,
           );
     });
 

@@ -226,6 +226,7 @@ class _RolesSectionState extends ConsumerState<RolesSection> {
             title: 'Roller',
             primaryActionLabel: 'Yeni Rol Oluştur',
             onPrimaryAction: () => _createRole(context, ref),
+            hasSearch: true,
           );
     });
 

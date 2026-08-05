@@ -55,7 +55,7 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 color: Theme.of(context).colorScheme.secondary,
               ),
 
-            if (hasSearch)
+            if (hasSearch == true)
               Expanded(
                 child: SizedBox(
                   height: 40,
