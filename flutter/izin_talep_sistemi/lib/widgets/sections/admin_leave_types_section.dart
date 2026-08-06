@@ -10,14 +10,16 @@ import 'package:izin_talep_sistemi/services/leave_type_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
 
-class LeaveTypesSection extends ConsumerStatefulWidget {
-  const LeaveTypesSection({super.key});
+class AdminLeaveTypesSection extends ConsumerStatefulWidget {
+  const AdminLeaveTypesSection({super.key});
 
   @override
-  ConsumerState<LeaveTypesSection> createState() => _LeaveTypesSectionState();
+  ConsumerState<AdminLeaveTypesSection> createState() =>
+      _AdminLeaveTypesSectionState();
 }
 
-class _LeaveTypesSectionState extends ConsumerState<LeaveTypesSection> {
+class _AdminLeaveTypesSectionState
+    extends ConsumerState<AdminLeaveTypesSection> {
   LeaveTypeService get _leaveTypeService => ref.read(leaveTypeServiceProvider);
 
   Future<void> _createLeaveType(BuildContext context, WidgetRef ref) async {

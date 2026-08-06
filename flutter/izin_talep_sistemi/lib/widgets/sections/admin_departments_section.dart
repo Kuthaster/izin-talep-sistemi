@@ -1,4 +1,3 @@
-// widgets/sections/departments_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
@@ -10,14 +9,16 @@ import 'package:izin_talep_sistemi/providers/department_service_provider.dart';
 import 'package:izin_talep_sistemi/services/department_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 
-class DepartmentsSection extends ConsumerStatefulWidget {
-  const DepartmentsSection({super.key});
+class AdminDepartmentsSection extends ConsumerStatefulWidget {
+  const AdminDepartmentsSection({super.key});
 
   @override
-  ConsumerState<DepartmentsSection> createState() => _DepartmentsSectionState();
+  ConsumerState<AdminDepartmentsSection> createState() =>
+      _AdminDepartmentsSectionState();
 }
 
-class _DepartmentsSectionState extends ConsumerState<DepartmentsSection> {
+class _AdminDepartmentsSectionState
+    extends ConsumerState<AdminDepartmentsSection> {
   DepartmentService get _departmentService =>
       ref.read(departmentServiceProvider);
 

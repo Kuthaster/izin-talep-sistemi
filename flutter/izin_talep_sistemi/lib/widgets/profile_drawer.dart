@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/auth_provider.dart';
+import 'package:izin_talep_sistemi/ultilities/logout.dart';
 import 'package:izin_talep_sistemi/widgets/change_password_form.dart';
 import 'package:izin_talep_sistemi/widgets/profile_avatar_widget.dart';
 
@@ -105,12 +106,7 @@ class ProfileDrawer extends ConsumerWidget {
                         ),
                         overlayColor: WidgetStateProperty.all(scheme.secondary),
                       ),
-                      onPressed: () {
-                        ref.read(authProvider.notifier).logout();
-                        Navigator.of(
-                          context,
-                        ).popUntil((route) => route.isFirst);
-                      },
+                      onPressed: () => logout(context, ref),
                       icon: Icon(Icons.logout, color: scheme.onPrimary),
                       label: Text(
                         'Çıkış Yap',

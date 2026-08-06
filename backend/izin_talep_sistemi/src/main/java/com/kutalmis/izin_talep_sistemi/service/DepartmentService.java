@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentDTO;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Department;
-import com.kutalmis.izin_talep_sistemi.entity.LeaveRequest;
 import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
 import com.kutalmis.izin_talep_sistemi.repository.DepartmentRepository;
 

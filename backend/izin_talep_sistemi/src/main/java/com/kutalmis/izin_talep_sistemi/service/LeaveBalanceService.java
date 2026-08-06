@@ -4,10 +4,13 @@ import com.kutalmis.izin_talep_sistemi.dto.LeaveBalanceDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveBalanceUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveBalance;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveBalanceAudit;
+import com.kutalmis.izin_talep_sistemi.entity.LeaveBalanceSpecifications;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveType;
 import com.kutalmis.izin_talep_sistemi.entity.User;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveBalanceAuditRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveBalanceRepository;
+
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +30,6 @@ public class LeaveBalanceService {
         this.leaveBalanceRepository = leaveBalanceRepository;
         this.leaveBalanceAuditRepository = leaveBalanceAuditRepository;
     }
-
-    // --- FROM YOUR IMPLEMENTATION ---
 
     public int countBusinessDays(LocalDate start, LocalDate end) {
         int count = 0;
@@ -112,23 +113,24 @@ public class LeaveBalanceService {
         leaveBalanceRepository.save(balance);
     }
 
-    // --- ADDED FOR CONTROLLER AND ADMIN AUDIT ---
+    public List<LeaveBalanceDTO> getUserBalances(Long userId, Integer year, Long leaveTypeId) {
+        Specification<LeaveBalance> spec = Specification
+                .where(LeaveBalanceSpecifications.belongsToUser(userId))
+                .and(LeaveBalanceSpecifications.hasYear(year))
+                .and(LeaveBalanceSpecifications.hasLeaveType(leaveTypeId));
 
-    public List<LeaveBalanceDTO> getUserBalances(Long userId) {
-        return leaveBalanceRepository.findAll().stream()
-                .filter(b -> b.getUser().getId().equals(userId))
+        return leaveBalanceRepository.findAll(spec).stream()
                 .map(b -> new LeaveBalanceDTO(
                         b.getId(),
-                        b.getLeaveType().getName(),
-                        b.getYear(),
-                        b.getTotalDays(),
-                        b.getUsedDays(),
-                        b.getReservedDays(),
-                        b.getAvailableDays()))
+                        b.getUser().getId(),
+                        b.getUser().getFirstName() + " " + b.getUser().getLastName(),
+                        b.getLeaveType().getName(), b.getYear(),
+                        b.getTotalDays(), b.getUsedDays(), b.getReservedDays(), b.getAvailableDays()))
                 .collect(Collectors.toList());
     }
 
     @Transactional
+
     public LeaveBalanceDTO updateBalanceAsAdmin(Long balanceId, LeaveBalanceUpdateDTO dto, User admin) {
         LeaveBalance balance = leaveBalanceRepository.findById(balanceId)
                 .orElseThrow(() -> new IllegalArgumentException("Bakiye bulunamadı."));
@@ -142,11 +144,9 @@ public class LeaveBalanceService {
 
         return new LeaveBalanceDTO(
                 saved.getId(),
-                saved.getLeaveType().getName(),
-                saved.getYear(),
-                saved.getTotalDays(),
-                saved.getUsedDays(),
-                saved.getReservedDays(),
-                saved.getAvailableDays());
+                saved.getUser().getId(),
+                saved.getUser().getFirstName() + " " + saved.getUser().getLastName(),
+                saved.getLeaveType().getName(), saved.getYear(),
+                saved.getTotalDays(), saved.getUsedDays(), saved.getReservedDays(), saved.getAvailableDays());
     }
 }

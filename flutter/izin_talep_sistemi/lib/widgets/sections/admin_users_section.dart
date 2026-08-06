@@ -19,14 +19,14 @@ import 'package:izin_talep_sistemi/services/user_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
 
-class UsersSection extends ConsumerStatefulWidget {
-  const UsersSection({super.key});
+class AdminUsersSection extends ConsumerStatefulWidget {
+  const AdminUsersSection({super.key});
 
   @override
-  ConsumerState<UsersSection> createState() => _UsersSectionState();
+  ConsumerState<AdminUsersSection> createState() => _AdminUsersSectionState();
 }
 
-class _UsersSectionState extends ConsumerState<UsersSection> {
+class _AdminUsersSectionState extends ConsumerState<AdminUsersSection> {
   UserService get _userService => ref.read(userServiceProvider);
   Future<void> _createUser(
     BuildContext context,

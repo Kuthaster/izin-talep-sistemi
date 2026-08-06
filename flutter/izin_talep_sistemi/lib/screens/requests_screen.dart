@@ -31,7 +31,6 @@ class RequestsScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showModalBottomSheet(
-          backgroundColor: Theme.of(context).colorScheme.surface,
           context: context,
           isScrollControlled: true,
           builder: (context) => const CreateRequestForm(),

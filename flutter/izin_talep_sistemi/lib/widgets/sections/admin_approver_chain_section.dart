@@ -9,15 +9,16 @@ import 'package:izin_talep_sistemi/providers/department_approver_service_provide
 import 'package:izin_talep_sistemi/providers/department_provider.dart';
 import 'package:izin_talep_sistemi/services/department_approver_service.dart';
 
-class ApproverChainSection extends ConsumerStatefulWidget {
-  const ApproverChainSection({super.key});
+class AdminApproverChainSection extends ConsumerStatefulWidget {
+  const AdminApproverChainSection({super.key});
 
   @override
-  ConsumerState<ApproverChainSection> createState() =>
-      _ApproverChainSectionState();
+  ConsumerState<AdminApproverChainSection> createState() =>
+      _AdminApproverChainSectionState();
 }
 
-class _ApproverChainSectionState extends ConsumerState<ApproverChainSection> {
+class _AdminApproverChainSectionState
+    extends ConsumerState<AdminApproverChainSection> {
   int? _selectedDepartmentId;
   DepartmentApproverService get _departmentApproverService =>
       ref.read(departmentApproverServiceProvider);

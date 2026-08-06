@@ -5,6 +5,7 @@ import 'package:izin_talep_sistemi/models/leave_decision.dart';
 import 'package:izin_talep_sistemi/models/leave_request_decision.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_approval_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
+import 'package:izin_talep_sistemi/widgets/leave_request_detail_sheet.dart';
 
 import '../models/leave_request.dart';
 
@@ -22,24 +23,28 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
       case 'REJECTED':
         return Colors.red.shade100;
       case 'CANCELLED':
-        return Colors.grey.shade300;
+        return Colors.grey.shade400;
+      case 'EXPIRED':
+        return Colors.blueGrey;
       default:
-        return Colors.grey.shade200;
+        return Colors.black;
     }
   }
 
   Color _statusColor(String status) {
     switch (status) {
       case 'PENDING':
-        return Colors.orange;
+        return Colors.orange.shade900;
       case 'APPROVED':
-        return Colors.green;
+        return Colors.green.shade900;
       case 'REJECTED':
-        return Colors.red;
+        return Colors.red.shade900;
       case 'CANCELLED':
-        return Colors.grey;
+        return Colors.grey.shade900;
+      case 'EXPIRED':
+        return Colors.white;
       default:
-        return Colors.black;
+        return Colors.white;
     }
   }
 
@@ -53,6 +58,8 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
         return 'Reddedildi';
       case 'CANCELLED':
         return 'İptal Edildi';
+      case 'EXPIRED':
+        return 'Süresi Doldu';
       default:
         return status;
     }
@@ -131,113 +138,121 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
   }
 
   Widget _buildRow(BuildContext context, WidgetRef ref) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () => showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => LeaveRequestDetailSheet(request: request),
       ),
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.all(12),
-      child: Opacity(
-        opacity: (request.status != 'PENDING') ? 1.0 : 0.7,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Colors.deepPurple.shade100,
-                  child: Text(
-                    _initials(request.userName),
-                    style: TextStyle(
-                      color: Colors.deepPurple.shade900,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              request.userName,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 9,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _statusBg(request.status),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _statusLabel(request.status),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: _statusColor(request.status),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${request.leaveTypeName} · ${_formatDateRange(request.startDate, request.endDate)} · ${_dayCount(request.startDate, request.endDate)} gün',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (request.status == 'PENDING') ...[
-              const SizedBox(height: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.all(12),
+        child: Opacity(
+          opacity: (request.status != 'PENDING') ? 1.0 : 0.7,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _approve(context, ref),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.deepPurple.shade100,
+                    child: Text(
+                      _initials(request.userName),
+                      style: TextStyle(
+                        color: Colors.deepPurple.shade900,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
-                      icon: const Icon(Icons.check, size: 16),
-                      label: const Text('Onayla'),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _reject(context, ref),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                      ),
-                      icon: const Icon(Icons.close, size: 16),
-                      label: const Text('Reddet'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                request.userName,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 9,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _statusBg(request.status),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                _statusLabel(request.status),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: _statusColor(request.status),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${request.leaveTypeName} · ${_formatDateRange(request.startDate, request.endDate)} · ${_dayCount(request.startDate, request.endDate)} gün',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+              if (request.status == 'PENDING') ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _approve(context, ref),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                        ),
+                        icon: const Icon(Icons.check, size: 16),
+                        label: const Text('Onayla'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _reject(context, ref),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                        icon: const Icon(Icons.close, size: 16),
+                        label: const Text('Reddet'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

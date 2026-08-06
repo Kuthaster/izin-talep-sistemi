@@ -73,8 +73,9 @@ public class LeaveRequestService {
             Long approved = leaveRequestRepository.countByStatus("APPROVED");
             Long rejected = leaveRequestRepository.countByStatus("REJECTED");
             Long cancelled = leaveRequestRepository.countByStatus("CANCELLED");
-            Long total = cancelled + rejected + pending + approved;
-            return new LeaveRequestCountDTO(pending, approved, rejected, cancelled, total);
+            Long expired = leaveRequestRepository.countByStatus("EXPIRED");
+            Long total = cancelled + rejected + pending + approved + expired;
+            return new LeaveRequestCountDTO(pending, approved, rejected, cancelled, expired, total);
         }
 
         List<Long> departmentIds = departmentApproverRepository.findByApprover_Id(caller.getId()).stream()
@@ -83,7 +84,7 @@ public class LeaveRequestService {
                 .collect(Collectors.toList());
 
         if (departmentIds.isEmpty()) {
-            return new LeaveRequestCountDTO(0L, 0L, 0L, 0L, 0L);
+            return new LeaveRequestCountDTO(0L, 0L, 0L, 0L, 0L, 0L);
 
         }
 
@@ -91,9 +92,11 @@ public class LeaveRequestService {
         Long approved = leaveRequestRepository.countByStatusAndUser_Department_IdIn("APPROVED", departmentIds);
         Long rejected = leaveRequestRepository.countByStatusAndUser_Department_IdIn("REJECTED", departmentIds);
         Long cancelled = leaveRequestRepository.countByStatusAndUser_Department_IdIn("CANCELLED", departmentIds);
-        Long total = cancelled + rejected + pending + approved;
+        Long expired = leaveRequestRepository.countByStatusAndUser_Department_IdIn("EXPIRED", departmentIds);
 
-        return new LeaveRequestCountDTO(pending, approved, rejected, cancelled, total);
+        Long total = cancelled + rejected + pending + approved + expired;
+
+        return new LeaveRequestCountDTO(pending, approved, rejected, cancelled, expired, total);
     }
 
     public List<LeaveRequestDTO> getRequestsForApproval(User caller, LeaveRequestFilterDTO filter) {
@@ -152,27 +155,33 @@ public class LeaveRequestService {
 
         List<LeaveRequestDTO> createdRequests = new ArrayList<>();
         LocalDate currentStart = dto.startDate();
+        while (!currentStart.isAfter(dto.endDate())) {
 
-        // çok seneli izinler için
-        while (currentStart.getYear() <= dto.endDate().getYear()) {
-            LocalDate currentEnd;
-            if (currentStart.getYear() == dto.endDate().getYear()) {
-                currentEnd = dto.endDate();
-            } else {
-                currentEnd = LocalDate.of(currentStart.getYear(), 12, 31);
-            }
+            LocalDate currentEnd = (currentStart.getYear() == dto.endDate().getYear())
+                    ? dto.endDate()
+                    : LocalDate.of(currentStart.getYear(), 12, 31);
 
             LeaveRequest request = reserveRequest(
-                    new LeaveRequestCreateDTO(dto.leaveTypeId(), currentStart, currentEnd, dto.reason()), caller,
+                    new LeaveRequestCreateDTO(dto.leaveTypeId(), currentStart, currentEnd, dto.reason()),
+                    caller,
                     leaveType);
             createdRequests.add(toDTO(request));
+
             currentStart = currentEnd.plusDays(1);
         }
         return createdRequests;
     }
 
     private LeaveRequest reserveRequest(LeaveRequestCreateDTO dto, User caller, LeaveType leaveType) {
+        System.out.println("reserveRequest start=" + dto.startDate() + " end=" + dto.endDate());
+
         int requestedDays = leaveBalanceService.countBusinessDays(dto.startDate(), dto.endDate());
+
+        System.out.println("requestedDays=" + requestedDays);
+
+        if (requestedDays <= 0) {
+            throw new IllegalArgumentException("no valid business days within selected dtes.");
+        }
         if (requestedDays <= 0) {
             throw new IllegalArgumentException("Seçilen tarihler arasında geçerli bir iş günü bulunamadı.");
         }
@@ -321,11 +330,8 @@ public class LeaveRequestService {
         int newYear = dto.startDate().getYear();
 
         if (oldLeaveType.getId().equals(newLeaveType.getId()) && oldYear == newYear) {
-            // The user kept the same leave type and year, so we just use the delta update
             leaveBalanceService.updateReservation(caller, newLeaveType, newYear, oldRequestedDays, newRequestedDays);
         } else {
-            // The user changed the leave type or the year. We must release the old bucket
-            // and reserve on the new bucket.
             leaveBalanceService.releaseReservedDays(caller, oldLeaveType, oldYear, oldRequestedDays);
             leaveBalanceService.reserve(caller, newLeaveType, newYear, newRequestedDays);
         }

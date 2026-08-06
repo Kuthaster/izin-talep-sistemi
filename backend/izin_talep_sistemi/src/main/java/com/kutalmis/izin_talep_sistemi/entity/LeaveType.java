@@ -1,6 +1,5 @@
 package com.kutalmis.izin_talep_sistemi.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
 @Entity

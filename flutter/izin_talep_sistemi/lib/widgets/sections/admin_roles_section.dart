@@ -12,14 +12,14 @@ import 'package:izin_talep_sistemi/services/role_service.dart';
 import 'package:izin_talep_sistemi/widgets/admin_data_table.dart';
 import 'package:izin_talep_sistemi/widgets/admin_status_chip.dart';
 
-class RolesSection extends ConsumerStatefulWidget {
-  const RolesSection({super.key});
+class AdminRolesSection extends ConsumerStatefulWidget {
+  const AdminRolesSection({super.key});
 
   @override
-  ConsumerState<RolesSection> createState() => _RolesSectionState();
+  ConsumerState<AdminRolesSection> createState() => _AdminRolesSectionState();
 }
 
-class _RolesSectionState extends ConsumerState<RolesSection> {
+class _AdminRolesSectionState extends ConsumerState<AdminRolesSection> {
   RoleService get _roleService => ref.read(roleServiceProvider);
 
   Future<void> _createRole(BuildContext context, WidgetRef ref) async {

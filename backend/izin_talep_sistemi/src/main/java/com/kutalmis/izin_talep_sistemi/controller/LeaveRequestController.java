@@ -95,6 +95,8 @@ public class LeaveRequestController {
     @PostMapping
     public List<LeaveRequestDTO> createLeaveRequest(@Valid @RequestBody LeaveRequestCreateDTO dto,
             Principal principal) {
+
+        System.out.println("controller test reserveRequest start=" + dto.startDate() + " end=" + dto.endDate());
         User caller = userService.getUserEntityByEmail(principal.getName());
         return leaveRequestService.createLeaveRequest(dto, caller);
     }

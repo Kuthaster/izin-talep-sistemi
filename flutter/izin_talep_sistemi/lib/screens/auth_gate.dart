@@ -4,7 +4,7 @@ import 'package:izin_talep_sistemi/models/role_authority.dart';
 import 'package:izin_talep_sistemi/providers/auth_provider.dart';
 import 'package:izin_talep_sistemi/screens/admin_shell_screen.dart';
 import 'package:izin_talep_sistemi/screens/login_screen.dart';
-import 'package:izin_talep_sistemi/screens/main_screen.dart';
+import 'package:izin_talep_sistemi/screens/main_shell_screen.dart';
 
 class AuthGate extends ConsumerWidget {
   const AuthGate({super.key});
@@ -22,7 +22,7 @@ class AuthGate extends ConsumerWidget {
         if (user.roleAuthority == RoleAuthority.ADMIN) {
           return const AdminScreen();
         }
-        return const MainScreen();
+        return const MainShellScreen();
       },
     );
   }

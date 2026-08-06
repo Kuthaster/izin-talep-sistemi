@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
-import 'package:izin_talep_sistemi/screens/profile_drawer.dart';
+import 'package:izin_talep_sistemi/widgets/profile_drawer.dart';
 import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_sidebar.dart';
-import 'package:izin_talep_sistemi/widgets/sections/approvals_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/approver_chain_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/departments_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/leave_types_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/roles_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/users_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/admin_approvals_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/admin_approver_chain_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/admin_balances_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/admin_departments_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/admin_leave_types_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/admin_roles_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/admin_users_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/main_balance_section.dart';
 
 enum AdminSection {
-  approvals,
-  users,
-  departments,
-  leaveTypes,
-  approverChain,
-  roles,
+  adminApprovals,
+  adminUsers,
+  adminDepartments,
+  adminLeaveTypes,
+  adminApproverChain,
+  adminRoles,
+  adminBalances,
 }
 
 class AdminScreen extends ConsumerStatefulWidget {
@@ -28,7 +31,7 @@ class AdminScreen extends ConsumerStatefulWidget {
 }
 
 class AdminScreenState extends ConsumerState<AdminScreen> {
-  AdminSection _currentSection = AdminSection.approvals;
+  AdminSection _currentSection = AdminSection.adminApprovals;
 
   void _selectSection(AdminSection section) {
     setState(() => _currentSection = section);
@@ -36,18 +39,20 @@ class AdminScreenState extends ConsumerState<AdminScreen> {
 
   Widget _buildContent() {
     switch (_currentSection) {
-      case AdminSection.approvals:
-        return const ApprovalsSection();
-      case AdminSection.users:
-        return const UsersSection();
-      case AdminSection.departments:
-        return const DepartmentsSection();
-      case AdminSection.leaveTypes:
-        return const LeaveTypesSection();
-      case AdminSection.approverChain:
-        return const ApproverChainSection();
-      case AdminSection.roles:
-        return const RolesSection();
+      case AdminSection.adminApprovals:
+        return const AdminApprovalsSection();
+      case AdminSection.adminUsers:
+        return const AdminUsersSection();
+      case AdminSection.adminDepartments:
+        return const AdminDepartmentsSection();
+      case AdminSection.adminLeaveTypes:
+        return const AdminLeaveTypesSection();
+      case AdminSection.adminApproverChain:
+        return const AdminApproverChainSection();
+      case AdminSection.adminRoles:
+        return const AdminRolesSection();
+      case AdminSection.adminBalances:
+        return const AdminBalanceSection();
     }
   }
 

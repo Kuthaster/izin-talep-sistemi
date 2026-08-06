@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izin_talep_sistemi/providers/auth_provider.dart';
 import 'package:izin_talep_sistemi/screens/admin_shell_screen.dart';
+import 'package:izin_talep_sistemi/ultilities/logout.dart';
 
 class AdminSidebar extends ConsumerStatefulWidget {
   final bool initiallyExpanded;
@@ -35,6 +35,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
     setState(() => _collapsed = !_collapsed);
   }
 
+  @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final width = _collapsed ? _collapsedWidth : _expandedWidth;
@@ -82,38 +83,44 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                       _buildNavItem(
                         context,
                         label: 'İzinler',
-                        section: AdminSection.approvals,
+                        section: AdminSection.adminApprovals,
                         icon: Icons.check_circle_outline,
                       ),
                       _buildNavItem(
                         context,
                         label: 'Kullanıcılar',
-                        section: AdminSection.users,
+                        section: AdminSection.adminUsers,
                         icon: Icons.people_outline,
                       ),
                       _buildNavItem(
                         context,
                         label: 'Departmanlar',
-                        section: AdminSection.departments,
+                        section: AdminSection.adminDepartments,
                         icon: Icons.business_outlined,
                       ),
                       _buildNavItem(
                         context,
                         label: 'İzin Türleri',
-                        section: AdminSection.leaveTypes,
+                        section: AdminSection.adminLeaveTypes,
                         icon: Icons.calendar_today_outlined,
                       ),
                       _buildNavItem(
                         context,
                         label: 'Onaylayıcı Zinciri',
-                        section: AdminSection.approverChain,
+                        section: AdminSection.adminApproverChain,
                         icon: Icons.account_tree_outlined,
                       ),
                       _buildNavItem(
                         context,
                         label: 'Roller',
-                        section: AdminSection.roles,
+                        section: AdminSection.adminRoles,
                         icon: Icons.person,
+                      ),
+                      _buildNavItem(
+                        context,
+                        label: 'Bakiyeler',
+                        section: AdminSection.adminBalances,
+                        icon: Icons.pie_chart_outline,
                       ),
                     ],
                   ),
@@ -144,7 +151,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                                 scheme.secondary,
                               ),
                             ),
-                            onPressed: () => _logout(context),
+                            onPressed: () => logout(context, ref),
                             icon: Icon(Icons.logout, color: scheme.onPrimary),
                           ),
                         )
@@ -159,7 +166,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                                 scheme.secondary,
                               ),
                             ),
-                            onPressed: () => _logout(context),
+                            onPressed: () => logout(context, ref),
                             icon: Icon(Icons.logout, color: scheme.onPrimary),
                             label: Text(
                               'Çıkış Yap',
@@ -183,7 +190,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: _toggle,
-                hoverColor: scheme.secondary.withOpacity(0.3),
+                hoverColor: scheme.secondary.withValues(alpha: 0.3),
                 splashColor: scheme.secondary,
                 child: SizedBox(
                   width: 28,
@@ -202,11 +209,6 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
         ],
       ),
     );
-  }
-
-  void _logout(BuildContext context) {
-    ref.read(authProvider.notifier).logout();
-    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   Widget _buildNavItem(

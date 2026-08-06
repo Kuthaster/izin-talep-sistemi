@@ -1,11 +1,13 @@
 package com.kutalmis.izin_talep_sistemi.dto;
 
 public record LeaveBalanceDTO(
-        Long id,
-        String leaveTypeName,
-        Integer year,
-        Integer totalDays,
-        Integer usedDays,
-        Integer reservedDays,
-        Integer availableDays) {
+                Long id,
+                Long userId,
+                String userName,
+                String leaveTypeName,
+                Integer year,
+                Integer totalDays,
+                Integer usedDays,
+                Integer reservedDays,
+                Integer availableDays) {
 }

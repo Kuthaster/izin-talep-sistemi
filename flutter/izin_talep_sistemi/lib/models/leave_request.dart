@@ -1,4 +1,5 @@
 import 'leave_request_approval.dart';
+
 class LeaveRequest {
   final int id;
   final String userName;
@@ -6,24 +7,38 @@ class LeaveRequest {
   final DateTime startDate;
   final DateTime endDate;
   final String status;
+  final String? reason;
   final DateTime createdAt;
   final int currentLevel;
-  final List<LeaveRequestApproval> approvals; 
-  LeaveRequest({required this.id, required this.userName, required this.leaveTypeName, required this.startDate, required this.endDate, required this.status,required , required this.createdAt, required this.currentLevel,required this.approvals});
+  final List<LeaveRequestApproval> approvals;
 
-  factory LeaveRequest.fromJson(Map<String, dynamic> json){
+  LeaveRequest({
+    required this.id,
+    required this.userName,
+    required this.leaveTypeName,
+    required this.startDate,
+    required this.endDate,
+    required this.status,
+    this.reason,
+    required this.createdAt,
+    required this.currentLevel,
+    required this.approvals,
+  });
+
+  factory LeaveRequest.fromJson(Map<String, dynamic> json) {
     return LeaveRequest(
-        id: json['id'],
-        userName: json["userName"],
-        leaveTypeName: json['leaveTypeName'],
-        startDate: DateTime.parse(json['startDate']),
-        endDate: DateTime.parse(json['endDate']),
-        status: json['status'],
-        createdAt: DateTime.parse(json['createdAt']),
-        currentLevel: json['currentLevel'],
-        approvals: (json['approvals'] as List)
+      id: json['id'],
+      userName: json["userName"],
+      leaveTypeName: json['leaveTypeName'],
+      startDate: DateTime.parse(json['startDate']),
+      endDate: DateTime.parse(json['endDate']),
+      status: json['status'],
+      reason: json['reason'],
+      createdAt: DateTime.parse(json['createdAt']),
+      currentLevel: json['currentLevel'],
+      approvals: (json['approvals'] as List? ?? [])
           .map((item) => LeaveRequestApproval.fromJson(item))
-          .toList(), 
+          .toList(),
     );
   }
 }

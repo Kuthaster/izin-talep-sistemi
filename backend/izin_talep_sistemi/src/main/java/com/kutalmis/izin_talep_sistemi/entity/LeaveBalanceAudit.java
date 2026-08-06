@@ -2,7 +2,6 @@ package com.kutalmis.izin_talep_sistemi.entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -93,7 +92,7 @@ public class LeaveBalanceAudit {
         this.reason = reason;
     }
 
-    public LocalDate getChangedAt() {
-        return getChangedAt();
+    public LocalDateTime getChangedAt() {
+        return changedAt;
     }
 }

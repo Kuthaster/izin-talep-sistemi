@@ -23,6 +23,8 @@ public interface LeaveRequestRepository
 
     List<LeaveRequest> findByUser_Id(Long userId);
 
+    List<LeaveRequest> findByStatusAndStartDateBefore(String status, LocalDate startDate);
+
     List<LeaveRequest> findByUser_Department_Id(Long departmentId);
 
     List<LeaveRequest> findByUser_Department_IdIn(List<Long> departmentIds);
