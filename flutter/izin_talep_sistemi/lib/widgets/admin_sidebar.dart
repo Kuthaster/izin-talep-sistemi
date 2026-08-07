@@ -61,7 +61,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                       ? Text(
                           "A",
                           style: TextStyle(
-                            color: scheme.onPrimary,
+                            color: scheme.onInverseSurface,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -70,7 +70,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                           'ADMIN',
                           textAlign: TextAlign.end,
                           style: TextStyle(
-                            color: scheme.onPrimary,
+                            color: scheme.onInverseSurface,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -135,7 +135,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
-                        color: Theme.of(context).colorScheme.onPrimary,
+                        color: Theme.of(context).colorScheme.onInverseSurface,
                       ),
                     ),
                   ),
@@ -152,7 +152,10 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                               ),
                             ),
                             onPressed: () => logout(context, ref),
-                            icon: Icon(Icons.logout, color: scheme.onPrimary),
+                            icon: Icon(
+                              Icons.logout,
+                              color: scheme.onInverseSurface,
+                            ),
                           ),
                         )
                       : SizedBox(
@@ -167,10 +170,13 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                               ),
                             ),
                             onPressed: () => logout(context, ref),
-                            icon: Icon(Icons.logout, color: scheme.onPrimary),
+                            icon: Icon(
+                              Icons.logout,
+                              color: scheme.onInverseSurface,
+                            ),
                             label: Text(
                               'Çıkış Yap',
-                              style: TextStyle(color: scheme.onPrimary),
+                              style: TextStyle(color: scheme.onInverseSurface),
                             ),
                           ),
                         ),
@@ -199,7 +205,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                     _collapsed
                         ? Icons.chevron_right_outlined
                         : Icons.chevron_left_outlined,
-                    color: scheme.onPrimary,
+                    color: scheme.onInverseSurface,
                     size: 20,
                   ),
                 ),
@@ -233,16 +239,23 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
           ? IconButton(
               icon: Icon(
                 icon,
-                color: isActive ? scheme.onPrimary : scheme.onSecondary,
+                color: isActive
+                    ? scheme.onPrimaryFixedVariant
+                    : scheme.onInverseSurface,
               ),
               onPressed: () => widget.onSectionSelected(section),
             )
           : ListTile(
-              leading: Icon(icon, color: scheme.onSecondary),
+              leading: Icon(
+                icon,
+                color: isActive
+                    ? scheme.onPrimaryFixedVariant
+                    : scheme.onInverseSurface,
+              ),
               title: Text(
                 label,
                 style: TextStyle(
-                  color: isActive ? scheme.onPrimary : scheme.onSecondary,
+                  color: isActive ? scheme.onInverseSurface : scheme.onPrimary,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),

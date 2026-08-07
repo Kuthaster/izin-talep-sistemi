@@ -65,6 +65,8 @@ class AdminApprovalFilterBar extends ConsumerWidget {
           SizedBox(
             width: 160,
             child: DropdownButtonFormField<String>(
+              iconDisabledColor: Theme.of(context).colorScheme.tertiaryFixedDim,
+              iconEnabledColor: Theme.of(context).colorScheme.primary,
               initialValue: filter.status,
               decoration: const InputDecoration(
                 labelText: 'Durum',
@@ -99,6 +101,10 @@ class AdminApprovalFilterBar extends ConsumerWidget {
               error: (_, __) => const Text('İzin türleri yüklenemedi'),
               data: (leaveTypes) => DropdownButtonFormField<int>(
                 initialValue: filter.leaveTypeId,
+                iconDisabledColor: Theme.of(
+                  context,
+                ).colorScheme.tertiaryFixedDim,
+                iconEnabledColor: Theme.of(context).colorScheme.primary,
                 decoration: const InputDecoration(
                   labelText: 'İzin Türü',
                   isDense: true,

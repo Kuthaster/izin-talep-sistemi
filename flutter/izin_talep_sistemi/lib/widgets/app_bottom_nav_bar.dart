@@ -46,7 +46,7 @@ class AppBottomNavBar extends StatelessWidget {
               icon: selected ? (item.activeIcon ?? item.icon) : item.icon,
               label: item.label,
               selected: selected,
-              baseColor: scheme.onPrimary,
+              baseColor: scheme.onInverseSurface,
               highlightColor: scheme.tertiary,
               onTap: () => onTap(i),
             );

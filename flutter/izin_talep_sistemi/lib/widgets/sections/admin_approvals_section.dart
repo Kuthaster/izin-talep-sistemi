@@ -259,7 +259,7 @@ class _AdminApprovalsSectionState extends ConsumerState<AdminApprovalsSection> {
                               alignment: AlignmentGeometry.center,
                               iconAlignment: IconAlignment.start,
                               foregroundColor: WidgetStateProperty.all(
-                                scheme.onPrimary,
+                                scheme.primary,
                               ),
                               minimumSize: WidgetStateProperty.all(
                                 Size(150, 30),
@@ -269,7 +269,7 @@ class _AdminApprovalsSectionState extends ConsumerState<AdminApprovalsSection> {
                               ),
                               textStyle: WidgetStateProperty.all(
                                 TextStyle(
-                                  color: scheme.onPrimary,
+                                  color: scheme.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

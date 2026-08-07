@@ -81,9 +81,6 @@ class LeaveRequestTile extends ConsumerWidget {
     return '${start.day} ${months[start.month - 1]} - ${end.day} ${months[end.month - 1]}';
   }
 
-  int _dayCount(DateTime start, DateTime end) =>
-      end.difference(start).inDays + 1;
-
   Future<void> _cancel(BuildContext context, WidgetRef ref) async {
     try {
       final leaveRequestService = ref.read(leaveRequestServiceProvider);
@@ -163,7 +160,7 @@ class LeaveRequestTile extends ConsumerWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '${_formatDateRange(request.startDate, request.endDate)} · ${_dayCount(request.startDate, request.endDate)} gün',
+                '${_formatDateRange(request.startDate, request.endDate)} · ${request.requestedDays} iş günü',
                 style: const TextStyle(fontSize: 13, color: Colors.grey),
               ),
             ],

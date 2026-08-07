@@ -197,6 +197,7 @@ class _AdminUsersSectionState extends ConsumerState<AdminUsersSection> {
       if (userCreate == null) return;
 
       await _userService.createUser(userCreate);
+      ref.invalidate(adminUsersProvider);
     } on DioException catch (e) {
       final errorMessage = (e.error is ApiException)
           ? (e.error as ApiException).message
@@ -254,11 +255,21 @@ class _AdminUsersSectionState extends ConsumerState<AdminUsersSection> {
 
     try {
       await _userService.deleteUser(id);
+      ref.invalidate(adminUsersProvider);
+    } on DioException catch (e) {
+      final errorMessage = (e.error is ApiException)
+          ? (e.error as ApiException).message
+          : 'Bilinmeyen bir ağ hatası oluştu.';
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('İşlem başarısız: $errorMessage')),
+        );
+      }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('İşlem başarısız: $e')));
+        ).showSnackBar(SnackBar(content: Text('Oluşturulamadı: $e')));
       }
     }
   }
@@ -394,7 +405,7 @@ class _AdminUsersSectionState extends ConsumerState<AdminUsersSection> {
           gender: selectedGender,
         ),
       );
-
+      ref.invalidate(adminUsersProvider);
       ref.invalidate(rolesProvider);
       ref.invalidate(departmentsProvider);
     } catch (e) {

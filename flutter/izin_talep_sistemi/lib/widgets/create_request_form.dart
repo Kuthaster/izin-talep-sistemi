@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/leave_balance_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
+import 'package:izin_talep_sistemi/widgets/compact_dialog_date_range_picker.dart';
 
 import '../models/leave_request.dart';
 import '../models/leave_request_create.dart';
@@ -24,6 +25,26 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   DateTime? _endDate;
   bool _isSubmitting = false;
   String? _errorMessage;
+  int? get _availableForSelectedType {
+    if (_selectedLeaveTypeId == null) return null;
+    final balances = ref.read(leaveBalancesProvider).value;
+    if (balances == null) return null;
+    final leaveTypeName = ref
+        .read(leaveTypesProvider)
+        .value
+        ?.firstWhere(
+          (t) => t.id == _selectedLeaveTypeId,
+          orElse: () => throw StateError('not found'),
+        )
+        .name;
+    final match = balances.where((b) => b.leaveTypeName == leaveTypeName);
+    return match.isEmpty ? null : match.first.availableDays;
+  }
+
+  int? get _requestedDayCount {
+    if (_startDate == null || _endDate == null) return null;
+    return _endDate!.difference(_startDate!).inDays + 1;
+  }
 
   bool get _isEditing => widget.existingRequest != null;
 
@@ -42,22 +63,48 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     super.dispose();
   }
 
-  Future<void> _pickDate({required bool isStart}) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: isStart
-          ? (_startDate ?? DateTime.now())
-          : (_endDate ?? DateTime.now()),
+  Future<void> _pickDateRange() async {
+    /* final picked = await showDateRangePicker(
+      context: Navigator.of(context, rootNavigator: true).context,
+      helpText: "Tarih Aralığı Seçin",
+      cancelText: "İptal Et",
+      confirmText: "Onayla",
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDateRange: (_startDate != null && _endDate != null)
+          ? DateTimeRange(start: _startDate!, end: _endDate!)
+          : null,
+      builder: (ctx, child) {
+        return Theme(
+          data: Theme.of(ctx).copyWith(
+            datePickerTheme: Theme.of(ctx).datePickerTheme.copyWith(),
+            colorScheme: Theme.of(ctx).colorScheme,
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked == null) return;
+    setState(() {
+      _startDate = picked.start;
+      _endDate = picked.end;
+    }); */
+
+    final picked = await showDialog<DateTimeRange>(
+      context: context,
+      builder: (context) => CompactDialogDateRangePicker(
+        firstDate: DateTime.now(),
+        lastDate: DateTime.now().add(const Duration(days: 365)),
+        initialDateRange: (_startDate != null && _endDate != null)
+            ? DateTimeRange(start: _startDate!, end: _endDate!)
+            : null,
+      ),
     );
     if (picked == null) return;
     setState(() {
-      if (isStart) {
-        _startDate = picked;
-      } else {
-        _endDate = picked;
-      }
+      _startDate = picked.start;
+      _endDate = picked.end;
     });
   }
 
@@ -110,9 +157,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final asyncLeaveTypes = ref.watch(leaveTypesProvider);
 
     return Material(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      borderRadius: BorderRadius.circular(5),
-
       child: Padding(
         padding: EdgeInsets.only(
           left: 16,
@@ -122,7 +166,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               _isEditing ? 'Talebi Düzenle' : 'Yeni İzin Talebi',
@@ -158,36 +202,49 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
             ),
             const SizedBox(height: 12),
 
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _pickDate(isStart: true),
-                    child: Text(
-                      _startDate == null
-                          ? 'Başlangıç Tarihi'
-                          : '${_startDate!.year}-${_startDate!.month.toString().padLeft(2, '0')}-${_startDate!.day.toString().padLeft(2, '0')}',
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _pickDate(isStart: false),
-                    child: Text(
-                      _endDate == null
-                          ? 'Bitiş Tarihi'
-                          : '${_endDate!.year}-${_endDate!.month.toString().padLeft(2, '0')}-${_endDate!.day.toString().padLeft(2, '0')}',
-                    ),
-                  ),
-                ),
-              ],
+            OutlinedButton.icon(
+              style: ButtonStyle(),
+              onPressed: _pickDateRange,
+              icon: const Icon(Icons.date_range, size: 18),
+              label: Text(
+                (_startDate == null || _endDate == null)
+                    ? 'Tarih Aralığı Seç'
+                    : '${_startDate!.day}/${_startDate!.month}/${_startDate!.year} — '
+                          '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}',
+              ),
             ),
+            if (_requestedDayCount != null &&
+                _availableForSelectedType != null &&
+                _requestedDayCount! > _availableForSelectedType!) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                child: Text(
+                  'Bu izin türünde $_availableForSelectedType gün kullanılabilir, '
+                  '$_requestedDayCount gün talep ediyorsunuz.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onError,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
 
             TextField(
               controller: _reasonController,
-              decoration: const InputDecoration(labelText: 'Neden (opsiyonel)'),
+              decoration: const InputDecoration(
+                labelText: 'Neden (opsiyonel)',
+                contentPadding: EdgeInsets.symmetric(vertical: 0),
+                isCollapsed: true,
+              ),
               maxLines: 2,
             ),
 
@@ -198,7 +255,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ],
-
             const SizedBox(height: 16),
 
             SizedBox(
@@ -219,7 +275,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
                     : Text(
                         _isEditing ? 'Değişiklikleri Kaydet' : 'Talebi Gönder',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Theme.of(context).colorScheme.onInverseSurface,
                         ),
                       ),
               ),

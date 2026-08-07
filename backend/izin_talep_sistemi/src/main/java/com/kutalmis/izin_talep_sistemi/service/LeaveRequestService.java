@@ -403,6 +403,7 @@ public class LeaveRequestService {
                 request.getLeaveType().getName(),
                 request.getStartDate(),
                 request.getEndDate(),
+                request.getRequestedDays(),
                 request.getStatus(),
                 toNullable(request.getReason()),
                 request.getCreatedAt(),

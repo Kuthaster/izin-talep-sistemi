@@ -48,11 +48,11 @@ class ProfileDrawer extends ConsumerWidget {
                     style: TextStyle(color: scheme.onPrimary),
                   ),
 
-                  Icon(Icons.email, size: 16, color: scheme.primaryFixed),
+                  Icon(Icons.email, size: 16, color: scheme.secondaryFixed),
                   SizedBox(width: 8, height: 1),
                   Text(
                     email ?? 'BULUNAMADI',
-                    style: TextStyle(color: scheme.primaryFixed),
+                    style: TextStyle(color: scheme.secondaryFixed),
                   ),
                 ],
               ),
@@ -79,10 +79,6 @@ class ProfileDrawer extends ConsumerWidget {
                       ),
                       onPressed: () {
                         showModalBottomSheet(
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.surface,
-                          isDismissible: true,
                           enableDrag: true,
                           context: context,
                           isScrollControlled: true,

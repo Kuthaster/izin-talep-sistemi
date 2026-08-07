@@ -21,7 +21,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'İzin Talep Sistemi',
-      theme: theme1,
+      theme: lightColorTheme,
+      darkTheme: darkColorTheme,
+
       themeMode: ThemeMode.system,
       home: const AuthGate(),
     );

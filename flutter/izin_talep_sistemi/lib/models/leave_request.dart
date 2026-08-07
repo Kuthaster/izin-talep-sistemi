@@ -6,6 +6,7 @@ class LeaveRequest {
   final String leaveTypeName;
   final DateTime startDate;
   final DateTime endDate;
+  final int requestedDays;
   final String status;
   final String? reason;
   final DateTime createdAt;
@@ -18,6 +19,7 @@ class LeaveRequest {
     required this.leaveTypeName,
     required this.startDate,
     required this.endDate,
+    required this.requestedDays,
     required this.status,
     this.reason,
     required this.createdAt,
@@ -32,6 +34,7 @@ class LeaveRequest {
       leaveTypeName: json['leaveTypeName'],
       startDate: DateTime.parse(json['startDate']),
       endDate: DateTime.parse(json['endDate']),
+      requestedDays: json['requestedDays'],
       status: json['status'],
       reason: json['reason'],
       createdAt: DateTime.parse(json['createdAt']),

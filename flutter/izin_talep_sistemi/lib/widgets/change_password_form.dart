@@ -53,87 +53,89 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            'Şifre Değiştir',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 20,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          TextField(
-            controller: _currentPasswordController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: 'Mevcut Şifre',
-              labelStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          TextField(
-            controller: _newPasswordController,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: 'Yeni Şifre',
-              labelStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-
-          if (_errorMessage != null) ...[
-            const SizedBox(height: 8),
+    return Material(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
             Text(
-              _errorMessage!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+              'Şifre Değiştir',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 20,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            TextField(
+              controller: _currentPasswordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Mevcut Şifre',
+                labelStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            TextField(
+              controller: _newPasswordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Yeni Şifre',
+                labelStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+
+            if (_errorMessage != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _errorMessage!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.maxFinite,
+              child: ElevatedButton(
+                style: ButtonStyle(
+                  overlayColor: WidgetStateProperty.all(
+                    Theme.of(context).colorScheme.secondary,
+                  ),
+                  backgroundColor: WidgetStateProperty.all(
+                    Theme.of(context).colorScheme.tertiary,
+                  ),
+                ),
+                onPressed: _isSubmitting ? null : _submit,
+                child: _isSubmitting
+                    ? const SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        'Uygula',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onInverseSurface,
+                        ),
+                      ),
+              ),
             ),
           ],
-
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.maxFinite,
-            child: ElevatedButton(
-              style: ButtonStyle(
-                overlayColor: WidgetStateProperty.all(
-                  Theme.of(context).colorScheme.secondary,
-                ),
-                backgroundColor: WidgetStateProperty.all(
-                  Theme.of(context).colorScheme.tertiary,
-                ),
-              ),
-              onPressed: _isSubmitting ? null : _submit,
-              child: _isSubmitting
-                  ? const SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(
-                      'Uygula',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

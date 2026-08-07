@@ -11,7 +11,6 @@ import 'package:izin_talep_sistemi/widgets/sections/admin_departments_section.da
 import 'package:izin_talep_sistemi/widgets/sections/admin_leave_types_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/admin_roles_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/admin_users_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/main_balance_section.dart';
 
 enum AdminSection {
   adminApprovals,

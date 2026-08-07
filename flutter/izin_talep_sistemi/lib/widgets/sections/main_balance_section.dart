@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/leave_balance_provider.dart';
+import 'package:izin_talep_sistemi/widgets/balance_card.dart';
+import 'package:izin_talep_sistemi/widgets/dashboard_ring.dart';
 
 class MainBalanceSection extends ConsumerWidget {
   const MainBalanceSection({super.key});
@@ -17,59 +19,99 @@ class MainBalanceSection extends ConsumerWidget {
         itemCount: balances.length,
         itemBuilder: (context, i) {
           final b = balances[i];
-          final usedRatio = b.totalDays == 0 ? 0.0 : b.usedDays / b.totalDays;
+          return _BalanceCard(
+            leaveTypeName: b.leaveTypeName,
+            totalDays: b.totalDays,
+            usedDays: b.usedDays,
+            reservedDays: b.reservedDays,
+            availableDays: b.availableDays,
+          );
+        },
+      ),
+    );
+  }
+}
 
-          return Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(10),
+class _BalanceCard extends StatelessWidget {
+  final String leaveTypeName;
+  final int totalDays;
+  final int usedDays;
+  final int reservedDays;
+  final int availableDays;
+
+  const _BalanceCard({
+    required this.leaveTypeName,
+    required this.totalDays,
+    required this.usedDays,
+    required this.reservedDays,
+    required this.availableDays,
+  });
+  Color _colorForRatio(double ratio) {
+    if (ratio > 0.5) return Colors.green;
+    if (ratio > 0.2) return Colors.amber;
+    return Colors.red;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ratio = totalDays == 0 ? 0.0 : availableDays / totalDays;
+    final ringColor = _colorForRatio(ratio);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          DashboardRing(
+            ratio: ratio,
+            color: ringColor,
+            center: Text(
+              '$availableDays',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  b.leaveTypeName,
+                  leaveTypeName,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
                     fontSize: 15,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: usedRatio.clamp(0.0, 1.0),
-                    minHeight: 8,
-                    backgroundColor: Colors.grey.shade200,
-                  ),
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Kullanılan: ${b.usedDays}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    Text(
-                      'Rezerve: ${b.reservedDays}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    Text(
-                      'Kalan: ${b.availableDays}',
-                      style: const TextStyle(
+                      'Kullanılan: $usedDays',
+                      style: TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Text(
+                      'Rezerve: $reservedDays',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

@@ -97,7 +97,6 @@ class LeaveRequestDetailSheet extends StatelessWidget {
       ..sort((a, b) => a.level.compareTo(b.level));
 
     return Material(
-      color: Theme.of(context).scaffoldBackgroundColor,
       child: DraggableScrollableSheet(
         initialChildSize: 0.6,
         minChildSize: 0.3,

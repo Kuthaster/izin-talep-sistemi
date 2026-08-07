@@ -36,32 +36,10 @@ class AdminDataTable<T> extends ConsumerStatefulWidget {
   ConsumerState<AdminDataTable<T>> createState() => _AdminDataTableState<T>();
 }
 
-class _AdminDataSource<T> extends DataTableSource {
-  final List<T> items;
-  final List<DataCell> Function(T) buildCells;
-
-  _AdminDataSource({required this.items, required this.buildCells});
-
-  @override
-  DataRow? getRow(int index) {
-    if (index < 0 || index >= items.length) return null;
-    final item = items[index];
-    return DataRow(cells: buildCells(item));
-  }
-
-  @override
-  bool get isRowCountApproximate => false;
-
-  @override
-  int get rowCount => items.length;
-
-  @override
-  int get selectedRowCount => 0;
-}
-
 class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
   int _sortColumnIndex = 0;
   bool _sortAscending = true;
+  int _currentPage = 0;
 
   List<T> _filteredSortedItems(String searchQuery) {
     var filtered = widget.items;
@@ -84,6 +62,23 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
     return sorted;
   }
 
+  void _onSortTap(int columnIndex) {
+    setState(() {
+      if (_sortColumnIndex == columnIndex) {
+        _sortAscending = !_sortAscending;
+      } else {
+        _sortColumnIndex = columnIndex;
+        _sortAscending = true;
+      }
+      _currentPage = 0;
+    });
+  }
+
+  int get _maxPage {
+    // computed lazily against the current filtered list in build()
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final appBarState = ref.watch(adminAppBarProvider);
@@ -93,39 +88,161 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
 
     if (data.isEmpty) return _buildEmptyState();
 
+    final totalPages = widget.showPagination
+        ? (data.length / widget.itemsPerPage).ceil()
+        : 1;
+
+    final safePage = _currentPage.clamp(
+      0,
+      totalPages - 1 < 0 ? 0 : totalPages - 1,
+    );
+    if (safePage != _currentPage) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _currentPage = safePage);
+      });
+    }
+
+    final pageItems = widget.showPagination
+        ? data
+              .skip(safePage * widget.itemsPerPage)
+              .take(widget.itemsPerPage)
+              .toList()
+        : data;
+
+    final startIndex = widget.showPagination
+        ? safePage * widget.itemsPerPage + 1
+        : 1;
+    final endIndex = widget.showPagination
+        ? (safePage * widget.itemsPerPage + pageItems.length)
+        : data.length;
+
     final columns = widget.columnLabels.asMap().entries.map((entry) {
+      final index = entry.key;
       final label = entry.value;
+      final isActive = _sortColumnIndex == index;
+      final canSort = index < widget.sortComparators.length;
+
       return DataColumn(
-        label: Text(label),
-        onSort: (columnIndex, ascending) {
-          setState(() {
-            _sortColumnIndex = columnIndex;
-            _sortAscending = ascending;
-          });
-        },
+        label: canSort
+            ? InkWell(
+                onTap: () => _onSortTap(index),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(label),
+                    if (isActive) ...[
+                      const SizedBox(width: 4),
+                      Icon(
+                        _sortAscending
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ],
+                  ],
+                ),
+              )
+            : Text(label),
       );
     }).toList();
 
     return Theme(
       data: Theme.of(context).copyWith(
-        cardTheme: CardThemeData(
-          color: Theme.of(context).colorScheme.surface,
-        ), //TODO buraya bak renk
+        cardTheme: CardThemeData(color: Theme.of(context).colorScheme.surface),
+        dataTableTheme: DataTableThemeData(
+          headingTextStyle: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
-      child: PaginatedDataTable(
-        rowsPerPage: widget.itemsPerPage,
-        showFirstLastButtons: true,
-        showEmptyRows: false,
-        showCheckboxColumn: true,
-        header: Text("test"),
-        columns: columns,
-        source: _AdminDataSource<T>(items: data, buildCells: widget.buildCells),
-        sortColumnIndex: _sortColumnIndex,
-        columnSpacing: widget.dataSpacing ?? 40,
-        sortAscending: _sortAscending,
-        dataRowMaxHeight: 40,
-        dataRowMinHeight: 30,
-        dividerThickness: 0.4,
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columnSpacing: widget.dataSpacing ?? 40,
+                    dataRowMaxHeight: 36,
+                    dataRowMinHeight: 24,
+                    dividerThickness: 0.4,
+                    showCheckboxColumn: true,
+                    columns: columns,
+                    rows: pageItems
+                        .map((item) => DataRow(cells: widget.buildCells(item)))
+                        .toList(),
+                  ),
+                ),
+              ),
+            ),
+            if (widget.showPagination) ...[
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      '$startIndex–$endIndex of ${data.length}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    IconButton(
+                      icon: const Icon(Icons.first_page),
+                      color: Theme.of(context).colorScheme.primary,
+                      disabledColor: Theme.of(
+                        context,
+                      ).colorScheme.tertiaryFixedDim,
+                      onPressed: safePage > 0
+                          ? () => setState(() => _currentPage = 0)
+                          : null,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_left),
+                      color: Theme.of(context).colorScheme.primary,
+                      disabledColor: Theme.of(
+                        context,
+                      ).colorScheme.tertiaryFixedDim,
+                      onPressed: safePage > 0
+                          ? () => setState(() => _currentPage = safePage - 1)
+                          : null,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right),
+                      color: Theme.of(context).colorScheme.primary,
+                      disabledColor: Theme.of(
+                        context,
+                      ).colorScheme.tertiaryFixedDim,
+                      onPressed: safePage < totalPages - 1
+                          ? () => setState(() => _currentPage = safePage + 1)
+                          : null,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.last_page),
+                      color: Theme.of(context).colorScheme.primary,
+                      disabledColor: Theme.of(
+                        context,
+                      ).colorScheme.tertiaryFixedDim,
+                      onPressed: safePage < totalPages - 1
+                          ? () => setState(() => _currentPage = totalPages - 1)
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -138,7 +255,7 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
           Icon(
             Icons.indeterminate_check_box_sharp,
             size: 64,
-            color: Colors.grey[400],
+            color: Colors.grey,
           ),
           const SizedBox(height: 16),
           Text(
@@ -149,7 +266,7 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
             const SizedBox(height: 8),
             Text(
               widget.emptyStateMessage!,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
           if (widget.onEmptyStateAction != null) ...[

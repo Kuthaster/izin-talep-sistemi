@@ -5,7 +5,7 @@ const authTokenKey = 'auth_token';
 
 class AuthInterceptor extends Interceptor {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  
+
   @override
   void onRequest(
     RequestOptions options,
@@ -25,7 +25,6 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Handle errors here if needed
     return handler.next(err);
   }
 
@@ -34,6 +33,4 @@ class AuthInterceptor extends Interceptor {
     // Handle responses here if needed
     return handler.next(response);
   }
-
-  
 }
