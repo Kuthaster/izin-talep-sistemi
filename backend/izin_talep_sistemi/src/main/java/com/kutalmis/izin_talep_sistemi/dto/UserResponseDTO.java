@@ -4,13 +4,14 @@ import com.kutalmis.izin_talep_sistemi.entity.Gender;
 import com.kutalmis.izin_talep_sistemi.entity.RoleAuthority;
 
 public record UserResponseDTO(
-        Long id,
-        String firstName,
-        String lastName,
-        String email,
-        String departmentName,
-        String roleDisplayName,
-        RoleAuthority roleAuthority,
-        Boolean active,
-        Gender gender) {
+                Long id,
+                String firstName,
+                String lastName,
+                String email,
+                String departmentName,
+                String roleDisplayName,
+                RoleAuthority roleAuthority,
+                Boolean active,
+                Gender gender,
+                Boolean mustChangePassword) {
 }

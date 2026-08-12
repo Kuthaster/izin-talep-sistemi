@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:izin_talep_sistemi/models/status.dart';
 import 'package:izin_talep_sistemi/providers/leave_balance_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:izin_talep_sistemi/widgets/leave_request_detail_sheet.dart';
 
 import '../models/leave_request.dart';
@@ -13,55 +15,6 @@ class LeaveRequestTile extends ConsumerWidget {
   final LeaveRequest request;
 
   const LeaveRequestTile({super.key, required this.request});
-
-  Color _statusBg(String status) {
-    switch (status) {
-      case 'PENDING':
-        return Colors.orange.shade100;
-      case 'APPROVED':
-        return Colors.green.shade100;
-      case 'REJECTED':
-        return Colors.red.shade100;
-      case 'CANCELLED':
-        return Colors.grey.shade400;
-      case 'EXPIRED':
-        return Colors.blueGrey;
-      default:
-        return Colors.black;
-    }
-  }
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'PENDING':
-        return Colors.orange.shade900;
-      case 'APPROVED':
-        return Colors.green.shade900;
-      case 'REJECTED':
-        return Colors.red.shade900;
-      case 'CANCELLED':
-        return Colors.grey.shade900;
-      case 'EXPIRED':
-        return Colors.white;
-      default:
-        return Colors.white;
-    }
-  }
-
-  String _statusLabel(String status) {
-    switch (status) {
-      case 'PENDING':
-        return 'Bekliyor · Sv ${request.currentLevel}';
-      case 'APPROVED':
-        return 'Onaylandı';
-      case 'REJECTED':
-        return 'Reddedildi';
-      case 'CANCELLED':
-        return 'İptal Edildi';
-      default:
-        return status;
-    }
-  }
 
   String _formatDateRange(DateTime start, DateTime end) {
     const months = [
@@ -106,7 +59,7 @@ class LeaveRequestTile extends ConsumerWidget {
 
   Widget _buildRow(BuildContext context, WidgetRef ref) {
     final isPending = request.status == 'PENDING';
-
+    final StatusType status = convertToStatusType(request.status);
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: () => showModalBottomSheet(
@@ -116,8 +69,9 @@ class LeaveRequestTile extends ConsumerWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(10),
+          color: context
+              .colors
+              .surfaceContainerHighest, //TODO request tile background değiştir
         ),
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.all(12),
@@ -132,10 +86,7 @@ class LeaveRequestTile extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       request.leaveTypeName,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: const TextStyle(fontSize: 14),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -145,14 +96,14 @@ class LeaveRequestTile extends ConsumerWidget {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: _statusBg(request.status),
+                      color: getStatusBackgroundColor(status),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      _statusLabel(request.status),
+                      getStatusLabel(status),
                       style: TextStyle(
                         fontSize: 11,
-                        color: _statusColor(request.status),
+                        color: getStatusTextColor(status),
                       ),
                     ),
                   ),
@@ -161,7 +112,7 @@ class LeaveRequestTile extends ConsumerWidget {
               const SizedBox(height: 2),
               Text(
                 '${_formatDateRange(request.startDate, request.endDate)} · ${request.requestedDays} iş günü',
-                style: const TextStyle(fontSize: 13, color: Colors.grey),
+                style: const TextStyle(fontSize: 14),
               ),
             ],
           ),

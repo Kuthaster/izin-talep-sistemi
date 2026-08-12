@@ -32,14 +32,15 @@ public class UserController {
     @GetMapping("/profile")
     public UserResponseDTO getMyProfile(Principal principal) {
         String email = principal.getName();
-        return userService.getUserProfileByEmail(email); 
+        return userService.getUserProfileByEmail(email);
     }
 
     @PatchMapping("/profile/password")
     public void changePassword(Principal principal, @Valid @RequestBody ChangePasswordDTO dto) {
-    User caller = userService.getUserEntityByEmail(principal.getName());
-    userService.changePassword(caller, dto);
-    }
 
+        User caller = userService.getUserEntityByEmail(principal.getName());
+
+        userService.changePassword(caller, dto);
+    }
 
 }

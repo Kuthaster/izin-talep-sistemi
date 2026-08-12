@@ -70,6 +70,7 @@ public class UserSeeder implements CommandLineRunner {
         admin.setRole(adminRole);
         admin.setActive(Boolean.TRUE);
         admin.setGender(Gender.MALE);
+        admin.setMustChangePassword(Boolean.TRUE);
 
         userRepository.save(admin);
 
