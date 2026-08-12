@@ -18,7 +18,6 @@ import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDecisionDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestFilterDTO;
-import com.kutalmis.izin_talep_sistemi.entity.DepartmentApprover;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveDecision;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveRequest;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveRequestApproval;
@@ -26,27 +25,30 @@ import com.kutalmis.izin_talep_sistemi.entity.LeaveRequestSpecifications;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveType;
 import com.kutalmis.izin_talep_sistemi.entity.RoleAuthority;
 import com.kutalmis.izin_talep_sistemi.entity.User;
-import com.kutalmis.izin_talep_sistemi.repository.DepartmentApproverRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveRequestApprovalRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveRequestRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveTypeRepository;
+import com.kutalmis.izin_talep_sistemi.repository.UserRepository;
+import com.kutalmis.izin_talep_sistemi.utilities.ApprovalLevels;
+
+import static com.kutalmis.izin_talep_sistemi.utilities.ApprovalLevels.roleForLevel;
 
 @Service
 public class LeaveRequestService {
     private final LeaveBalanceService leaveBalanceService;
     private final LeaveRequestRepository leaveRequestRepository;
     private final LeaveTypeRepository leaveTypeRepository;
-    private final DepartmentApproverRepository departmentApproverRepository;
+    private final UserRepository userRepository;
     private final LeaveRequestApprovalRepository leaveRequestApprovalRepository;
     private static final int MAX_LEVEL = 3;
 
     public LeaveRequestService(LeaveRequestRepository leaveRequestRepository,
             LeaveTypeRepository leaveTypeRepository,
-            DepartmentApproverRepository departmentApproverRepository,
+            UserRepository userRepository,
             LeaveRequestApprovalRepository leaveRequestApprovalRepository, LeaveBalanceService leaveBalanceService) {
         this.leaveRequestRepository = leaveRequestRepository;
         this.leaveTypeRepository = leaveTypeRepository;
-        this.departmentApproverRepository = departmentApproverRepository;
+        this.userRepository = userRepository;
         this.leaveRequestApprovalRepository = leaveRequestApprovalRepository;
         this.leaveBalanceService = leaveBalanceService;
     }
@@ -54,7 +56,7 @@ public class LeaveRequestService {
     public List<LeaveRequestDTO> getMyLeaveRequests(User caller, String status, String reason, Long leaveTypeId,
             LocalDate startDateFrom, LocalDate startDateTo) {
         Specification<LeaveRequest> spec = Specification
-                .where(LeaveRequestSpecifications.belongsToUser(caller.getId())) // scope — mandatory
+                .where(LeaveRequestSpecifications.belongsToUser(caller.getId()))
                 .and(LeaveRequestSpecifications.hasStatus(status))
                 .and(LeaveRequestSpecifications.hasReason(reason))
                 .and(LeaveRequestSpecifications.hasLeaveType(leaveTypeId))
@@ -64,6 +66,13 @@ public class LeaveRequestService {
         return leaveRequestRepository.findAll(spec).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    private List<Long> approverDepartmentIds(User caller) {
+        if (caller.getDepartment() == null) {
+            return List.of();
+        }
+        return List.of(caller.getDepartment().getId());
     }
 
     public LeaveRequestCountDTO getLeaveRequestCount(User caller) {
@@ -78,14 +87,10 @@ public class LeaveRequestService {
             return new LeaveRequestCountDTO(pending, approved, rejected, cancelled, expired, total);
         }
 
-        List<Long> departmentIds = departmentApproverRepository.findByApprover_Id(caller.getId()).stream()
-                .map(da -> da.getDepartment().getId())
-                .distinct()
-                .collect(Collectors.toList());
+        List<Long> departmentIds = approverDepartmentIds(caller);
 
         if (departmentIds.isEmpty()) {
             return new LeaveRequestCountDTO(0L, 0L, 0L, 0L, 0L, 0L);
-
         }
 
         Long pending = leaveRequestRepository.countByStatusAndUser_Department_IdIn("PENDING", departmentIds);
@@ -115,10 +120,7 @@ public class LeaveRequestService {
                     .collect(Collectors.toList());
         }
 
-        List<Long> departmentIds = departmentApproverRepository.findByApprover_Id(caller.getId()).stream()
-                .map(da -> da.getDepartment().getId())
-                .distinct()
-                .collect(Collectors.toList());
+        List<Long> departmentIds = approverDepartmentIds(caller);
 
         if (departmentIds.isEmpty()) {
             return List.of();
@@ -134,24 +136,17 @@ public class LeaveRequestService {
     @Transactional
     public List<LeaveRequestDTO> createLeaveRequest(LeaveRequestCreateDTO dto, User caller) {
 
-        LeaveType leaveType = leaveTypeRepository.findById(dto.leaveTypeId())
-                .orElseThrow(() -> new IllegalArgumentException("İzin türü bulunamadı."));
+        userDepartmentNullCheck(caller);
 
-        if (dto.startDate().isAfter(dto.endDate())) {
-            throw new IllegalArgumentException("Başlangıç tarihi bitiş tarihinden sonra olamaz.");
-        }
-        if (dto.startDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Geçmişteki bir tarihe izin alamazsınız.");
-        }
-        if (!Boolean.TRUE.equals(leaveType.getActive())) {
-            throw new IllegalArgumentException("Bu izin türü artık kullanılamıyor.");
-        }
-        if (leaveType.getGenderRestriction() != null && !caller.getGender().equals(leaveType.getGenderRestriction())) {
-            throw new AccessDeniedException("Cinsiyetinizden dolayı bu izin türünde talep yapamazsınız.");
-        }
-        if (leaveRequestRepository.existsOverlappingRequest(caller.getId(), dto.startDate(), dto.endDate(), -1L)) {
-            throw new IllegalArgumentException("Seçilen tarihler arasında bir talebiniz var.");
-        }
+        LeaveType leaveType = leaveTypeCheck(dto.leaveTypeId());
+
+        dateChecks(dto.startDate(), dto.endDate());
+
+        leaveTypeActiveCheck(leaveType);
+
+        genderCheck(caller, leaveType);
+
+        overlapCheck(caller, dto.startDate(), dto.endDate());
 
         List<LeaveRequestDTO> createdRequests = new ArrayList<>();
         LocalDate currentStart = dto.startDate();
@@ -173,15 +168,8 @@ public class LeaveRequestService {
     }
 
     private LeaveRequest reserveRequest(LeaveRequestCreateDTO dto, User caller, LeaveType leaveType) {
-        System.out.println("reserveRequest start=" + dto.startDate() + " end=" + dto.endDate());
-
         int requestedDays = leaveBalanceService.countBusinessDays(dto.startDate(), dto.endDate());
 
-        System.out.println("requestedDays=" + requestedDays);
-
-        if (requestedDays <= 0) {
-            throw new IllegalArgumentException("no valid business days within selected dtes.");
-        }
         if (requestedDays <= 0) {
             throw new IllegalArgumentException("Seçilen tarihler arasında geçerli bir iş günü bulunamadı.");
         }
@@ -208,8 +196,7 @@ public class LeaveRequestService {
         String managerNote = toNullable(dto.managerNote());
         LeaveDecision decision = dto.decision();
 
-        LeaveRequest request = leaveRequestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
+        LeaveRequest request = leaveRequestCheck(requestId);
 
         if (!"PENDING".equals(request.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Bu talep zaten sonuçlandırılmış.");
@@ -236,51 +223,29 @@ public class LeaveRequestService {
         return toDTO(leaveRequestRepository.save(request));
     }
 
-    @SuppressWarnings("unused")
-    private void advancePastSelfApprovals(LeaveRequest request) {
-        int requiredLevels = request.getLeaveType().getRequiredLevels();
-        int level = request.getCurrentLevel() + 1;
-
-        while (level <= requiredLevels) {
-            DepartmentApprover approver = departmentApproverRepository
-                    .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)
-                    .orElse(null);
-
-            boolean isSelfApproval = approver != null
-                    && approver.getApprover().getId().equals(request.getUser().getId());
-
-            if (!isSelfApproval) {
-                break;
-            }
-            level++;
-        }
-
-        if (level > requiredLevels) {
-            request.setStatus("APPROVED");
-        } else {
-            request.setCurrentLevel(level);
-        }
-    }
-
     private void assertAuthority(User caller, LeaveRequest request, int level) {
         if (caller.getRole().getName() == RoleAuthority.ADMIN) {
             return;
         }
 
-        DepartmentApprover approver = departmentApproverRepository
-                .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Bu departmanın " + level + ". seviye onaylayıcısı atanmamış."));
+        RoleAuthority requiredRole = roleForLevel(level);
+        if (requiredRole == null || request.getUser().getDepartment() == null) {
+            throw new IllegalStateException("Bu talep için onaylayıcı belirlenemiyor.");
+        }
 
-        if (!approver.getApprover().getId().equals(caller.getId())) {
+        User approver = userRepository
+                .findByRole_NameAndDepartment_Id(requiredRole, request.getUser().getDepartment().getId())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Bu departmanın " + level + ". seviye yöneticisi yok."));
+
+        if (!approver.getId().equals(caller.getId())) {
             throw new AccessDeniedException("Yetkisiz İşlem");
         }
     }
 
     @Transactional
     public LeaveRequestDTO updateLeaveRequest(Long requestId, LeaveRequestCreateDTO dto, User caller) {
-        LeaveRequest request = leaveRequestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
+        LeaveRequest request = leaveRequestCheck(requestId);
 
         assertCanModify(caller, request);
 
@@ -292,31 +257,15 @@ public class LeaveRequestService {
             throw new IllegalStateException("Bu talep onay sürecine girdiği için artık düzenlenemez.");
         }
 
-        if (dto.startDate().isAfter(dto.endDate())) {
-            throw new IllegalArgumentException("Başlangıç tarihi bitiş tarihinden sonra olamaz.");
-        }
+        dateChecks(dto.startDate(), dto.endDate());
 
-        if (leaveRequestRepository.existsOverlappingRequest(caller.getId(), dto.startDate(), dto.endDate(),
-                requestId)) {
-            throw new IllegalArgumentException(
-                    "Seçilen tarihler arasında zaten onaylı veya bekleyen bir talebiniz var.");
-        }
+        overlapCheck(caller, dto.startDate(), dto.endDate());
 
-        if (dto.startDate().getYear() != dto.endDate().getYear()) {
-            throw new IllegalArgumentException(
-                    "İzin güncellemeleri yılı aşamaz. Lütfen iptal edip yeni talep oluşturun.");
-        }
+        requestMultiYearCheck(dto.startDate(), dto.endDate());
 
-        if (dto.startDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Geçmişteki bir tarihe izin alamazsınız.");
-        }
+        LeaveType newLeaveType = leaveTypeCheck(dto.leaveTypeId());
 
-        LeaveType newLeaveType = leaveTypeRepository.findById(dto.leaveTypeId())
-                .orElseThrow(() -> new IllegalArgumentException("İzin türü bulunamadı."));
-
-        if (!Boolean.TRUE.equals(newLeaveType.getActive())) {
-            throw new IllegalArgumentException("Bu izin türü artık kullanılamıyor.");
-        }
+        leaveTypeActiveCheck(newLeaveType);
 
         int oldRequestedDays = request.getRequestedDays();
         int newRequestedDays = leaveBalanceService.countBusinessDays(dto.startDate(), dto.endDate());
@@ -349,8 +298,8 @@ public class LeaveRequestService {
 
     @Transactional
     public LeaveRequestDTO cancelLeaveRequest(Long requestId, User caller) {
-        LeaveRequest request = leaveRequestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(requestId + " ID'li izin talebi bulunamadı."));
+        LeaveRequest request = leaveRequestCheck(requestId);
+
         assertCanModify(caller, request);
 
         if (!"PENDING".equals(request.getStatus())) {
@@ -364,11 +313,10 @@ public class LeaveRequestService {
     }
 
     public void deleteLeaveRequest(Long leaveRequestId) {
-        LeaveRequest leaveRequest = leaveRequestRepository.findById(leaveRequestId)
-                .orElseThrow(() -> new IllegalArgumentException(leaveRequestId + " ID'li talep bulunamadı."));
+        LeaveRequest leaveRequest = leaveRequestCheck(leaveRequestId);
 
         if (!"PENDING".equals(leaveRequest.getStatus())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Sadece PENDING statüsündeki talepler silinebilir.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Sadece bekleyen (PENDING) talepler silinebilir.");
         }
 
         leaveBalanceService.releaseReservedDays(leaveRequest.getUser(), leaveRequest.getLeaveType(),
@@ -413,31 +361,38 @@ public class LeaveRequestService {
 
     private void advanceChain(LeaveRequest request, int startLevel, int approvalsSoFar) {
         int requiredLevels = request.getLeaveType().getRequiredLevels();
+        Long departmentId = request.getUser().getDepartment() != null
+                ? request.getUser().getDepartment().getId()
+                : null;
 
-        int level = startLevel;
+        Integer requesterLevel = ApprovalLevels.levelForRole(request.getUser().getRole().getName());
+        int minStart = (requesterLevel != null) ? requesterLevel + 1 : 1;
+        int level = Math.max(startLevel, minStart);
+
         if (approvalsSoFar >= requiredLevels || level > MAX_LEVEL) {
             request.setStatus("APPROVED");
             return;
         }
 
         while (level <= MAX_LEVEL) {
-            DepartmentApprover approver = departmentApproverRepository
-                    .findByDepartment_IdAndLevel(request.getUser().getDepartment().getId(), level)
-                    .orElse(null);
+            RoleAuthority requiredRole = roleForLevel(level);
+            User approver = (departmentId != null && requiredRole != null)
+                    ? userRepository.findByRole_NameAndDepartment_Id(requiredRole, departmentId).orElse(null)
+                    : null;
 
             if (approver == null) {
                 request.setCurrentLevel(level);
                 return;
             }
 
-            boolean isSelf = approver.getApprover().getId().equals(request.getUser().getId());
+            boolean isSelf = approver.getId().equals(request.getUser().getId());
             if (!isSelf) {
                 request.setCurrentLevel(level);
                 return;
             }
             level++;
         }
-        request.setCurrentLevel(MAX_LEVEL + 1);
+        request.setStatus("APPROVED");
     }
 
     private static String toNullable(String s) {
@@ -447,4 +402,57 @@ public class LeaveRequestService {
         return trimmed.isEmpty() ? null : trimmed;
     }
 
+    private void userDepartmentNullCheck(User caller) {
+        if (caller.getDepartment() == null) {
+            throw new IllegalStateException("Departmanınız atanmamış, izin talebi oluşturamazsınız.");
+        }
+    }
+
+    private LeaveType leaveTypeCheck(Long leaveTypeid) {
+        return leaveTypeRepository.findById(leaveTypeid)
+                .orElseThrow(() -> new IllegalArgumentException("İzin türü bulunamadı."));
+
+    }
+
+    private void dateChecks(LocalDate startDate, LocalDate endDate) {
+
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Başlangıç tarihi bitiş tarihinden sonra olamaz.");
+        }
+        if (startDate.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Geçmişteki bir tarihe izin alamazsınız.");
+        }
+    }
+
+    private void requestMultiYearCheck(LocalDate startDate, LocalDate endDate) {
+        if (startDate.getYear() != endDate.getYear()) {
+            throw new IllegalArgumentException(
+                    "İzin güncellemeleri yılı aşamaz. Lütfen iptal edip yeni talep oluşturun.");
+        }
+    }
+
+    private void leaveTypeActiveCheck(LeaveType leaveType) {
+        if (!leaveType.getActive()) {
+            throw new IllegalArgumentException("Bu izin türü artık kullanılamıyor.");
+        }
+    }
+
+    private void genderCheck(User caller, LeaveType leaveType) {
+        if (leaveType.getGenderRestriction() != null && !caller.getGender().equals(leaveType.getGenderRestriction())) {
+            throw new AccessDeniedException("Cinsiyetinizden dolayı bu izin türünde talep yapamazsınız.");
+        }
+    }
+
+    private void overlapCheck(User caller, LocalDate startDate, LocalDate endDate) {
+
+        if (leaveRequestRepository.existsOverlappingRequest(caller.getId(), startDate, endDate, -1L)) {
+            throw new IllegalArgumentException("Seçilen tarihler arasında bir talebiniz var.");
+        }
+    }
+
+    private LeaveRequest leaveRequestCheck(Long leaveRequestId) {
+        return leaveRequestRepository.findById(leaveRequestId)
+                .orElseThrow(() -> new IllegalArgumentException(leaveRequestId + " ID'li izin talebi bulunamadı"));
+
+    }
 }

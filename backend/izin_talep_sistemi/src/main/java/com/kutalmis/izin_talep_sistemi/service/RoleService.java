@@ -28,24 +28,6 @@ public class RoleService {
     }
 
     @Transactional
-    public RoleDTO createRole(RoleCreateDTO dto) {
-        roleRepository.findByDisplayName(dto.displayName()).ifPresent(existing -> {
-            if (existing.getActive()) {
-                throw new DuplicateResourceException("Bu isimli aktif bir rol zaten var.");
-            }
-            throw new DuplicateResourceException(
-                    "Bu isimli pasif bir rol zaten var. Yeni oluşturmak yerine mevcut rolü tekrar aktifleştirebilirsiniz (ID: "
-                            + existing.getId() + ").");
-        });
-
-        Role role = new Role(dto.name(), dto.displayName());
-        role.setActive(true); // Zaten initializer de de var, belli olsun diye
-        Role saved = roleRepository.save(role);
-
-        return toDTO(saved);
-    }
-
-    @Transactional
     public RoleDTO updateRole(Long roleId, RoleUpdateDTO dto) {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " ID'li rol bulunamadı."));
@@ -53,20 +35,10 @@ public class RoleService {
         if (dto.displayName() != null && dto.displayName().isBlank()) {
             role.setDisplayName(dto.displayName());
         }
-        if (dto.active() != null) {
-            role.setActive(dto.active());
-        }
         return toDTO(roleRepository.save(role));
     }
 
     private RoleDTO toDTO(Role role) {
-        return new RoleDTO(role.getId(), role.getName(), role.getDisplayName(), role.getActive());
-    }
-
-    public void deleteRole(Long roleId) {
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new IllegalArgumentException(roleId + " ID'li rol bulunamadı."));
-
-        roleRepository.deleteById(role.getId());
+        return new RoleDTO(role.getId(), role.getName(), role.getDisplayName());
     }
 }

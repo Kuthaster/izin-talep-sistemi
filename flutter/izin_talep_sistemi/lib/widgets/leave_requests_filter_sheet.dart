@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:izin_talep_sistemi/models/leave_request_filter.dart';
+import 'package:izin_talep_sistemi/models/status.dart';
 import 'package:izin_talep_sistemi/providers/leave_type_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 
 class LeaveRequestFilterSheet extends ConsumerStatefulWidget {
   final LeaveRequestFilter initial;
@@ -22,55 +24,6 @@ class LeaveRequestFilterSheet extends ConsumerStatefulWidget {
 class _LeaveRequestFilterSheetState
     extends ConsumerState<LeaveRequestFilterSheet> {
   late LeaveRequestFilter _draft;
-
-  static const _statusOptions = [
-    'PENDING',
-    'APPROVED',
-    'REJECTED',
-    'CANCELLED',
-    'EXPIRED',
-  ];
-  static const _statusLabels = {
-    'PENDING': 'Bekliyor',
-    'APPROVED': 'Onaylandı',
-    'REJECTED': 'Reddedildi',
-    'CANCELLED': 'İptal Edildi',
-    'EXPIRED': 'Süresi Doldu',
-  };
-
-  Color _statusBg(String status) {
-    switch (status) {
-      case 'PENDING':
-        return Colors.orange.shade100;
-      case 'APPROVED':
-        return Colors.green.shade100;
-      case 'REJECTED':
-        return Colors.red.shade100;
-      case 'CANCELLED':
-        return Colors.grey.shade400;
-      case 'EXPIRED':
-        return Colors.blueGrey;
-      default:
-        return Colors.black;
-    }
-  }
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'PENDING':
-        return Colors.orange;
-      case 'APPROVED':
-        return Colors.green;
-      case 'REJECTED':
-        return Colors.red;
-      case 'CANCELLED':
-        return Colors.grey.shade900;
-      case 'EXPIRED':
-        return Colors.white;
-      default:
-        return Colors.black;
-    }
-  }
 
   @override
   void initState() {
@@ -101,7 +54,7 @@ class _LeaveRequestFilterSheetState
 
     return Material(
       color: Theme.of(context).scaffoldBackgroundColor,
-      textStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      textStyle: TextStyle(color: context.colors.onSurface),
 
       child: Padding(
         padding: EdgeInsets.only(
@@ -137,15 +90,19 @@ class _LeaveRequestFilterSheetState
               const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
-                children: _statusOptions.map((s) {
+                children: statusOptions.map((s) {
                   final selected = _draft.status == s;
                   return ChoiceChip(
-                    labelStyle: TextStyle(color: _statusColor(s)),
+                    labelStyle: TextStyle(
+                      color: getStatusTextColor(convertToStatusType(s)),
+                    ),
                     selectedColor: Theme.of(
                       context,
                     ).colorScheme.primaryFixedDim,
-                    backgroundColor: _statusBg(s),
-                    label: Text(_statusLabels[s]!),
+                    backgroundColor: getStatusBackgroundColor(
+                      convertToStatusType(s),
+                    ),
+                    label: Text(getStatusLabel(convertToStatusType(s))),
                     selected: selected,
                     onSelected: (_) => setState(() {
                       _draft = selected
@@ -170,7 +127,7 @@ class _LeaveRequestFilterSheetState
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 ),
-                error: (_, __) => const Text(
+                error: (_, _) => const Text(
                   'İzin türleri yüklenemedi',
                   style: TextStyle(color: Colors.red, fontSize: 12),
                 ),
@@ -180,7 +137,7 @@ class _LeaveRequestFilterSheetState
                     final selected = _draft.leaveTypeId == lt.id;
                     return ChoiceChip(
                       labelStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onInverseSurface,
+                        color: context.colors.onInverseSurface,
                       ),
                       selectedColor: Theme.of(
                         context,
@@ -239,10 +196,10 @@ class _LeaveRequestFilterSheetState
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton(
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(
-                      Theme.of(context).colorScheme.tertiary,
+                      context.colors.tertiary,
                     ),
                   ),
                   onPressed: () {
@@ -251,9 +208,7 @@ class _LeaveRequestFilterSheetState
                   },
                   child: Text(
                     'Uygula',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onInverseSurface,
-                    ),
+                    style: TextStyle(color: context.colors.onInverseSurface),
                   ),
                 ),
               ),

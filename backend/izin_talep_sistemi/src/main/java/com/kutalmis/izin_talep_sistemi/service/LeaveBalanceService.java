@@ -1,5 +1,6 @@
 package com.kutalmis.izin_talep_sistemi.service;
 
+import com.kutalmis.izin_talep_sistemi.dto.LeaveBalanceAuditDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveBalanceDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveBalanceUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveBalance;
@@ -10,6 +11,7 @@ import com.kutalmis.izin_talep_sistemi.entity.User;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveBalanceAuditRepository;
 import com.kutalmis.izin_talep_sistemi.repository.LeaveBalanceRepository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -148,5 +150,21 @@ public class LeaveBalanceService {
                 saved.getUser().getFirstName() + " " + saved.getUser().getLastName(),
                 saved.getLeaveType().getName(), saved.getYear(),
                 saved.getTotalDays(), saved.getUsedDays(), saved.getReservedDays(), saved.getAvailableDays());
+    }
+
+    public List<LeaveBalanceAuditDTO> getAllAudits() {
+        return leaveBalanceAuditRepository.findAll(Sort.by(Sort.Direction.DESC, "changedAt")).stream()
+                .map(a -> new LeaveBalanceAuditDTO(
+                        a.getId(),
+                        a.getLeaveBalance().getId(),
+                        a.getLeaveBalance().getLeaveType().getName(),
+                        a.getLeaveBalance().getUser().getFirstName() + " "
+                                + a.getLeaveBalance().getUser().getLastName(),
+                        a.getAdmin().getFirstName() + " " + a.getAdmin().getLastName(),
+                        a.getOldTotalDays(),
+                        a.getNewTotalDays(),
+                        a.getReason(),
+                        a.getChangedAt()))
+                .collect(Collectors.toList());
     }
 }

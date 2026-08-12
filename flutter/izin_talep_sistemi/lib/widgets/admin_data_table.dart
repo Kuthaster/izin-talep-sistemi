@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 
 class AdminDataTable<T> extends ConsumerStatefulWidget {
   final List<T> items;
@@ -23,7 +24,7 @@ class AdminDataTable<T> extends ConsumerStatefulWidget {
     required this.sortComparators,
     required this.buildCells,
     this.searchLabel,
-    this.itemsPerPage = 10,
+    this.itemsPerPage = 15,
     this.showPagination = true,
     this.emptyStateTitle,
     this.emptyStateMessage,
@@ -75,7 +76,6 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
   }
 
   int get _maxPage {
-    // computed lazily against the current filtered list in build()
     return 0;
   }
 
@@ -137,7 +137,7 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
                             ? Icons.arrow_upward
                             : Icons.arrow_downward,
                         size: 16,
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: context.colors.onSurface,
                       ),
                     ],
                   ],
@@ -147,102 +147,82 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
       );
     }).toList();
 
-    return Theme(
-      data: Theme.of(context).copyWith(
-        cardTheme: CardThemeData(color: Theme.of(context).colorScheme.surface),
-        dataTableTheme: DataTableThemeData(
-          headingTextStyle: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
               child: SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columnSpacing: widget.dataSpacing ?? 40,
-                    dataRowMaxHeight: 36,
-                    dataRowMinHeight: 24,
-                    dividerThickness: 0.4,
-                    showCheckboxColumn: true,
-                    columns: columns,
-                    rows: pageItems
-                        .map((item) => DataRow(cells: widget.buildCells(item)))
-                        .toList(),
-                  ),
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columnSpacing: widget.dataSpacing ?? 40,
+                  dataRowMaxHeight: 36,
+                  dataRowMinHeight: 24,
+                  dividerThickness: 0.6,
+                  showCheckboxColumn: true,
+                  columns: columns,
+                  rows: pageItems
+                      .map((item) => DataRow(cells: widget.buildCells(item)))
+                      .toList(),
                 ),
               ),
             ),
-            if (widget.showPagination) ...[
-              const Divider(height: 1),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      '$startIndex–$endIndex of ${data.length}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    IconButton(
-                      icon: const Icon(Icons.first_page),
-                      color: Theme.of(context).colorScheme.primary,
-                      disabledColor: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryFixedDim,
-                      onPressed: safePage > 0
-                          ? () => setState(() => _currentPage = 0)
-                          : null,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_left),
-                      color: Theme.of(context).colorScheme.primary,
-                      disabledColor: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryFixedDim,
-                      onPressed: safePage > 0
-                          ? () => setState(() => _currentPage = safePage - 1)
-                          : null,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_right),
-                      color: Theme.of(context).colorScheme.primary,
-                      disabledColor: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryFixedDim,
-                      onPressed: safePage < totalPages - 1
-                          ? () => setState(() => _currentPage = safePage + 1)
-                          : null,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.last_page),
-                      color: Theme.of(context).colorScheme.primary,
-                      disabledColor: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryFixedDim,
-                      onPressed: safePage < totalPages - 1
-                          ? () => setState(() => _currentPage = totalPages - 1)
-                          : null,
-                    ),
-                  ],
-                ),
+          ),
+          if (widget.showPagination) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    '$startIndex–$endIndex of ${data.length}',
+                    style: TextStyle(),
+                  ),
+                  const SizedBox(width: 16),
+                  IconButton(
+                    icon: const Icon(Icons.first_page),
+                    disabledColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryFixedDim,
+                    onPressed: safePage > 0
+                        ? () => setState(() => _currentPage = 0)
+                        : null,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left),
+                    disabledColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryFixedDim,
+                    onPressed: safePage > 0
+                        ? () => setState(() => _currentPage = safePage - 1)
+                        : null,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right),
+                    disabledColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryFixedDim,
+                    onPressed: safePage < totalPages - 1
+                        ? () => setState(() => _currentPage = safePage + 1)
+                        : null,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.last_page),
+                    disabledColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryFixedDim,
+                    onPressed: safePage < totalPages - 1
+                        ? () => setState(() => _currentPage = totalPages - 1)
+                        : null,
+                  ),
+                ],
               ),
-            ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -271,7 +251,7 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
           ],
           if (widget.onEmptyStateAction != null) ...[
             const SizedBox(height: 20),
-            ElevatedButton(
+            FilledButton(
               onPressed: widget.onEmptyStateAction,
               child: Text(widget.emptyStateActionLabel ?? 'Yeni oluştur'),
             ),

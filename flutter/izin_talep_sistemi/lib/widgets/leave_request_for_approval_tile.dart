@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:izin_talep_sistemi/models/leave_decision.dart';
 import 'package:izin_talep_sistemi/models/leave_request_decision.dart';
+import 'package:izin_talep_sistemi/models/status.dart';
+import 'package:izin_talep_sistemi/providers/auth_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_approval_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:izin_talep_sistemi/widgets/leave_request_detail_sheet.dart';
 
 import '../models/leave_request.dart';
@@ -13,57 +16,6 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
   final LeaveRequest request;
 
   const LeaveRequestForApprovalTile({super.key, required this.request});
-
-  Color _statusBg(String status) {
-    switch (status) {
-      case 'PENDING':
-        return Colors.orange.shade100;
-      case 'APPROVED':
-        return Colors.green.shade100;
-      case 'REJECTED':
-        return Colors.red.shade100;
-      case 'CANCELLED':
-        return Colors.grey.shade400;
-      case 'EXPIRED':
-        return Colors.blueGrey;
-      default:
-        return Colors.black;
-    }
-  }
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'PENDING':
-        return Colors.orange.shade900;
-      case 'APPROVED':
-        return Colors.green.shade900;
-      case 'REJECTED':
-        return Colors.red.shade900;
-      case 'CANCELLED':
-        return Colors.grey.shade900;
-      case 'EXPIRED':
-        return Colors.white;
-      default:
-        return Colors.white;
-    }
-  }
-
-  String _statusLabel(String status) {
-    switch (status) {
-      case 'PENDING':
-        return 'Bekliyor · Sv $currentLevelPlaceholder';
-      case 'APPROVED':
-        return 'Onaylandı';
-      case 'REJECTED':
-        return 'Reddedildi';
-      case 'CANCELLED':
-        return 'İptal Edildi';
-      case 'EXPIRED':
-        return 'Süresi Doldu';
-      default:
-        return status;
-    }
-  }
 
   String get currentLevelPlaceholder => request.currentLevel.toString();
 
@@ -129,7 +81,6 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
     final note = await _showRejectReasonDialog(context);
     if (!context.mounted) return;
 
-    if (note == null) return; // dialog cancelled
     await _decide(
       context,
       ref,
@@ -137,7 +88,8 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
     );
   }
 
-  Widget _buildRow(BuildContext context, WidgetRef ref) {
+  Widget _buildRow(BuildContext context, WidgetRef ref, bool canAct) {
+    final StatusType status = convertToStatusType(request.status);
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: () => showModalBottomSheet(
@@ -147,7 +99,11 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+          color: context.colors.surfaceContainerLow,
+          border: Border.all(
+            width: 0.5, //TODO approval divider thickness bak buna
+            color: context.colors.outline,
+          ), //TODO approval tile background değiştir
           borderRadius: BorderRadius.circular(10),
         ),
         margin: const EdgeInsets.symmetric(vertical: 4),
@@ -166,7 +122,7 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                     child: Text(
                       _initials(request.userName),
                       style: TextStyle(
-                        color: Colors.deepPurple.shade900,
+                        color: context.colors.primary,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -196,14 +152,14 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(
-                                color: _statusBg(request.status),
+                                color: getStatusBackgroundColor(status),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                _statusLabel(request.status),
+                                getStatusLabel(status),
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: _statusColor(request.status),
+                                  color: getStatusTextColor(status),
                                 ),
                               ),
                             ),
@@ -211,11 +167,8 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${request.leaveTypeName} · ${_formatDateRange(request.startDate, request.endDate)} · ${_dayCount(request.startDate, request.endDate)} gün',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey,
-                          ),
+                          '${request.leaveTypeName} · ${_formatDateRange(request.startDate, request.endDate)} · ${_dayCount(request.startDate, request.endDate)} iş günü',
+                          style: const TextStyle(fontSize: 14),
                         ),
                       ],
                     ),
@@ -224,32 +177,51 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
               ),
               if (request.status == 'PENDING') ...[
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _approve(context, ref),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
+                if (canAct)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: () => _approve(context, ref),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                          ),
+                          icon: const Icon(Icons.check, size: 16),
+                          label: const Text('Onayla'),
                         ),
-                        icon: const Icon(Icons.check, size: 16),
-                        label: const Text('Onayla'),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _reject(context, ref),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                          ),
+                          icon: const Icon(Icons.close, size: 16),
+                          label: const Text('Reddet'),
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Bu talep Seviye ${request.currentLevel} onayı bekliyor, sizin seviyenizde değil.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade700,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _reject(context, ref),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                        ),
-                        icon: const Icon(Icons.close, size: 16),
-                        label: const Text('Reddet'),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
               ],
             ],
           ),
@@ -260,8 +232,14 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final row = _buildRow(context, ref);
-
+    final currentUser = ref.watch(authProvider).value;
+    final myLevel = currentUser != null
+        ? _levelForRole(currentUser.roleAuthority.name)
+        : null;
+    final isAdmin = currentUser?.roleAuthority.name == 'ADMIN';
+    final canAct =
+        isAdmin || (myLevel != null && myLevel == request.currentLevel);
+    final row = _buildRow(context, ref, canAct);
     if (request.status != 'PENDING') return row;
 
     return Slidable(
@@ -292,6 +270,19 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
       ),
       child: row,
     );
+  }
+}
+
+int? _levelForRole(String roleAuthority) {
+  switch (roleAuthority) {
+    case 'MANAGER_LEVEL_1':
+      return 1;
+    case 'MANAGER_LEVEL_2':
+      return 2;
+    case 'MANAGER_LEVEL_3':
+      return 3;
+    default:
+      return null;
   }
 }
 

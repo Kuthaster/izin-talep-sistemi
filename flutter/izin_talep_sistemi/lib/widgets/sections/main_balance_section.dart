@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/leave_balance_provider.dart';
-import 'package:izin_talep_sistemi/widgets/balance_card.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:izin_talep_sistemi/widgets/dashboard_ring.dart';
 
 class MainBalanceSection extends ConsumerWidget {
@@ -61,7 +61,7 @@ class _BalanceCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: context.colors.onSurface, width: 0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -93,7 +93,7 @@ class _BalanceCard extends StatelessWidget {
                       'Kullanılan: $usedDays',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: context.colors.secondary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -102,7 +102,7 @@ class _BalanceCard extends StatelessWidget {
                       'Rezerve: $reservedDays',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: context.colors.onSurfaceVariant,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

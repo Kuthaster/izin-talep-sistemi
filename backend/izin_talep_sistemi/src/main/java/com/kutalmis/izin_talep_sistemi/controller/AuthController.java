@@ -34,9 +34,10 @@ public class AuthController {
     public LoginResponseDTO login(@Valid @RequestBody LoginRequestDTO dto) {
         try {
             authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.email(), dto.password()));
+                    new UsernamePasswordAuthenticationToken(dto.email(), dto.password()));
         } catch (AuthenticationException e) {
-            throw new BadCredentialsException("E-posta veya şifre hatalı.");
+            throw new BadCredentialsException("E-posta veya şifre hatalı."); // TODO ACTIVE IÇIN AYRI BİR THROW CHECK
+                                                                             // YAP
         }
 
         User user = userService.getUserEntityByEmail(dto.email());

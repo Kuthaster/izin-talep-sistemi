@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/leave_request_count.dart';
-import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
+import 'package:izin_talep_sistemi/providers/admin_reports_service_provider.dart';
 
 class RequestCountDashboard extends ConsumerWidget {
   const RequestCountDashboard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final service = ref.read(leaveRequestServiceProvider);
+    final report = ref.read(adminReportsServiceProvider);
 
     return FutureBuilder<LeaveRequestCount>(
-      future: service.getLeaveRequestCount(),
+      future: report.getLeaveRequestCount(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

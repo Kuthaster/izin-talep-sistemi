@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
+import 'package:izin_talep_sistemi/providers/balance_audits_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_balance_service_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_user_balances_provider.dart';
 import 'package:izin_talep_sistemi/models/leave_balance.dart';
@@ -80,6 +81,7 @@ class _AdminBalanceSectionState extends ConsumerState<AdminBalanceSection> {
         LeaveBalanceUpdate(newTotalDays: newTotal, reason: reason),
       );
       ref.invalidate(adminUserBalancesProvider);
+      ref.invalidate(balanceAuditsProvider);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -106,6 +108,7 @@ class _AdminBalanceSectionState extends ConsumerState<AdminBalanceSection> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, stack) => Center(child: Text('Hata: $err')),
           data: (balances) => AdminDataTable<LeaveBalance>(
+            dataSpacing: 100,
             items: balances,
             searchLabel: (balance, query) =>
                 balance.userName.toLowerCase().contains(query.toLowerCase()),

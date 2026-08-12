@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 
 class NavBarItem {
   final IconData icon;
@@ -21,34 +22,26 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.colors;
 
     return SafeArea(
       top: false,
       child: Container(
-        height: 72,
-        decoration: BoxDecoration(
-          color: scheme.primary,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+        decoration: BoxDecoration(color: scheme.primary),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(items.length, (i) {
             final selected = i == currentIndex;
             final item = items[i];
-            return _NavButton(
-              icon: selected ? (item.activeIcon ?? item.icon) : item.icon,
-              label: item.label,
-              selected: selected,
-              baseColor: scheme.onInverseSurface,
-              highlightColor: scheme.tertiary,
-              onTap: () => onTap(i),
+            return Expanded(
+              child: _NavButton(
+                icon: selected ? (item.activeIcon ?? item.icon) : item.icon,
+                label: item.label,
+                selected: selected,
+                baseColor: scheme.onInverseSurface,
+                highlightColor: scheme.tertiary,
+                onTap: () => onTap(i),
+              ),
             );
           }),
         ),
@@ -76,30 +69,28 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          decoration: BoxDecoration(
-            color: selected ? highlightColor : Colors.transparent,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: baseColor, size: 22),
-              const SizedBox(height: 1),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                  color: baseColor,
-                ),
+    return InkWell(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? highlightColor : Colors.transparent,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: baseColor, size: 22),
+            const SizedBox(height: 1),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                color: baseColor,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

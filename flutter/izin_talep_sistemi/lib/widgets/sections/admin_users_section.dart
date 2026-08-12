@@ -6,6 +6,7 @@ import 'package:izin_talep_sistemi/models/Gender.dart';
 import 'package:izin_talep_sistemi/models/department.dart';
 import 'package:izin_talep_sistemi/models/role.dart';
 import 'package:izin_talep_sistemi/models/role_authority.dart';
+import 'package:izin_talep_sistemi/models/status.dart';
 import 'package:izin_talep_sistemi/models/user_create.dart';
 import 'package:izin_talep_sistemi/models/user_response.dart';
 import 'package:izin_talep_sistemi/models/user_update.dart';
@@ -216,7 +217,7 @@ class _AdminUsersSectionState extends ConsumerState<AdminUsersSection> {
     }
   }
 
-  Future<void> _delete(
+  Future<void> _deleteUser(
     BuildContext context,
     WidgetRef ref,
     UserResponse user,
@@ -446,7 +447,7 @@ class _AdminUsersSectionState extends ConsumerState<AdminUsersSection> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Hata: $err')),
               data: (users) => AdminDataTable<UserResponse>(
-                dataSpacing: 42,
+                dataSpacing: 47,
                 items: users,
                 searchLabel: (user, query) {
                   final q = normalize(query);
@@ -497,20 +498,54 @@ class _AdminUsersSectionState extends ConsumerState<AdminUsersSection> {
                     ),
                   ),
                   DataCell(
-                    IconButton(
-                      icon: const Icon(Icons.edit, size: 18),
-                      onPressed: () => _editUser(
-                        context,
-                        ref,
-                        user,
-                        rolesAsync,
-                        departmentsAsync,
-                      ),
+                    MenuAnchor(
+                      consumeOutsideTap: true,
+
+                      alignmentOffset: Offset(-50, 0),
+                      builder:
+                          (
+                            BuildContext context,
+                            MenuController controller,
+                            Widget? child,
+                          ) {
+                            return IconButton(
+                              icon: const Icon(Icons.more_vert),
+                              onPressed: () {
+                                controller.open();
+                              },
+                              tooltip: 'Eylemler',
+                            );
+                          },
+                      menuChildren: [
+                        MenuItemButton(
+                          leadingIcon: const Icon(Icons.edit, size: 12),
+                          onPressed: () {
+                            _editUser(
+                              context,
+                              ref,
+                              user,
+                              rolesAsync,
+                              departmentsAsync,
+                            );
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("Kullanıcı Bilgilerini Güncelle"),
+                        ),
+
+                        MenuItemButton(
+                          leadingIcon: const Icon(
+                            Icons.delete_forever,
+                            size: 12,
+                          ),
+                          onPressed: () => _deleteUser(context, ref, user),
+                          child: Text("Kullanıcıyı Sil"),
+                        ),
+                      ],
                     ),
                   ),
                 ],
 
-                emptyStateTitle: 'Hiç Bir Kullanıcı Bulunamadı????',
+                emptyStateTitle: 'Hiç Bir Kullanıcı Bulunamadı',
               ),
             ),
           ),

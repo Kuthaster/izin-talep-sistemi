@@ -28,5 +28,4 @@ Bkz. `docs/database-schema.md
 
 ## Yetkilendirme Modeli
 - Role Authority: ADMIN, MANAGER_LEVEL_1, MANAGER_LEVEL_2, MANAGER_LEVEL_3, EMPLOYEE (sabit, admin panelinden yalnızca görünen ad değiştirilebilir)
-- Departman bazlı, çok seviyeli onay zinciri (`DepartmentApprover`)
 - JWT tabanlı stateless kimlik doğrulama

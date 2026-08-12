@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:izin_talep_sistemi/models/leave_request.dart';
 import 'package:izin_talep_sistemi/models/leave_request_approval.dart';
 import 'package:izin_talep_sistemi/models/leave_decision.dart';
+import 'package:izin_talep_sistemi/models/status.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 
 class LeaveRequestDetailSheet extends StatelessWidget {
   final LeaveRequest request;
@@ -29,40 +31,6 @@ class LeaveRequestDetailSheet extends StatelessWidget {
       '${_fmtDate(d)} · ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 
   int get _dayCount => request.endDate.difference(request.startDate).inDays + 1;
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'PENDING':
-        return Colors.orange.shade900;
-      case 'APPROVED':
-        return Colors.green.shade900;
-      case 'REJECTED':
-        return Colors.red.shade900;
-      case 'CANCELLED':
-        return Colors.grey.shade900;
-      case 'EXPIRED':
-        return Colors.white;
-      default:
-        return Colors.white;
-    }
-  }
-
-  String _statusLabel(String status) {
-    switch (status) {
-      case 'PENDING':
-        return 'Bekliyor · Sv ${request.currentLevel}';
-      case 'APPROVED':
-        return 'Onaylandı';
-      case 'REJECTED':
-        return 'Reddedildi';
-      case 'CANCELLED':
-        return 'İptal Edildi';
-      case 'EXPIRED':
-        return 'Süresi Doldu';
-      default:
-        return status;
-    }
-  }
 
   Color _decisionColor(LeaveDecision decision) {
     switch (decision) {
@@ -93,10 +61,13 @@ class LeaveRequestDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final StatusType status = convertToStatusType(request.status);
+
     final sortedApprovals = [...request.approvals]
       ..sort((a, b) => a.level.compareTo(b.level));
 
     return Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: DraggableScrollableSheet(
         initialChildSize: 0.6,
         minChildSize: 0.3,
@@ -114,7 +85,7 @@ class LeaveRequestDetailSheet extends StatelessWidget {
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: context.colors.primary,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -137,15 +108,15 @@ class LeaveRequestDetailSheet extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: _statusColor(
-                          request.status,
+                        color: getStatusBackgroundColor(
+                          status,
                         ).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        request.status,
+                        getStatusLabel(status),
                         style: TextStyle(
-                          color: _statusColor(_statusLabel(request.status)),
+                          color: getStatusTextColor(status),
                           fontWeight: FontWeight.w600,
                           fontSize: 12,
                         ),
@@ -195,9 +166,7 @@ class LeaveRequestDetailSheet extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(
                       'Henüz bir karar verilmedi.',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      style: TextStyle(color: context.colors.primary),
                     ),
                   )
                 else
@@ -240,12 +209,9 @@ class _DetailRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
+            Icon(icon, size: 18, color: context.colors.primary),
             const SizedBox(width: 10),
-            Text(
-              '$label: ',
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            ),
+            Text('$label: ', style: TextStyle(color: context.colors.primary)),
             Expanded(
               child: Text(
                 value,
@@ -283,7 +249,7 @@ class _ApprovalTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).colorScheme.primary),
+          border: Border.all(color: context.colors.primary),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -312,7 +278,7 @@ class _ApprovalTile extends StatelessWidget {
                       '"${approval.note}"',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).colorScheme.onPrimary,
+                        color: context.colors.onPrimary,
                         fontStyle: FontStyle.italic,
                       ),
                     ),

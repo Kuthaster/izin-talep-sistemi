@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:izin_talep_sistemi/theme/text/text_anim.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginBannerWidget extends StatelessWidget {
@@ -8,7 +9,7 @@ class LoginBannerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        color: Theme.of(context).colorScheme.surface,
+        color: context.colors.surface,
         padding: const EdgeInsets.all(40.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -20,17 +21,14 @@ class LoginBannerWidget extends StatelessWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryFixed,
+                    color: context.colors.primaryFixed,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Container(
                       width: 26,
                       height: 26,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: BoxDecoration(shape: BoxShape.circle),
                     ),
                   ),
                 ),
@@ -39,7 +37,7 @@ class LoginBannerWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: context.colors.onSurface,
                   ),
                 ),
               ],
@@ -52,7 +50,7 @@ class LoginBannerWidget extends StatelessWidget {
                   'İzin Talep Sistemi',
                   style: TextStyle(
                     fontSize: 30,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: context.colors.onSurface,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -66,8 +64,8 @@ class LoginBannerWidget extends StatelessWidget {
                       child: TextAnim(
                         textInput: "By: Kuthaster",
                         isAnimated: true,
-                        textColor: Theme.of(context).colorScheme.secondary,
-                        caretColor: Theme.of(context).colorScheme.secondary,
+                        textColor: context.colors.secondary,
+                        caretColor: context.colors.secondary,
                         caretBlinkDuration: Duration(milliseconds: 1200),
                       ),
                     ),

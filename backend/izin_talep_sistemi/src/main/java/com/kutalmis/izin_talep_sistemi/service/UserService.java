@@ -1,41 +1,43 @@
 package com.kutalmis.izin_talep_sistemi.service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kutalmis.izin_talep_sistemi.dto.ChangePasswordDTO;
+import com.kutalmis.izin_talep_sistemi.dto.DepartmentlessUserDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserResponseDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Department;
-import com.kutalmis.izin_talep_sistemi.entity.DepartmentApprover;
 import com.kutalmis.izin_talep_sistemi.entity.Role;
+import com.kutalmis.izin_talep_sistemi.entity.RoleAuthority;
 import com.kutalmis.izin_talep_sistemi.entity.User;
 import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
-import com.kutalmis.izin_talep_sistemi.repository.DepartmentApproverRepository;
 import com.kutalmis.izin_talep_sistemi.repository.DepartmentRepository;
 import com.kutalmis.izin_talep_sistemi.repository.RoleRepository;
 import com.kutalmis.izin_talep_sistemi.repository.UserRepository;
 
 @Service
 public class UserService {
+    private static final Set<RoleAuthority> MANAGER_LEVELS = Set.of(
+            RoleAuthority.MANAGER_LEVEL_1, RoleAuthority.MANAGER_LEVEL_2, RoleAuthority.MANAGER_LEVEL_3);
+
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final DepartmentApproverRepository departmentApproverRepository;
 
     public UserService(UserRepository userRepository, DepartmentRepository departmentRepository,
-            RoleRepository roleRepository, PasswordEncoder passwordEncoder,
-            DepartmentApproverRepository departmentApproverRepository) {
+            RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.departmentRepository = departmentRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.departmentApproverRepository = departmentApproverRepository;
     }
 
     public List<UserResponseDTO> getAllUsers() {
@@ -46,9 +48,7 @@ public class UserService {
     }
 
     public UserResponseDTO getUserProfileByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(email + " E-postasına sahip kullanıcı bulunamadı"));
-
+        User user = getUserEntityByEmail(email);
         return mapperResponseDTO(user);
     }
 
@@ -57,19 +57,29 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException(email + " E-postasına sahip kullanıcı bulunamadı"));
     }
 
+    private void assertManagerSlotAvailable(Department department, Role role, Long excludingUserId) {
+        if (!MANAGER_LEVELS.contains(role.getName())) {
+            return;
+        }
+        userRepository.findByRole_NameAndDepartment_Id(role.getName(), department.getId())
+                .filter(existing -> excludingUserId == null || !existing.getId().equals(excludingUserId))
+                .ifPresent(existing -> {
+                    throw new DuplicateResourceException(
+                            department.getName() + " departmanının " + role.getDisplayName()
+                                    + " seviyesi zaten " + existing.getFirstName() + " " + existing.getLastName()
+                                    + " tarafından dolduruluyor.");
+                });
+    }
+
     @Transactional
     public UserResponseDTO createUser(UserCreateDTO dto) {
 
-        Department department = departmentRepository.findById(dto.departmentId())
-                .orElseThrow(() -> new IllegalArgumentException(dto.departmentId() + " ID'li departman bulunamadı."));
+        Department department = departmentByIdCheck(dto.departmentId());
+        Role role = roleByIdCheck(dto.roleId());
 
-        Role role = roleRepository.findById(dto.roleId())
-                .orElseThrow(() -> new IllegalArgumentException(dto.roleId() + " ID'li rol bulunamadı"));
+        nameFieldValidation(dto.firstName(), dto.lastName());
 
-        if (dto.firstName() == null || dto.firstName().isBlank()
-                || dto.lastName() == null || dto.lastName().isBlank()) {
-            throw new IllegalArgumentException("Kullanıcı adı veya soyadı boş olamaz.");
-        }
+        assertManagerSlotAvailable(department, role, null);
 
         User user = new User();
         user.setFirstName(dto.firstName());
@@ -82,21 +92,6 @@ public class UserService {
         user.setGender(dto.gender());
 
         User savedUser = userRepository.save(user);
-
-        if (dto.assignAsApproverLevel() != null) {
-            DepartmentApprover existing = departmentApproverRepository
-                    .findByDepartment_IdAndLevel(department.getId(), dto.assignAsApproverLevel())
-                    .orElse(null);
-
-            if (existing != null) {
-                throw new DuplicateResourceException(
-                        department.getName() + " departmanının " + dto.assignAsApproverLevel()
-                                + ". seviyesi zaten atanmış.");
-            }
-
-            departmentApproverRepository.save(
-                    new DepartmentApprover(department, dto.assignAsApproverLevel(), savedUser));
-        }
         return mapperResponseDTO(savedUser);
     }
 
@@ -106,25 +101,23 @@ public class UserService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
-                user.getDepartment().getName(),
+                user.getDepartment() != null ? user.getDepartment().getName() : null,
                 user.getRole().getDisplayName(),
                 user.getRole().getName(),
                 user.getActive(),
-                user.getGender());
+                user.getGender(),
+                user.getMustChangePassword());
     }
 
     @Transactional
     public UserResponseDTO updateUser(Long userId, UserUpdateDTO dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(userId + " ID'li kullanıcı bulunamadı."));
+        User user = userByIdCheck(userId);
 
-        Department department = departmentRepository.findById(dto.departmentId())
-                .orElseThrow(() -> new IllegalArgumentException(dto.departmentId() + " Id'li departman bulunamadı."));
+        Department department = user.getDepartment();
+        departmentByIdCheck(dto.departmentId());
 
-        Role role = roleRepository.findById(dto.roleId()) // TODO BU EXCEPTION YÖNTEMLERİ ROL GÜNCELLEME İSTENMEDİĞİNDE
-                                                          // DE ROLÜN VE DEPARTMANIN GİRİLMESİNİ ZORUNLU KILIYOR BUNU
-                                                          // DEĞİŞTİR NULLANABİLİR OLSUN HATA BAŞKA ZAMAN OLSUN
-                .orElseThrow(() -> new IllegalArgumentException(dto.roleId() + "ID'li rol bulunamadı"));
+        Role role = user.getRole();
+        roleByIdCheck(dto.roleId());
 
         if (dto.firstName() != null && !(dto.firstName().isBlank())) {
             user.setFirstName(dto.firstName());
@@ -135,9 +128,14 @@ public class UserService {
         if (dto.email() != null && !(dto.email().isBlank())) {
             user.setEmail(dto.email());
         }
-        user.setRole(role);
 
+        if (department != null && role != null) {
+            assertManagerSlotAvailable(department, role, user.getId());
+        }
+
+        user.setRole(role);
         user.setDepartment(department);
+
         if (dto.active() != null) {
             user.setActive(dto.active());
         }
@@ -161,14 +159,50 @@ public class UserService {
             throw new IllegalArgumentException("Yeni şifre boş olamaz.");
         }
 
+        if (passwordEncoder.matches(dto.newPassword(), caller.getPasswordHash())) {
+            throw new IllegalArgumentException("Yeni şifre mevcut şifreyle aynı olamaz.");
+        }
+
         caller.setPasswordHash(passwordEncoder.encode(dto.newPassword()));
+        caller.setMustChangePassword(false);
+
         userRepository.save(caller);
     }
 
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " ID' li kullanıcı bulunamadı."));
+        User user = userByIdCheck(id);
 
-        departmentRepository.deleteById(user.getId());
+        userRepository.deleteById(user.getId());
+    }
+
+    private User userByIdCheck(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        userId + " ID'li kullanıcı bulunamadı."));
+    }
+
+    private Department departmentByIdCheck(Long departmentId) {
+        return departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        departmentId + " Id'li departman bulunamadı."));
+    }
+
+    private Role roleByIdCheck(Long roleId) {
+        return roleRepository.findById(roleId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        roleId + " ID'li rol bulunamadı"));
+    }
+
+    private void nameFieldValidation(String firstName, String lastName) {
+        if (firstName == null || firstName.isBlank()
+                || lastName == null || lastName.isBlank()) {
+            throw new IllegalArgumentException("Kullanıcı adı veya soyadı boş olamaz.");
+        }
+    }
+
+    public List<DepartmentlessUserDTO> findDepartmentlessUsers() {
+        return userRepository.findByDepartmentIsNull().stream()
+                .map(u -> new DepartmentlessUserDTO(u.getId(), u.getFirstName() + " " + u.getLastName(), u.getEmail()))
+                .collect(Collectors.toList());
     }
 }

@@ -9,7 +9,7 @@ class LoginScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: LayoutBuilder(
+      body: LoginFormWidget() /* LayoutBuilder(
         builder: (context, constraints) {
           bool isMobile = constraints.maxWidth < 800;
 
@@ -24,7 +24,7 @@ class LoginScreen extends ConsumerWidget {
             );
           }
         },
-      ),
+      ), */,
     );
   }
 }

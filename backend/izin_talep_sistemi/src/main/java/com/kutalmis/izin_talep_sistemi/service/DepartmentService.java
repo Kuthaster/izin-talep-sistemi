@@ -1,24 +1,31 @@
 package com.kutalmis.izin_talep_sistemi.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.kutalmis.izin_talep_sistemi.dto.ApproverGapDTO;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentDTO;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Department;
+import com.kutalmis.izin_talep_sistemi.entity.RoleAuthority;
 import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
 import com.kutalmis.izin_talep_sistemi.repository.DepartmentRepository;
+import com.kutalmis.izin_talep_sistemi.repository.UserRepository;
+import static com.kutalmis.izin_talep_sistemi.utilities.ApprovalLevels.roleForLevel;
 
 import jakarta.transaction.Transactional;
 
 @Service
 public class DepartmentService {
     private final DepartmentRepository departmentRepository;
+    private final UserRepository userRepository;
 
-    public DepartmentService(DepartmentRepository departmentRepository) {
+    public DepartmentService(DepartmentRepository departmentRepository, UserRepository userRepository) {
         this.departmentRepository = departmentRepository;
+        this.userRepository = userRepository;
     }
 
     public List<DepartmentDTO> getAllDepartments() {
@@ -35,13 +42,9 @@ public class DepartmentService {
 
     @Transactional
     public DepartmentDTO createDepartment(DepartmentUpdateDTO dto) {
-        if (dto.departmentName() == null || dto.departmentName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Departman ismi boş olamaz.");
-        }
+        departmentNameEmptyNullCheck(dto.departmentName());
 
-        if (departmentRepository.existsByName(dto.departmentName())) {
-            throw new DuplicateResourceException(dto.departmentName() + " isimli bir departman zaten var.");
-        }
+        departmentDuplicateCheck(dto.departmentName());
 
         Department department = new Department();
         department.setName(dto.departmentName());
@@ -57,16 +60,12 @@ public class DepartmentService {
     @Transactional
     public DepartmentDTO updateDepartment(Long id, DepartmentUpdateDTO dto) {
         String newDepartmentName = dto.departmentName();
-        if (newDepartmentName == null || newDepartmentName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Departman ismi boş olamaz.");
-        }
 
-        if (departmentRepository.existsByName(newDepartmentName)) {
-            throw new DuplicateResourceException(newDepartmentName + " isimli bir departman zaten var.");
-        }
+        departmentNameEmptyNullCheck(newDepartmentName);
 
-        Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " ID'li departman bulunamadı."));
+        departmentDuplicateCheck(newDepartmentName);
+
+        Department department = getDepartment(id);
 
         department.setName(newDepartmentName);
 
@@ -75,10 +74,49 @@ public class DepartmentService {
         return new DepartmentDTO(saved.getId(), newDepartmentName);
     }
 
-    public void deleteDepartment(Long departmentId) {
-        Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new IllegalArgumentException(departmentId + " ID' li departman bulunamadı."));
+    public void deleteDepartment(Long id) {
+        Department department = getDepartment(id);
+        if (userRepository.existsByDepartment_Id(id)) {
+            throw new IllegalStateException("Departmanı silmeden önce içinde kullanıcı olmadığından emin olun.");
+        }
 
         departmentRepository.deleteById(department.getId());
+    }
+
+    public List<ApproverGapDTO> findApproverGaps() {
+        List<Department> departments = departmentRepository.findAll();
+        List<ApproverGapDTO> gaps = new ArrayList<>();
+
+        for (Department dept : departments) {
+            List<Integer> missing = new ArrayList<>();
+            for (int level = 1; level <= 3; level++) {
+                RoleAuthority role = roleForLevel(level);
+                if (!userRepository.existsByRole_NameAndDepartment_Id(role, dept.getId())) {
+                    missing.add(level);
+                }
+            }
+            if (!missing.isEmpty()) {
+                gaps.add(new ApproverGapDTO(dept.getId(), dept.getName(), missing));
+            }
+        }
+        return gaps;
+    }
+
+    private void departmentNameEmptyNullCheck(String departmentName) {
+        if (departmentName == null || departmentName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Departman ismi boş olamaz.");
+        }
+    }
+
+    private void departmentDuplicateCheck(String departmentName) {
+        if (departmentRepository.existsByName(departmentName)) {
+            throw new DuplicateResourceException(departmentName + " isimli bir departman zaten var.");
+        }
+    }
+
+    private Department getDepartment(Long departmentId) {
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new IllegalArgumentException(departmentId + " ID'li departman bulunamadı."));
+        return department;
     }
 }

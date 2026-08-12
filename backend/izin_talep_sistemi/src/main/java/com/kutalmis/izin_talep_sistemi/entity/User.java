@@ -31,6 +31,9 @@ public class User {
     @Column(nullable = false)
     private Gender gender;
 
+    @Column(name = "must_change_password", nullable = false)
+    private Boolean mustChangePassword = true;
+
     // İlişkiler
 
     @ManyToOne
@@ -116,5 +119,13 @@ public class User {
 
     public Gender getGender() {
         return gender;
+    }
+
+    public Boolean getMustChangePassword() {
+        return mustChangePassword;
+    }
+
+    public void setMustChangePassword(Boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
     }
 }

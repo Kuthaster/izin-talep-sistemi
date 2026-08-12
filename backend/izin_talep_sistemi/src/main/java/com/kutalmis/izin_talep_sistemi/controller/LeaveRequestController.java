@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCountDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDecisionDTO;
@@ -42,14 +41,6 @@ public class LeaveRequestController {
     public LeaveRequestController(LeaveRequestService leaveRequestService, UserService userService) {
         this.leaveRequestService = leaveRequestService;
         this.userService = userService;
-    }
-
-    @Operation(summary = "İzin talep adedi listele")
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER_LEVEL_1','MANAGER_LEVEL_2','MANAGER_LEVEL_3')")
-    @GetMapping("/dashboard")
-    public LeaveRequestCountDTO getLeaveRequestCount(Principal principal) {
-        User caller = userService.getUserEntityByEmail(principal.getName());
-        return leaveRequestService.getLeaveRequestCount(caller);
     }
 
     @Operation(summary = "Kendi izin taleplerimi listele")

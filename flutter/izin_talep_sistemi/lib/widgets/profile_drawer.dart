@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/auth_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:izin_talep_sistemi/ultilities/logout.dart';
 import 'package:izin_talep_sistemi/widgets/change_password_form.dart';
 import 'package:izin_talep_sistemi/widgets/profile_avatar_widget.dart';
@@ -16,7 +17,7 @@ class ProfileDrawer extends ConsumerWidget {
     final email = user?.email;
     final departmentName = user?.departmentName;
     final roleDisplayName = user?.roleDisplayName;
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.colors;
 
     return Drawer(
       width: 250,
@@ -31,30 +32,22 @@ class ProfileDrawer extends ConsumerWidget {
                 color: scheme.tertiary,
                 borderRadius: BorderRadiusGeometry.all(Radius.elliptical(1, 6)),
               ),
-              child: Column(
-                children: [
-                  ProfileAvatarWidget(),
-
-                  Text(
-                    '${firstName ?? 'AD'} ${lastName ?? 'SOYAD'}',
-                    style: TextStyle(color: scheme.onPrimary),
+              child: DefaultTextStyle(
+                style: TextStyle(color: scheme.onTertiary),
+                child: IconTheme(
+                  data: IconThemeData(color: scheme.onTertiary),
+                  child: Column(
+                    children: [
+                      const ProfileAvatarWidget(),
+                      Text('${firstName ?? 'AD'} ${lastName ?? 'SOYAD'}'),
+                      Text(roleDisplayName ?? 'ROL'),
+                      Text(departmentName ?? 'DEPARTMAN'),
+                      const Icon(Icons.email, size: 16),
+                      const SizedBox(width: 8, height: 1),
+                      Text(email ?? 'BULUNAMADI'),
+                    ],
                   ),
-                  Text(
-                    roleDisplayName ?? 'ROL',
-                    style: TextStyle(color: scheme.onPrimary),
-                  ),
-                  Text(
-                    departmentName ?? 'DEPARTMAN',
-                    style: TextStyle(color: scheme.onPrimary),
-                  ),
-
-                  Icon(Icons.email, size: 16, color: scheme.secondaryFixed),
-                  SizedBox(width: 8, height: 1),
-                  Text(
-                    email ?? 'BULUNAMADI',
-                    style: TextStyle(color: scheme.secondaryFixed),
-                  ),
-                ],
+                ),
               ),
             ),
 
@@ -64,19 +57,13 @@ class ProfileDrawer extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: scheme.onPrimary)),
+                border: Border(top: BorderSide(color: scheme.onTertiary)),
               ),
               child: Column(
                 children: [
                   SizedBox(
                     width: double.maxFinite,
-                    child: OutlinedButton.icon(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(
-                          scheme.tertiary,
-                        ),
-                        overlayColor: WidgetStateProperty.all(scheme.secondary),
-                      ),
+                    child: FilledButton.icon(
                       onPressed: () {
                         showModalBottomSheet(
                           enableDrag: true,
@@ -85,29 +72,17 @@ class ProfileDrawer extends ConsumerWidget {
                           builder: (context) => const ChangePasswordForm(),
                         );
                       },
-                      icon: Icon(Icons.key, color: scheme.onPrimary),
-                      label: Text(
-                        'Şifre Değiştir',
-                        style: TextStyle(color: scheme.onPrimary),
-                      ),
+                      icon: Icon(Icons.key),
+                      label: Text('Şifre Değiştir'),
                     ),
                   ),
                   SizedBox(width: double.infinity, height: 20),
                   SizedBox(
                     width: double.infinity,
-                    child: OutlinedButton.icon(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(
-                          scheme.tertiary,
-                        ),
-                        overlayColor: WidgetStateProperty.all(scheme.secondary),
-                      ),
+                    child: FilledButton.icon(
                       onPressed: () => logout(context, ref),
-                      icon: Icon(Icons.logout, color: scheme.onPrimary),
-                      label: Text(
-                        'Çıkış Yap',
-                        style: TextStyle(color: scheme.onPrimary),
-                      ),
+                      icon: Icon(Icons.logout),
+                      label: Text('Çıkış Yap'),
                     ),
                   ),
                 ],

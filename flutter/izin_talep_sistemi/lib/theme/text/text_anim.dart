@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 
 class TextAnim extends ConsumerStatefulWidget {
   final String textInput;
@@ -48,10 +49,8 @@ class _TextAnimState extends ConsumerState<TextAnim>
 
   @override
   Widget build(BuildContext context) {
-    final actualTextColor =
-        widget.textColor ?? Theme.of(context).colorScheme.onSurface;
-    final actualCaretColor =
-        widget.caretColor ?? Theme.of(context).colorScheme.onSurface;
+    final actualTextColor = widget.textColor ?? context.colors.onSurface;
+    final actualCaretColor = widget.caretColor ?? context.colors.onSurface;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

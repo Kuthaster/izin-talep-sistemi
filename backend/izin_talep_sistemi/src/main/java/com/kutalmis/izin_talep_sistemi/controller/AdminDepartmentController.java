@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "Admin - Departments", description = "Departman yönetimi (Admin)")
 @RestController
@@ -65,9 +66,14 @@ public class AdminDepartmentController {
             @ApiResponse(responseCode = "403", description = "Bu departmanı silme yetkiniz yok."),
             @ApiResponse(responseCode = "400", description = "Geçersiz girdi: Departman bulunamadı.")
     })
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteLeaveType(@PathVariable Long id) {
         departmentService.deleteDepartment(id);
     }
+
+    @GetMapping("gaps")
+    public String getMethodName(@RequestParam String param) {
+        return new String();
+    }
+
 }

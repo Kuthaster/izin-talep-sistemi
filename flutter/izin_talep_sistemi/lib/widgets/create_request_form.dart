@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/leave_balance_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:izin_talep_sistemi/widgets/compact_dialog_date_range_picker.dart';
 
 import '../models/leave_request.dart';
@@ -25,6 +26,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   DateTime? _endDate;
   bool _isSubmitting = false;
   String? _errorMessage;
+
   int? get _availableForSelectedType {
     if (_selectedLeaveTypeId == null) return null;
     final balances = ref.read(leaveBalancesProvider).value;
@@ -38,7 +40,15 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         )
         .name;
     final match = balances.where((b) => b.leaveTypeName == leaveTypeName);
-    return match.isEmpty ? null : match.first.availableDays;
+    if (match.isEmpty) return null;
+
+    final available = match.first.availableDays;
+
+    if (_isEditing && widget.existingRequest!.leaveTypeName == leaveTypeName) {
+      return available + widget.existingRequest!.requestedDays;
+    }
+
+    return available;
   }
 
   int? get _requestedDayCount {
@@ -64,33 +74,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   }
 
   Future<void> _pickDateRange() async {
-    /* final picked = await showDateRangePicker(
-      context: Navigator.of(context, rootNavigator: true).context,
-      helpText: "Tarih Aralığı Seçin",
-      cancelText: "İptal Et",
-      confirmText: "Onayla",
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      initialDateRange: (_startDate != null && _endDate != null)
-          ? DateTimeRange(start: _startDate!, end: _endDate!)
-          : null,
-      builder: (ctx, child) {
-        return Theme(
-          data: Theme.of(ctx).copyWith(
-            datePickerTheme: Theme.of(ctx).datePickerTheme.copyWith(),
-            colorScheme: Theme.of(ctx).colorScheme,
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked == null) return;
-    setState(() {
-      _startDate = picked.start;
-      _endDate = picked.end;
-    }); */
-
     final picked = await showDialog<DateTimeRange>(
       context: context,
       builder: (context) => CompactDialogDateRangePicker(
@@ -157,6 +140,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final asyncLeaveTypes = ref.watch(leaveTypesProvider);
 
     return Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: Padding(
         padding: EdgeInsets.only(
           left: 16,
@@ -203,7 +187,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
             const SizedBox(height: 12),
 
             OutlinedButton.icon(
-              style: ButtonStyle(),
               onPressed: _pickDateRange,
               icon: const Icon(Icons.date_range, size: 18),
               label: Text(
@@ -220,19 +203,14 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.errorContainer,
+                  color: context.colors.errorContainer,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                  border: Border.all(color: context.colors.error),
                 ),
                 child: Text(
                   'Bu izin türünde $_availableForSelectedType gün kullanılabilir, '
                   '$_requestedDayCount gün talep ediyorsunuz.',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onError,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: context.colors.onError, fontSize: 12),
                 ),
               ),
             ],
@@ -240,11 +218,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
             TextField(
               controller: _reasonController,
-              decoration: const InputDecoration(
-                labelText: 'Neden (opsiyonel)',
-                contentPadding: EdgeInsets.symmetric(vertical: 0),
-                isCollapsed: true,
-              ),
+              decoration: const InputDecoration(labelText: 'Neden (opsiyonel)'),
               maxLines: 2,
             ),
 
@@ -252,17 +226,17 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               const SizedBox(height: 8),
               Text(
                 _errorMessage!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                style: TextStyle(color: context.colors.error),
               ),
             ],
             const SizedBox(height: 16),
 
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: FilledButton(
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(
-                    Theme.of(context).colorScheme.tertiary,
+                    context.colors.tertiary,
                   ),
                 ),
                 onPressed: _isSubmitting ? null : _submit,
@@ -274,9 +248,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
                       )
                     : Text(
                         _isEditing ? 'Değişiklikleri Kaydet' : 'Talebi Gönder',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                        ),
+                        style: TextStyle(color: context.colors.onTertiary),
                       ),
               ),
             ),

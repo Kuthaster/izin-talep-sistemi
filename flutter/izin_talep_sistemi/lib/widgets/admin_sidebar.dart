@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/screens/admin_shell_screen.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:izin_talep_sistemi/ultilities/logout.dart';
+import 'package:izin_talep_sistemi/widgets/primary_icon_button.dart';
 
 class AdminSidebar extends ConsumerStatefulWidget {
   final bool initiallyExpanded;
@@ -37,7 +39,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.colors;
     final width = _collapsed ? _collapsedWidth : _expandedWidth;
 
     return Material(
@@ -106,12 +108,6 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                       ),
                       _buildNavItem(
                         context,
-                        label: 'Onaylayıcı Zinciri',
-                        section: AdminSection.adminApproverChain,
-                        icon: Icons.account_tree_outlined,
-                      ),
-                      _buildNavItem(
-                        context,
                         label: 'Roller',
                         section: AdminSection.adminRoles,
                         icon: Icons.person,
@@ -121,6 +117,12 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                         label: 'Bakiyeler',
                         section: AdminSection.adminBalances,
                         icon: Icons.pie_chart_outline,
+                      ),
+                      _buildNavItem(
+                        context,
+                        label: 'Denetim Kayıtları',
+                        section: AdminSection.adminBalanceAudits,
+                        icon: Icons.receipt_long_rounded,
                       ),
                     ],
                   ),
@@ -134,50 +136,23 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
                   ),
                   decoration: BoxDecoration(
                     border: Border(
-                      top: BorderSide(
-                        color: Theme.of(context).colorScheme.onInverseSurface,
-                      ),
+                      top: BorderSide(color: context.colors.onInverseSurface),
                     ),
                   ),
                   child: _collapsed
                       ? Tooltip(
                           message: 'Çıkış Yap',
-                          child: IconButton(
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all(
-                                scheme.tertiary,
-                              ),
-                              overlayColor: WidgetStateProperty.all(
-                                scheme.secondary,
-                              ),
-                            ),
+                          child: PrimaryIconButton(
                             onPressed: () => logout(context, ref),
-                            icon: Icon(
-                              Icons.logout,
-                              color: scheme.onInverseSurface,
-                            ),
+                            icon: Icons.logout,
                           ),
                         )
                       : SizedBox(
                           width: double.infinity,
-                          child: OutlinedButton.icon(
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all(
-                                scheme.tertiary,
-                              ),
-                              overlayColor: WidgetStateProperty.all(
-                                scheme.secondary,
-                              ),
-                            ),
+                          child: FilledButton.icon(
                             onPressed: () => logout(context, ref),
-                            icon: Icon(
-                              Icons.logout,
-                              color: scheme.onInverseSurface,
-                            ),
-                            label: Text(
-                              'Çıkış Yap',
-                              style: TextStyle(color: scheme.onInverseSurface),
-                            ),
+                            icon: Icon(Icons.logout),
+                            label: Text('Çıkış Yap'),
                           ),
                         ),
                 ),
@@ -190,6 +165,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
             left: width - 14,
             top: (MediaQuery.sizeOf(context).height - 80) / 2,
             child: Material(
+              // İKON
               color: scheme.tertiary,
               shape: const CircleBorder(),
               elevation: 3,
@@ -223,7 +199,7 @@ class _AdminSidebarState extends ConsumerState<AdminSidebar> {
     required AdminSection section,
     required IconData icon,
   }) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.colors;
     final isActive = widget.currentSection == section;
 
     final tile = Container(

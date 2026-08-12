@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
+import 'package:izin_talep_sistemi/widgets/admin_bell_warning.dart';
 import 'package:izin_talep_sistemi/widgets/profile_avatar_widget.dart';
 
 class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -29,9 +31,7 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appBarState = ref.watch(adminAppBarProvider);
-
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 1,
       automaticallyImplyActions: false,
       automaticallyImplyLeading: false,
@@ -45,14 +45,14 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+                color: context.colors.primary,
               ),
             ),
             if (primaryActionLabel != null && onPrimaryAction != null)
               IconButton(
                 onPressed: onPrimaryAction,
                 icon: const Icon(Icons.add),
-                color: Theme.of(context).colorScheme.secondary,
+                color: context.colors.secondary,
               ),
 
             if (hasSearch == true)
@@ -66,15 +66,13 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
                           .read(adminAppBarProvider.notifier)
                           .updateSearchQuery(value);
                     },
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
+                    style: TextStyle(color: context.colors.onSurface),
                     decoration: InputDecoration(
                       hintText: 'Ara',
                       prefixIcon: const Icon(Icons.search),
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.inverseSurface,
-                      hoverColor: Theme.of(context).colorScheme.secondary,
+                      fillColor: context.colors.surface,
+                      hoverColor: context.colors.surfaceContainerHigh,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide(width: 1.8),
@@ -93,6 +91,8 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
+        const AdminBellWarning(),
+
         Builder(
           builder: (BuildContext context) {
             return IconButton(

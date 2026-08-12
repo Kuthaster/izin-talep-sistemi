@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/leave_type.dart';
 import 'package:izin_talep_sistemi/models/leave_type_create.dart';
 import 'package:izin_talep_sistemi/models/leave_type_update.dart';
+import 'package:izin_talep_sistemi/models/status.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_leave_type_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_type_service_provider.dart';
@@ -116,7 +117,7 @@ class _AdminLeaveTypesSectionState
     }
   }
 
-  Future<void> _delete(
+  Future<void> _deleteLeaveType(
     BuildContext context,
     WidgetRef ref,
     LeaveType leaveType,
@@ -263,7 +264,7 @@ class _AdminLeaveTypesSectionState
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Hata: $err')),
               data: (leaveTypes) => AdminDataTable<LeaveType>(
-                dataSpacing: 450,
+                dataSpacing: 210,
                 items: leaveTypes,
                 searchLabel: (leaveType, query) =>
                     leaveType.name.toLowerCase().contains(query.toLowerCase()),
@@ -297,9 +298,43 @@ class _AdminLeaveTypesSectionState
                     ),
                   ),
                   DataCell(
-                    IconButton(
-                      icon: const Icon(Icons.edit, size: 18),
-                      onPressed: () => _editLeaveType(context, ref, leaveType),
+                    MenuAnchor(
+                      consumeOutsideTap: true,
+                      alignmentOffset: Offset(-50, 0),
+                      builder:
+                          (
+                            BuildContext context,
+                            MenuController controller,
+                            Widget? child,
+                          ) {
+                            return IconButton(
+                              icon: const Icon(Icons.more_vert),
+                              onPressed: () {
+                                controller.open();
+                              },
+                              tooltip: 'Eylemler',
+                            );
+                          },
+                      menuChildren: [
+                        MenuItemButton(
+                          leadingIcon: const Icon(Icons.edit, size: 12),
+                          onPressed: () {
+                            _editLeaveType(context, ref, leaveType);
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("İzin Türü Detaylarını Değiştir"),
+                        ),
+
+                        MenuItemButton(
+                          leadingIcon: const Icon(
+                            Icons.delete_forever,
+                            size: 12,
+                          ),
+                          onPressed: () =>
+                              _deleteLeaveType(context, ref, leaveType),
+                          child: Text("İzin Türünü Sil"),
+                        ),
+                      ],
                     ),
                   ),
                 ],

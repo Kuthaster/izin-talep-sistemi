@@ -1,11 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:izin_talep_sistemi/models/leave_request_count.dart';
 import 'package:izin_talep_sistemi/models/leave_request_create.dart';
 import 'package:izin_talep_sistemi/models/leave_request_decision.dart';
 import 'package:izin_talep_sistemi/models/leave_request_filter.dart';
 
-import 'api_client.dart';
 import '../models/leave_request.dart';
+import 'api_client.dart';
 
 class LeaveRequestService {
   final Dio _dio;
@@ -22,11 +21,6 @@ class LeaveRequestService {
     return (response.data as List)
         .map((item) => LeaveRequest.fromJson(item))
         .toList();
-  }
-
-  Future<LeaveRequestCount> getLeaveRequestCount() async {
-    final response = await _dio.get('/api/leaveRequests/dashboard');
-    return LeaveRequestCount.fromJson(response.data);
   }
 
   Future<List<LeaveRequest>> getLeaveRequestsForApproval([

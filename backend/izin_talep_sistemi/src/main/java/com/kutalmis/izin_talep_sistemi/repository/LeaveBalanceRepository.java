@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.kutalmis.izin_talep_sistemi.entity.LeaveBalance;
 
-public interface LeaveBalanceRepository
-        extends JpaRepository<LeaveBalance, Long>, JpaSpecificationExecutor<LeaveBalance> {
+public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long>,
+        JpaSpecificationExecutor<LeaveBalance> {
     Optional<LeaveBalance> findByUser_IdAndLeaveType_IdAndYear(Long userId, Long leaveTypeId, int year);
 }

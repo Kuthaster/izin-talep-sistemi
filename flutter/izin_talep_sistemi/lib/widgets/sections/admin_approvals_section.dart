@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izin_talep_sistemi/models/status.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/providers/admin_approval_filter_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
@@ -25,19 +26,6 @@ class AdminApprovalsSection extends ConsumerStatefulWidget {
 class _AdminApprovalsSectionState extends ConsumerState<AdminApprovalsSection> {
   LeaveRequestService get _leaveRequestService =>
       ref.read(leaveRequestServiceProvider);
-
-  StatusType _statusType(String status) {
-    switch (status) {
-      case 'PENDING':
-        return StatusType.pending;
-      case 'APPROVED':
-        return StatusType.approved;
-      case 'REJECTED':
-        return StatusType.rejected;
-      default:
-        return StatusType.cancelled;
-    }
-  }
 
   Future<void> _decide(
     BuildContext context,
@@ -144,12 +132,14 @@ class _AdminApprovalsSectionState extends ConsumerState<AdminApprovalsSection> {
     final asyncRequests = ref.watch(adminApprovalsProvider);
     final currentFilter = ref.watch(approvalFilterProvider);
 
-    final scheme = Theme.of(context).colorScheme;
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(adminAppBarProvider.notifier)
-          .updateAppBar(title: 'İzinler', hasSearch: true);
+          .updateAppBar(
+            title: 'İzinler',
+            hasSearch: true,
+            onPrimaryAction: null,
+          );
     });
 
     return Expanded(
@@ -169,7 +159,7 @@ class _AdminApprovalsSectionState extends ConsumerState<AdminApprovalsSection> {
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, stack) => Center(child: Text('Hata: $err')),
                 data: (requests) => AdminDataTable<LeaveRequest>(
-                  dataSpacing: 75,
+                  dataSpacing: 92,
                   items: requests,
 
                   searchLabel: (request, query) => request.userName
@@ -222,23 +212,14 @@ class _AdminApprovalsSectionState extends ConsumerState<AdminApprovalsSection> {
                     ),
                     DataCell(Text(request.currentLevel.toString())),
                     DataCell(
-                      AdminStatusChip(status: _statusType(request.status)),
+                      AdminStatusChip(
+                        status: convertToStatusType(request.status),
+                      ),
                     ),
                     DataCell(
                       MenuAnchor(
                         consumeOutsideTap: true,
-                        style: MenuStyle(
-                          backgroundColor: WidgetStateProperty.all(
-                            scheme.primary,
-                          ),
-                          minimumSize: WidgetStateProperty.all(
-                            const Size(80, 60),
-                          ),
-                          maximumSize: WidgetStateProperty.all(
-                            const Size(150, 120),
-                          ),
-                        ),
-                        alignmentOffset: Offset(30, 0),
+                        alignmentOffset: const Offset(-50, 0),
                         builder:
                             (
                               BuildContext context,
@@ -247,96 +228,43 @@ class _AdminApprovalsSectionState extends ConsumerState<AdminApprovalsSection> {
                             ) {
                               return IconButton(
                                 icon: const Icon(Icons.more_vert),
-                                onPressed: () {
-                                  controller.open();
-                                },
+                                onPressed: controller.open,
                                 tooltip: 'Eylemler',
                               );
                             },
                         menuChildren: [
-                          MenuItemButton(
-                            style: ButtonStyle(
-                              alignment: AlignmentGeometry.center,
-                              iconAlignment: IconAlignment.start,
-                              foregroundColor: WidgetStateProperty.all(
-                                scheme.primary,
-                              ),
-                              minimumSize: WidgetStateProperty.all(
-                                Size(150, 30),
-                              ),
-                              maximumSize: WidgetStateProperty.all(
-                                Size(150, 40),
-                              ),
-                              textStyle: WidgetStateProperty.all(
-                                TextStyle(
-                                  color: scheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                          if (request.status == "PENDING")
+                            MenuItemButton(
+                              onPressed: () {
+                                _decide(
+                                  context,
+                                  ref,
+                                  request,
+                                  LeaveDecision.APPROVED,
+                                );
+                                Navigator.of(context).pop();
+                              },
+                              leadingIcon: const Icon(Icons.check, size: 16),
+                              child: const Text("İzni Onayla"),
                             ),
-                            leadingIcon: const Icon(Icons.check, size: 12),
-                            onPressed: () {
-                              _decide(
-                                context,
-                                ref,
-                                request,
-                                LeaveDecision.APPROVED,
-                              );
-                              Navigator.of(context).pop();
-                            },
-                            child: Text("İzni Onayla"),
-                          ),
-                          MenuItemButton(
-                            style: ButtonStyle(
-                              alignment: AlignmentGeometry.center,
-
-                              iconAlignment: IconAlignment.end,
-                              backgroundColor: WidgetStateProperty.all(
-                                scheme.tertiaryContainer,
-                              ),
-                              minimumSize: WidgetStateProperty.all(
-                                Size(150, 30),
-                              ),
-                              maximumSize: WidgetStateProperty.all(
-                                Size(150, 40),
-                              ),
-                            ),
-                            leadingIcon: IconButton(
-                              icon: const Icon(Icons.close, size: 12),
+                          if (request.status == "PENDING")
+                            MenuItemButton(
                               onPressed: () => _decide(
                                 context,
                                 ref,
                                 request,
                                 LeaveDecision.REJECTED,
                               ),
+                              leadingIcon: const Icon(Icons.close, size: 16),
+                              child: const Text("İzni Reddet"),
                             ),
-                            child: Text("İzni Reddet"),
-                          ),
-
                           MenuItemButton(
-                            style: ButtonStyle(
-                              iconAlignment: IconAlignment.start,
-                              alignment: AlignmentGeometry.center,
-
-                              backgroundColor: WidgetStateProperty.all(
-                                scheme.tertiaryContainer,
-                              ),
-                              minimumSize: WidgetStateProperty.all(
-                                Size(180, 20),
-                              ),
-                              maximumSize: WidgetStateProperty.all(
-                                Size(180, 120),
-                              ),
+                            onPressed: () => _delete(context, ref, request),
+                            leadingIcon: const Icon(
+                              Icons.delete_forever,
+                              size: 16,
                             ),
-                            leadingIcon: IconButton(
-                              icon: const Icon(Icons.delete_forever, size: 12),
-                              onPressed: () => _delete(
-                                context,
-                                ref,
-                                request,
-                              ), // TODO BUNU TEST ETMEK LAZIM
-                            ),
-                            child: Text("İZNİ SİL"),
+                            child: const Text("İzni Sil"),
                           ),
                         ],
                       ),

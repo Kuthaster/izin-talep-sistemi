@@ -3,16 +3,13 @@ package com.kutalmis.izin_talep_sistemi.controller;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kutalmis.izin_talep_sistemi.dto.RoleCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.RoleDTO;
 import com.kutalmis.izin_talep_sistemi.dto.RoleUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.service.RoleService;
@@ -49,18 +46,6 @@ public class RoleController {
     @PutMapping("/{id}")
     public RoleDTO updateRole(@PathVariable Long id, @Valid @RequestBody RoleUpdateDTO dto) {
         return roleService.updateRole(id, dto);
-    }
-
-    @Operation(summary = "Yeni rol oluştur")
-    @PostMapping
-    public RoleDTO createRole(@RequestBody RoleCreateDTO dto) {
-        return roleService.createRole(dto);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public void deleteRole(@PathVariable Long id) {
-        roleService.deleteRole(id);
     }
 
 }

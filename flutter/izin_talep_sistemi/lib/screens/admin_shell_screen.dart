@@ -5,7 +5,7 @@ import 'package:izin_talep_sistemi/widgets/profile_drawer.dart';
 import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_sidebar.dart';
 import 'package:izin_talep_sistemi/widgets/sections/admin_approvals_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/admin_approver_chain_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/admin_balance_audits_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/admin_balances_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/admin_departments_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/admin_leave_types_section.dart';
@@ -17,9 +17,9 @@ enum AdminSection {
   adminUsers,
   adminDepartments,
   adminLeaveTypes,
-  adminApproverChain,
   adminRoles,
   adminBalances,
+  adminBalanceAudits,
 }
 
 class AdminScreen extends ConsumerStatefulWidget {
@@ -46,12 +46,12 @@ class AdminScreenState extends ConsumerState<AdminScreen> {
         return const AdminDepartmentsSection();
       case AdminSection.adminLeaveTypes:
         return const AdminLeaveTypesSection();
-      case AdminSection.adminApproverChain:
-        return const AdminApproverChainSection();
       case AdminSection.adminRoles:
         return const AdminRolesSection();
       case AdminSection.adminBalances:
         return const AdminBalanceSection();
+      case AdminSection.adminBalanceAudits:
+        return const AdminBalanceAuditsSection();
     }
   }
 

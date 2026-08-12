@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/change_password.dart';
 import 'package:izin_talep_sistemi/providers/user_service.provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 
 class ChangePasswordForm extends ConsumerStatefulWidget {
   const ChangePasswordForm({super.key});
@@ -68,11 +69,7 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
             Text(
               'Şifre Değiştir',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 20,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             ),
             const SizedBox(height: 8),
 
@@ -81,9 +78,7 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Mevcut Şifre',
-                labelStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                labelStyle: TextStyle(),
               ),
             ),
             const SizedBox(height: 12),
@@ -93,9 +88,7 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Yeni Şifre',
-                labelStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                labelStyle: TextStyle(),
               ),
             ),
 
@@ -103,22 +96,14 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
               const SizedBox(height: 8),
               Text(
                 _errorMessage!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                style: TextStyle(color: context.colors.error),
               ),
             ],
 
             const SizedBox(height: 12),
             SizedBox(
               width: double.maxFinite,
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  overlayColor: WidgetStateProperty.all(
-                    Theme.of(context).colorScheme.secondary,
-                  ),
-                  backgroundColor: WidgetStateProperty.all(
-                    Theme.of(context).colorScheme.tertiary,
-                  ),
-                ),
+              child: FilledButton(
                 onPressed: _isSubmitting ? null : _submit,
                 child: _isSubmitting
                     ? const SizedBox(
@@ -126,12 +111,7 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
                         width: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(
-                        'Uygula',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onInverseSurface,
-                        ),
-                      ),
+                    : Text('Uygula', style: TextStyle()),
               ),
             ),
           ],

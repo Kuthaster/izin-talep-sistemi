@@ -11,6 +11,7 @@ class UserResponse {
   final RoleAuthority roleAuthority;
   final bool active;
   final Gender gender;
+  final bool mustChangePassword;
 
   UserResponse({
     required this.id,
@@ -22,6 +23,7 @@ class UserResponse {
     required this.roleAuthority,
     required this.active,
     required this.gender,
+    required this.mustChangePassword,
   });
   factory UserResponse.fromJson(Map<String, dynamic> json) {
     return UserResponse(
@@ -34,6 +36,7 @@ class UserResponse {
       roleAuthority: RoleAuthority.values.byName(json['roleAuthority']),
       active: json['active'],
       gender: Gender.values.byName(json['gender']),
+      mustChangePassword: json['mustChangePassword'],
     );
   }
 }

@@ -137,7 +137,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                 isScrollControlled: true,
                 builder: (context) => const CreateRequestForm(),
               ),
-              child: const Icon(Icons.add),
+              child: Icon(Icons.add),
             )
           : null,
       bottomNavigationBar: AppBottomNavBar(

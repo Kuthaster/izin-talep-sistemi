@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:izin_talep_sistemi/models/Gender.dart';
 
 class UserUpdate {

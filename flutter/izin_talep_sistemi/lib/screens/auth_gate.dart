@@ -5,6 +5,7 @@ import 'package:izin_talep_sistemi/providers/auth_provider.dart';
 import 'package:izin_talep_sistemi/screens/admin_shell_screen.dart';
 import 'package:izin_talep_sistemi/screens/login_screen.dart';
 import 'package:izin_talep_sistemi/screens/main_shell_screen.dart';
+import 'package:izin_talep_sistemi/widgets/password_alert.dart';
 
 class AuthGate extends ConsumerWidget {
   const AuthGate({super.key});
@@ -19,10 +20,11 @@ class AuthGate extends ConsumerWidget {
       error: (err, stack) => const LoginScreen(),
       data: (user) {
         if (user == null) return const LoginScreen();
-        if (user.roleAuthority == RoleAuthority.ADMIN) {
-          return const AdminScreen();
-        }
-        return const MainShellScreen();
+
+        final shell = (user.roleAuthority == RoleAuthority.ADMIN)
+            ? const AdminScreen()
+            : const MainShellScreen();
+        return PasswordAlert(child: shell);
       },
     );
   }

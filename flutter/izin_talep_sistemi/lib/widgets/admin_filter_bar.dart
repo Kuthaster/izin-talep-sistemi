@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/leave_request_filter.dart';
 import 'package:izin_talep_sistemi/providers/leave_type_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 
 class AdminApprovalFilterBar extends ConsumerWidget {
   final LeaveRequestFilter filter;
@@ -30,6 +31,7 @@ class AdminApprovalFilterBar extends ConsumerWidget {
 
   Future<void> _pickDate(BuildContext context, {required bool isFrom}) async {
     final picked = await showDatePicker(
+      barrierDismissible: true,
       context: context,
       initialDate:
           (isFrom ? filter.startDateFrom : filter.startDateTo) ??
@@ -65,8 +67,8 @@ class AdminApprovalFilterBar extends ConsumerWidget {
           SizedBox(
             width: 160,
             child: DropdownButtonFormField<String>(
-              iconDisabledColor: Theme.of(context).colorScheme.tertiaryFixedDim,
-              iconEnabledColor: Theme.of(context).colorScheme.primary,
+              iconDisabledColor: context.colors.tertiaryFixedDim,
+              iconEnabledColor: context.colors.primary,
               initialValue: filter.status,
               decoration: const InputDecoration(
                 labelText: 'Durum',
@@ -98,13 +100,13 @@ class AdminApprovalFilterBar extends ConsumerWidget {
             width: 200,
             child: asyncLeaveTypes.when(
               loading: () => const LinearProgressIndicator(),
-              error: (_, __) => const Text('İzin türleri yüklenemedi'),
+              error: (_, _) => const Text('İzin türleri yüklenemedi'),
               data: (leaveTypes) => DropdownButtonFormField<int>(
                 initialValue: filter.leaveTypeId,
                 iconDisabledColor: Theme.of(
                   context,
                 ).colorScheme.tertiaryFixedDim,
-                iconEnabledColor: Theme.of(context).colorScheme.primary,
+                iconEnabledColor: context.colors.primary,
                 decoration: const InputDecoration(
                   labelText: 'İzin Türü',
                   isDense: true,

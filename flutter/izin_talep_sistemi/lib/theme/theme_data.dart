@@ -15,25 +15,25 @@ final ColorScheme lightColorScheme = ColorScheme(
   onPrimaryContainer: const Color(0xFF34474F),
 
   secondary: const Color(0xFF6D435A),
-  onSecondary: Color.fromARGB(255, 81, 85, 87),
+  onSecondary: const Color.fromARGB(255, 223, 225, 225),
   secondaryContainer: const Color(0xFFF0DAE5),
-  onSecondaryContainer: const Color(0xFF5C3D4C),
+  onSecondaryContainer: const Color.fromARGB(255, 223, 225, 225),
   secondaryFixed: const Color(0xFFF0DAE5),
-  secondaryFixedDim: const Color(0xFFD3A0B9),
+  secondaryFixedDim: const Color(0xFF6D435A),
   onSecondaryFixed: const Color(0xFF2B1620),
-  onSecondaryFixedVariant: const Color(0xFF5C3D4C),
+  onSecondaryFixedVariant: const Color.fromARGB(255, 223, 225, 225),
 
   tertiary: const Color(0XFFC18C5D),
-  onTertiary: const Color.fromARGB(255, 75, 46, 21),
+  onTertiary: const Color.fromARGB(255, 255, 255, 255),
   tertiaryContainer: const Color(0xFFF3DCC4),
-  onTertiaryContainer: const Color(0xFF6B4423),
+  onTertiaryContainer: const Color.fromARGB(255, 255, 255, 255),
   tertiaryFixed: const Color(0xFFF3DCC4),
-  tertiaryFixedDim: const Color(0xFFDBB78D),
+  tertiaryFixedDim: const Color(0XFFC18C5D),
   onTertiaryFixed: const Color(0xFF3D2612),
-  onTertiaryFixedVariant: const Color(0xFF6B4423),
+  onTertiaryFixedVariant: const Color.fromARGB(255, 255, 255, 255),
 
   surface: const Color(0XFFFDFFFC),
-  onSurface: const Color(0XFF1A1C23),
+  onSurface: const Color(0xFF050505),
   inverseSurface: const Color(0XFF1A1C23),
   onInverseSurface: const Color(0XfFF4F4F9),
 
@@ -123,14 +123,36 @@ final ThemeData darkColorTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
   colorScheme: darkColorScheme,
-  scaffoldBackgroundColor: Color(0xff353535),
+  scaffoldBackgroundColor: Color.fromARGB(255, 25, 25, 25),
   textTheme: GoogleFonts.kameronTextTheme().apply(
     bodyColor: darkColorScheme.onSurface,
     displayColor: darkColorScheme.onSurface,
   ),
+  cardTheme: CardThemeData(color: darkColorScheme.surface),
+  dataTableTheme: DataTableThemeData(
+    headingTextStyle: TextStyle(
+      color: darkColorScheme.onSurface,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+  filledButtonTheme: FilledButtonThemeData(
+    style: ButtonStyle(
+      backgroundColor: WidgetStateProperty.all(darkColorScheme.tertiary),
+      foregroundColor: WidgetStateProperty.all(darkColorScheme.onTertiary),
+      overlayColor: WidgetStateProperty.all(darkColorScheme.secondary),
+    ),
+  ),
+  outlinedButtonTheme: OutlinedButtonThemeData(
+    style: ButtonStyle(
+      backgroundColor: WidgetStateProperty.all(darkColorScheme.tertiary),
+      foregroundColor: WidgetStateProperty.all(darkColorScheme.onTertiary),
+      overlayColor: WidgetStateProperty.all(darkColorScheme.secondary),
+    ),
+  ),
   bottomSheetTheme: BottomSheetThemeData(
     backgroundColor: darkColorScheme.surface,
   ),
+
   extensions: [
     CompactDialogDateRangePickerTheme(
       headerTextColor: darkColorScheme.primary,
@@ -155,16 +177,38 @@ final ThemeData lightColorTheme = ThemeData(
     bodyColor: lightColorScheme.onSurface,
     displayColor: lightColorScheme.onSurface,
   ),
+  cardTheme: CardThemeData(color: lightColorScheme.surface),
+  dataTableTheme: DataTableThemeData(
+    headingTextStyle: TextStyle(
+      color: lightColorScheme.onSurface,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+  filledButtonTheme: FilledButtonThemeData(
+    style: ButtonStyle(
+      backgroundColor: WidgetStateProperty.all(lightColorScheme.tertiary),
+      foregroundColor: WidgetStateProperty.all(lightColorScheme.onTertiary),
+      overlayColor: WidgetStateProperty.all(lightColorScheme.secondary),
+    ),
+  ),
+  /* outlinedButtonTheme: OutlinedButtonThemeData(
+    style: ButtonStyle(
+      backgroundColor: WidgetStateProperty.all(lightColorScheme.tertiary),
+      foregroundColor: WidgetStateProperty.all(lightColorScheme.onTertiary),
+      overlayColor: WidgetStateProperty.all(lightColorScheme.secondary),
+    ),
+  ), */
   bottomSheetTheme: BottomSheetThemeData(
     backgroundColor: lightColorScheme.surface,
   ),
+
   extensions: [
     CompactDialogDateRangePickerTheme(
-      headerTextColor: lightColorScheme.primary,
+      headerTextColor: lightColorScheme.onSurface,
       monthLabelColor: lightColorScheme.tertiary,
       weekdayLabelColor: lightColorScheme.secondaryFixedDim,
       dayTextColor: lightColorScheme.tertiary,
-      disabledDayTextColor: lightColorScheme.tertiaryFixedDim,
+      disabledDayTextColor: lightColorScheme.onTertiaryFixed,
       selectedDayBackground: lightColorScheme.secondary,
       selectedDayTextColor: lightColorScheme.onPrimary,
       inRangeBackground: lightColorScheme.primaryFixed.withValues(alpha: 0.5),

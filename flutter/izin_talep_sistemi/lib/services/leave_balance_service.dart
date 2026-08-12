@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:izin_talep_sistemi/models/leave_balance.dart';
 import 'package:izin_talep_sistemi/models/leave_balance_update.dart';
@@ -25,9 +23,9 @@ class LeaveBalanceService {
     final response = await _dio.get(
       '/api/admin/leaveBalances',
       queryParameters: {
-        if (userId != null) 'userId': userId,
-        if (year != null) 'year': year,
-        if (leaveTypeId != null) 'leaveTypeId': leaveTypeId,
+        'userId': ?userId,
+        'year': ?year,
+        'leaveTypeId': ?leaveTypeId,
       },
     );
     return (response.data as List)

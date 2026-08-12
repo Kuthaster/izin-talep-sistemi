@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:izin_talep_sistemi/models/user_response.dart';
 import 'package:izin_talep_sistemi/providers/dio_provider.dart';
+import 'package:izin_talep_sistemi/providers/leave_balance_provider.dart';
+import 'package:izin_talep_sistemi/providers/leave_request_approval_provider.dart';
+import 'package:izin_talep_sistemi/providers/leave_request_provider.dart';
 import 'package:izin_talep_sistemi/services/auth_interceptor.dart';
 import 'package:izin_talep_sistemi/services/auth_service.dart';
 
@@ -21,11 +24,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserResponse?>> {
   final AuthService authService;
   final FlutterSecureStorage storage;
   final Dio dio;
+  final Ref ref;
 
   AuthNotifier({
     required this.authService,
     required this.dio,
     required this.storage,
+    required this.ref,
   }) : super(const AsyncValue.loading()) {
     _restoreSession();
   }
@@ -49,9 +54,16 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserResponse?>> {
     try {
       await authService.login(email, password);
       state = AsyncValue.data(await _loadCurrentUser());
+      _invalidateUserPerProviders();
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
+  }
+
+  _invalidateUserPerProviders() {
+    ref.invalidate(leaveRequestsProvider);
+    ref.invalidate(leaveRequestsForApprovalProvider);
+    ref.invalidate(leaveBalancesProvider);
   }
 
   Future<UserResponse> _loadCurrentUser() async {
@@ -62,6 +74,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserResponse?>> {
   Future<void> logout() async {
     await storage.delete(key: authTokenKey);
     state = const AsyncValue.data(null);
+    _invalidateUserPerProviders();
   }
 }
 
@@ -71,5 +84,10 @@ final authProvider =
       final dio = ref.watch(dioProvider);
       final storage = ref.watch(secureStorageProvider);
 
-      return AuthNotifier(authService: authService, dio: dio, storage: storage);
+      return AuthNotifier(
+        authService: authService,
+        dio: dio,
+        storage: storage,
+        ref: ref,
+      );
     });

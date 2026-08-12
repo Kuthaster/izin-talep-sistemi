@@ -191,10 +191,42 @@ class _AdminDepartmentsSectionState
                     Text(department.name, style: TextStyle(fontSize: 15)),
                   ),
                   DataCell(
-                    IconButton(
-                      icon: const Icon(Icons.edit, size: 18),
-                      onPressed: () =>
-                          _editDepartment(context, ref, department),
+                    MenuAnchor(
+                      consumeOutsideTap: true,
+                      alignmentOffset: Offset(-50, 0),
+                      builder:
+                          (
+                            BuildContext context,
+                            MenuController controller,
+                            Widget? child,
+                          ) {
+                            return IconButton(
+                              icon: const Icon(Icons.more_vert),
+                              onPressed: () {
+                                controller.open();
+                              },
+                              tooltip: 'Eylemler',
+                            );
+                          },
+                      menuChildren: [
+                        MenuItemButton(
+                          leadingIcon: const Icon(Icons.edit, size: 12),
+                          onPressed: () {
+                            _editDepartment(context, ref, department);
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("Yeniden Adlandır"),
+                        ),
+
+                        MenuItemButton(
+                          leadingIcon: const Icon(
+                            Icons.delete_forever,
+                            size: 12,
+                          ),
+                          onPressed: () => _delete(context, ref, department),
+                          child: Text("Departmanı Sil"),
+                        ),
+                      ],
                     ),
                   ),
                 ],

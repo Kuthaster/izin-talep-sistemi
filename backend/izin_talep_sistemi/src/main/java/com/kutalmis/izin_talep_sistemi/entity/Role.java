@@ -17,9 +17,6 @@ public class Role {
     @Column(name = "display_name", nullable = true, unique = true)
     private String displayName;
 
-    @Column(nullable = false)
-    private Boolean active = true;
-
     public Role(RoleAuthority name, String displayName) {
         this.name = name;
         this.displayName = displayName;
@@ -27,14 +24,6 @@ public class Role {
 
     public Role() {
 
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
     }
 
     public Long getId() {
