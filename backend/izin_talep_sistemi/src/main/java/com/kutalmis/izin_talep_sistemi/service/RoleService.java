@@ -6,11 +6,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kutalmis.izin_talep_sistemi.dto.RoleCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.RoleDTO;
 import com.kutalmis.izin_talep_sistemi.dto.RoleUpdateDTO;
 import com.kutalmis.izin_talep_sistemi.entity.Role;
-import com.kutalmis.izin_talep_sistemi.exception.DuplicateResourceException;
 import com.kutalmis.izin_talep_sistemi.repository.RoleRepository;
 
 @Service

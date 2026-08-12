@@ -18,6 +18,7 @@ import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestDecisionDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveRequestFilterDTO;
+import com.kutalmis.izin_talep_sistemi.dto.LeaveTypeCountDTO;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveDecision;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveRequest;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveRequestApproval;
@@ -73,6 +74,35 @@ public class LeaveRequestService {
             return List.of();
         }
         return List.of(caller.getDepartment().getId());
+    }
+
+    public List<LeaveTypeCountDTO> getLeaveRequestCountByLeaveType(User caller) {
+        List<LeaveType> leaveTypes = leaveTypeRepository.findAll();
+        List<Long> departmentIds = (caller.getRole().getName() == RoleAuthority.ADMIN)
+                ? null
+                : approverDepartmentIds(caller);
+
+        if (departmentIds != null && departmentIds.isEmpty()) {
+            return List.of();
+        }
+
+        return leaveTypes.stream().map(lt -> {
+            Long pending = countFor(lt.getId(), "PENDING", departmentIds);
+            Long approved = countFor(lt.getId(), "APPROVED", departmentIds);
+            Long rejected = countFor(lt.getId(), "REJECTED", departmentIds);
+            Long cancelled = countFor(lt.getId(), "CANCELLED", departmentIds);
+            Long expired = countFor(lt.getId(), "EXPIRED", departmentIds);
+            Long total = pending + approved + rejected + cancelled + expired;
+            return new LeaveTypeCountDTO(lt.getId(), lt.getName(), pending, approved, rejected, cancelled, expired,
+                    total);
+        }).collect(Collectors.toList());
+    }
+
+    private Long countFor(Long leaveTypeId, String status, List<Long> departmentIds) {
+        return (departmentIds == null)
+                ? leaveRequestRepository.countByStatusAndLeaveType_Id(status, leaveTypeId)
+                : leaveRequestRepository.countByStatusAndLeaveType_IdAndUser_Department_IdIn(status, leaveTypeId,
+                        departmentIds);
     }
 
     public LeaveRequestCountDTO getLeaveRequestCount(User caller) {

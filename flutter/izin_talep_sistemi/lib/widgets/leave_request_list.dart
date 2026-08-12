@@ -14,22 +14,23 @@ class LeaveRequestList extends ConsumerWidget {
     return asyncRequests.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Hata: $err')),
-      data: (requests) {  
-      final sorted = [...requests]
-    ..sort((a, b) {
-      if (a.status == 'PENDING' && b.status != 'PENDING') return -1;
-      if (a.status != 'PENDING' && b.status == 'PENDING') return 1;
-      return 0;
-    });
+      data: (requests) {
+        final sorted = [...requests]
+          ..sort((a, b) {
+            if (a.status == 'PENDING' && b.status != 'PENDING') return -1;
+            if (a.status != 'PENDING' && b.status == 'PENDING') return 1;
+            return 0;
+          });
 
-    return RefreshIndicator(
-    onRefresh: () => ref.refresh(leaveRequestsProvider.future),
-    child: ListView.builder(
-      itemCount: sorted.length,
-      itemBuilder: (context, index) => LeaveRequestTile(request: sorted[index]),
-    ),
+        return RefreshIndicator(
+          onRefresh: () => ref.refresh(leaveRequestsProvider.future),
+          child: ListView.builder(
+            itemCount: sorted.length,
+            itemBuilder: (context, index) =>
+                LeaveRequestTile(request: sorted[index]),
+          ),
+        );
+      },
     );
-    },
-   );
   }
 }

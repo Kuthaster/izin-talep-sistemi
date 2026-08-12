@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:izin_talep_sistemi/models/approver_gap.dart';
 import 'package:izin_talep_sistemi/models/departmentless_user.dart';
 import 'package:izin_talep_sistemi/models/leave_balance_audit.dart';
-import 'package:izin_talep_sistemi/models/leave_request_count.dart';
+
 import 'api_client.dart';
 
 class AdminReportsService {
@@ -15,11 +15,6 @@ class AdminReportsService {
     return (response.data as List)
         .map((item) => ApproverGap.fromJson(item))
         .toList();
-  }
-
-  Future<LeaveRequestCount> getLeaveRequestCount() async {
-    final response = await _dio.get('/api/reports/dashboard');
-    return LeaveRequestCount.fromJson(response.data);
   }
 
   Future<List<DepartmentlessUser>> getDepartmentlessUsers() async {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izin_talep_sistemi/widgets/login_banner_widget.dart';
+/* import 'package:izin_talep_sistemi/widgets/login_banner_widget.dart'; */
 import 'package:izin_talep_sistemi/widgets/login_form_widget.dart';
 
 class LoginScreen extends ConsumerWidget {

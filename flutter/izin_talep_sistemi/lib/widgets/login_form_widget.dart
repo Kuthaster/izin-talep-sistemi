@@ -122,6 +122,16 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                       ),
                     ),
                   ),
+                  if (authState.hasError) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      authState.error.toString(),
+                      style: TextStyle(
+                        color: context.colors.error,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 30),
                   SizedBox(
                     width: double.infinity,

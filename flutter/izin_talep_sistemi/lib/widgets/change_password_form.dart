@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/change_password.dart';
@@ -46,7 +47,10 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
 
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      setState(() => _errorMessage = 'Şifre değiştirilemedi: $e');
+      final message = e is DioException
+          ? (e.message ?? e.toString())
+          : e.toString();
+      setState(() => _errorMessage = message);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

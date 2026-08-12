@@ -75,10 +75,6 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
     });
   }
 
-  int get _maxPage {
-    return 0;
-  }
-
   @override
   Widget build(BuildContext context) {
     final appBarState = ref.watch(adminAppBarProvider);
@@ -134,8 +130,8 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
                       const SizedBox(width: 4),
                       Icon(
                         _sortAscending
-                            ? Icons.arrow_upward
-                            : Icons.arrow_downward,
+                            ? Icons.arrow_drop_up_sharp
+                            : Icons.arrow_drop_down_sharp,
                         size: 16,
                         color: context.colors.onSurface,
                       ),

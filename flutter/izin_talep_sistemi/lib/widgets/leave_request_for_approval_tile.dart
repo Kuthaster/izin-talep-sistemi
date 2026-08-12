@@ -100,10 +100,7 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           color: context.colors.surfaceContainerLow,
-          border: Border.all(
-            width: 0.5, //TODO approval divider thickness bak buna
-            color: context.colors.outline,
-          ), //TODO approval tile background değiştir
+          border: Border.all(width: 0.5, color: context.colors.outline),
           borderRadius: BorderRadius.circular(10),
         ),
         margin: const EdgeInsets.symmetric(vertical: 4),

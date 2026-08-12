@@ -16,7 +16,7 @@ public class JwtService {
     @Value("${app.jwt.secret}")
     private String secretKey;
 
-    @Value("${app.jwt.expiration-ms:86400000}") 
+    @Value("${app.jwt.expiration-ms:86400000}")
     private long expirationMs;
 
     private SecretKey getSigningKey() {
@@ -36,6 +36,7 @@ public class JwtService {
                 .compact();
     }
 
+    @SuppressWarnings("null")
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -44,6 +45,7 @@ public class JwtService {
         return extractEmail(token).equals(expectedEmail) && !isTokenExpired(token);
     }
 
+    @SuppressWarnings("null")
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }

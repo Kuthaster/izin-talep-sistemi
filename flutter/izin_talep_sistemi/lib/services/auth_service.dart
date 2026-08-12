@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import "package:flutter_secure_storage/flutter_secure_storage.dart";
+import 'package:izin_talep_sistemi/exceptions/api_exception.dart';
 import 'package:izin_talep_sistemi/models/login_response.dart';
 
 import 'api_client.dart';
@@ -22,8 +23,8 @@ class AuthService {
       final loginResponse = LoginResponse.fromJson(response.data);
       await _storage.write(key: authTokenKey, value: loginResponse.token);
       return loginResponse;
-    } on DioException catch (_) {
-      throw Exception('E-posta veya şifre hatalı');
+    } on DioException catch (e) {
+      throw ApiException('E-posta veya şifre hatalı', e.response?.statusCode);
     }
   }
 }

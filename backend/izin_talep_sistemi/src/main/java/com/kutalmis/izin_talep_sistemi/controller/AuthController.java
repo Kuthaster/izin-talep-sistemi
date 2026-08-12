@@ -8,8 +8,11 @@ import com.kutalmis.izin_talep_sistemi.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +38,14 @@ public class AuthController {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(dto.email(), dto.password()));
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("E-posta veya şifre hatalı.");
+        } catch (DisabledException e) {
+            throw new AccessDeniedException("Hesabınız devre dışı bırakılmış. Lütfen yöneticinizle iletişime geçin.");
         } catch (AuthenticationException e) {
-            throw new BadCredentialsException("E-posta veya şifre hatalı."); // TODO ACTIVE IÇIN AYRI BİR THROW CHECK
-                                                                             // YAP
+            throw new IllegalStateException(
+                    "Beklenmedik bir hata meydana geldi. Lütfen daha sonra tekrar deneyin. Hata devam ederse, admine bildirin..",
+                    e);
         }
 
         User user = userService.getUserEntityByEmail(dto.email());

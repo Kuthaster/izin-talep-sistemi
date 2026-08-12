@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/auth_provider.dart';
-import 'package:izin_talep_sistemi/providers/leave_balance_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_provider.dart';
-import 'package:izin_talep_sistemi/providers/leave_request_approval_provider.dart';
-import 'package:izin_talep_sistemi/widgets/leave_requests_filter_sheet.dart';
-import 'package:izin_talep_sistemi/widgets/sections/main_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/main_requests_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/main_approvals_section.dart';
-import 'package:izin_talep_sistemi/widgets/sections/main_balance_section.dart';
+import 'package:izin_talep_sistemi/widgets/app_bottom_nav_bar.dart';
 import 'package:izin_talep_sistemi/widgets/create_request_form.dart';
+import 'package:izin_talep_sistemi/widgets/leave_requests_filter_sheet.dart';
 import 'package:izin_talep_sistemi/widgets/profile_avatar_widget.dart';
 import 'package:izin_talep_sistemi/widgets/profile_drawer.dart';
-import 'package:izin_talep_sistemi/widgets/app_bottom_nav_bar.dart';
+import 'package:izin_talep_sistemi/widgets/sections/main_approvals_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/main_balance_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/main_requests_section.dart';
+import 'package:izin_talep_sistemi/widgets/sections/main_section.dart';
 
 class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key});
@@ -69,20 +67,6 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
         return const MainBalanceSection();
       case MainSection.mainApprovals:
         return const MainApprovalsSection();
-    }
-  }
-
-  void _onRefresh(MainSection section) {
-    switch (section) {
-      case MainSection.mainRequests:
-        ref.invalidate(leaveRequestsProvider);
-        break;
-      case MainSection.mainBalance:
-        ref.invalidate(leaveBalancesProvider);
-        break;
-      case MainSection.mainApprovals:
-        ref.invalidate(leaveRequestsForApprovalProvider);
-        break;
     }
   }
 

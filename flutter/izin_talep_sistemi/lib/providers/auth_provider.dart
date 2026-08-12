@@ -60,7 +60,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserResponse?>> {
     }
   }
 
-  _invalidateUserPerProviders() {
+  void _invalidateUserPerProviders() {
     ref.invalidate(leaveRequestsProvider);
     ref.invalidate(leaveRequestsForApprovalProvider);
     ref.invalidate(leaveBalancesProvider);

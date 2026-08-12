@@ -14,19 +14,22 @@ class MainBalanceSection extends ConsumerWidget {
     return asyncBalances.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, _) => Center(child: Text('Hata: $err')),
-      data: (balances) => ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: balances.length,
-        itemBuilder: (context, i) {
-          final b = balances[i];
-          return _BalanceCard(
-            leaveTypeName: b.leaveTypeName,
-            totalDays: b.totalDays,
-            usedDays: b.usedDays,
-            reservedDays: b.reservedDays,
-            availableDays: b.availableDays,
-          );
-        },
+      data: (balances) => RefreshIndicator(
+        onRefresh: () => ref.refresh(leaveBalancesProvider.future),
+        child: ListView.builder(
+          padding: const EdgeInsets.all(12),
+          itemCount: balances.length,
+          itemBuilder: (context, i) {
+            final b = balances[i];
+            return _BalanceCard(
+              leaveTypeName: b.leaveTypeName,
+              totalDays: b.totalDays,
+              usedDays: b.usedDays,
+              reservedDays: b.reservedDays,
+              availableDays: b.availableDays,
+            );
+          },
+        ),
       ),
     );
   }
@@ -60,10 +63,6 @@ class _BalanceCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        border: Border.all(color: context.colors.onSurface, width: 0.2),
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Row(
         children: [
           DashboardRing(

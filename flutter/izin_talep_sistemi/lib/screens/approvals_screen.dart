@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_approval_provider.dart';
 import 'package:izin_talep_sistemi/widgets/leave_request_for_approval_list.dart';
-import 'package:izin_talep_sistemi/widgets/request_count_dashboard.dart';
+import 'package:izin_talep_sistemi/widgets/approval_count_dashboard.dart';
 
 class ApprovalsScreen extends ConsumerWidget {
   const ApprovalsScreen({super.key});
@@ -22,7 +22,7 @@ class ApprovalsScreen extends ConsumerWidget {
       ),
       body: Column(
         children: const [
-          RequestCountDashboard(),
+          ApprovalCountDashboard(),
           Expanded(child: LeaveRequestForApprovalList()), //liste
         ],
       ),

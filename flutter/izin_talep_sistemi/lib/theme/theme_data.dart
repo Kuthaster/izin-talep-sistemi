@@ -60,7 +60,7 @@ final ColorScheme lightColorScheme = ColorScheme(
   shadow: Colors.black,
 );
 
-const darkColorScheme = ColorScheme(
+final darkColorScheme = ColorScheme(
   brightness: Brightness.dark,
 
   primary: const Color(0xFFA8C0CA),

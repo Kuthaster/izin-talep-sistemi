@@ -4,12 +4,7 @@ import 'package:izin_talep_sistemi/screens/auth_gate.dart';
 import 'package:izin_talep_sistemi/theme/theme_data.dart';
 
 void main() {
-  runApp(
-    // For widgets to be able to read providers, we need to wrap the entire
-    // application in a "ProviderScope" widget.
-    // This is where the state of our providers will be stored.
-    ProviderScope(child: MyApp()),
-  );
+  runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

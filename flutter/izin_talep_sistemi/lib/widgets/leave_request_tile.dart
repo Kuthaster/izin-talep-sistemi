@@ -69,9 +69,7 @@ class LeaveRequestTile extends ConsumerWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: context
-              .colors
-              .surfaceContainerHighest, //TODO request tile background değiştir
+          color: context.colors.surfaceContainerHighest,
         ),
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.all(12),

@@ -11,25 +11,30 @@ import org.springframework.data.repository.query.Param;
 import com.kutalmis.izin_talep_sistemi.entity.LeaveRequest;
 
 public interface LeaveRequestRepository
-        extends JpaRepository<LeaveRequest, Long>, JpaSpecificationExecutor<LeaveRequest> {
-    @Query("SELECT CASE WHEN COUNT(lr) > 0 THEN true ELSE false END FROM LeaveRequest lr " +
-            "WHERE lr.user.id = :userId AND lr.status IN ('PENDING', 'APPROVED') " +
-            "AND lr.id != :excludeId " +
-            "AND lr.startDate <= :endDate AND lr.endDate >= :startDate")
-    boolean existsOverlappingRequest(@Param("userId") Long userId,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            @Param("excludeId") Long excludeId);
+                extends JpaRepository<LeaveRequest, Long>, JpaSpecificationExecutor<LeaveRequest> {
+        @Query("SELECT CASE WHEN COUNT(lr) > 0 THEN true ELSE false END FROM LeaveRequest lr " +
+                        "WHERE lr.user.id = :userId AND lr.status IN ('PENDING', 'APPROVED') " +
+                        "AND lr.id != :excludeId " +
+                        "AND lr.startDate <= :endDate AND lr.endDate >= :startDate")
+        boolean existsOverlappingRequest(@Param("userId") Long userId,
+                        @Param("startDate") LocalDate startDate,
+                        @Param("endDate") LocalDate endDate,
+                        @Param("excludeId") Long excludeId);
 
-    List<LeaveRequest> findByUser_Id(Long userId);
+        List<LeaveRequest> findByUser_Id(Long userId);
 
-    List<LeaveRequest> findByStatusAndStartDateBefore(String status, LocalDate startDate);
+        Long countByStatusAndLeaveType_Id(String status, Long leaveTypeId);
 
-    List<LeaveRequest> findByUser_Department_Id(Long departmentId);
+        Long countByStatusAndLeaveType_IdAndUser_Department_IdIn(String status, Long leaveTypeId,
+                        List<Long> userDepartmentId);
 
-    List<LeaveRequest> findByUser_Department_IdIn(List<Long> departmentIds);
+        List<LeaveRequest> findByStatusAndStartDateBefore(String status, LocalDate startDate);
 
-    long countByStatus(String status);
+        List<LeaveRequest> findByUser_Department_Id(Long departmentId);
 
-    long countByStatusAndUser_Department_IdIn(String status, List<Long> departmentIds);
+        List<LeaveRequest> findByUser_Department_IdIn(List<Long> departmentIds);
+
+        long countByStatus(String status);
+
+        long countByStatusAndUser_Department_IdIn(String status, List<Long> departmentIds);
 }

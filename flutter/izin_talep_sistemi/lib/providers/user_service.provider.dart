@@ -3,6 +3,6 @@ import 'package:izin_talep_sistemi/providers/dio_provider.dart';
 import 'package:izin_talep_sistemi/services/user_service.dart';
 
 final userServiceProvider = Provider<UserService>((ref) {
-  final dio = ref.watch(dioProvider);
+  ref.watch(dioProvider);
   return UserService(dio: ref.watch(dioProvider));
 });
