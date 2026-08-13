@@ -1,6 +1,8 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/leave_balance_provider.dart';
+import 'package:izin_talep_sistemi/providers/leave_request_attachment_service_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
 import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:izin_talep_sistemi/widgets/compact_dialog_date_range_picker.dart';
@@ -113,13 +115,29 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       );
 
       final leaveRequestService = ref.read(leaveRequestServiceProvider);
+      int? targetRequestId;
+
       if (_isEditing) {
-        await leaveRequestService.updateLeaveRequest(
+        final updated = await leaveRequestService.updateLeaveRequest(
           widget.existingRequest!.id,
           dto,
         );
+        targetRequestId = updated.id;
       } else {
-        await leaveRequestService.createLeaveRequest(dto);
+        final created = await leaveRequestService.createLeaveRequest(dto);
+        targetRequestId = created.first.id;
+      }
+      if (_pendingAttachment != null) {
+        final attachmentService = ref.read(
+          leaveRequestAttachmentServiceProvider,
+        );
+        attachmentService
+            .upload(
+              targetRequestId,
+              _pendingAttachment!.path!,
+              _pendingAttachment!.name,
+            )
+            .catchError((e) {});
       }
       ref.invalidate(leaveRequestsProvider);
       ref.invalidate(leaveBalancesProvider);
@@ -132,6 +150,18 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  PlatformFile? _pendingAttachment;
+
+  Future<void> _pickAttachment() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx'],
+    );
+    if (result != null && result.files.single.path != null) {
+      setState(() => _pendingAttachment = result.files.single);
     }
   }
 
@@ -221,7 +251,31 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               decoration: const InputDecoration(labelText: 'Neden (opsiyonel)'),
               maxLines: 2,
             ),
-
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(
+                  Icons.attach_file,
+                  size: 18,
+                  color: context.colors.onSurfaceVariant,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    _pendingAttachment?.name ?? 'Dosya eklenmedi',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: context.colors.onSurfaceVariant,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                TextButton(
+                  onPressed: _pickAttachment,
+                  child: Text(_pendingAttachment == null ? 'Ekle' : 'Değiştir'),
+                ),
+              ],
+            ),
             if (_errorMessage != null) ...[
               const SizedBox(height: 8),
               Text(
