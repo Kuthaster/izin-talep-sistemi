@@ -4,6 +4,7 @@ import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
 import 'package:izin_talep_sistemi/widgets/profile_drawer.dart';
 import 'package:izin_talep_sistemi/widgets/admin_app_bar.dart';
 import 'package:izin_talep_sistemi/widgets/admin_sidebar.dart';
+import 'package:izin_talep_sistemi/widgets/admin_mobile_drawer.dart';
 import 'package:izin_talep_sistemi/widgets/sections/admin_approvals_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/admin_balance_audits_section.dart';
 import 'package:izin_talep_sistemi/widgets/sections/admin_balances_section.dart';
@@ -31,6 +32,7 @@ class AdminScreen extends ConsumerStatefulWidget {
 
 class AdminScreenState extends ConsumerState<AdminScreen> {
   AdminSection _currentSection = AdminSection.adminApprovals;
+  static const double _mobileBreakpoint = 700;
 
   void _selectSection(AdminSection section) {
     setState(() => _currentSection = section);
@@ -58,32 +60,56 @@ class AdminScreenState extends ConsumerState<AdminScreen> {
   @override
   Widget build(BuildContext context) {
     final appBarState = ref.watch(adminAppBarProvider);
+    final isWide = MediaQuery.sizeOf(context).width >= _mobileBreakpoint;
+
+    if (isWide) {
+      return Scaffold(
+        endDrawer: ProfileDrawer(),
+        body: Row(
+          children: [
+            AdminSidebar(
+              currentSection: _currentSection,
+              onSectionSelected: _selectSection,
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  AdminAppBar(
+                    title: appBarState.title,
+                    primaryActionLabel: appBarState.primaryActionLabel,
+                    onPrimaryAction: appBarState.onPrimaryAction,
+                    additionalActions: appBarState.additionalActions,
+                    onSearchChanged: appBarState.onSearchChanged,
+                    hasSearch: appBarState.hasSearch,
+                  ),
+                  Expanded(child: _buildContent()),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
-      endDrawer: ProfileDrawer(),
-      body: Row(
-        children: [
-          AdminSidebar(
-            currentSection: _currentSection,
-            onSectionSelected: _selectSection,
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                AdminAppBar(
-                  title: appBarState.title,
-                  primaryActionLabel: appBarState.primaryActionLabel,
-                  onPrimaryAction: appBarState.onPrimaryAction,
-                  additionalActions: appBarState.additionalActions,
-                  onSearchChanged: appBarState.onSearchChanged,
-                  hasSearch: appBarState.hasSearch,
-                ),
-                Expanded(child: _buildContent()),
-              ],
-            ),
-          ),
-        ],
+      appBar: AdminAppBar(
+        title: appBarState.title,
+        primaryActionLabel: appBarState.primaryActionLabel,
+        onPrimaryAction: appBarState.onPrimaryAction,
+        additionalActions: appBarState.additionalActions,
+        onSearchChanged: appBarState.onSearchChanged,
+        hasSearch: appBarState.hasSearch,
+        showMenuButton: true,
       ),
+      drawer: AdminMobileDrawer(
+        currentSection: _currentSection,
+        onSectionSelected: (section) {
+          Navigator.pop(context);
+          _selectSection(section);
+        },
+      ),
+      endDrawer: ProfileDrawer(),
+      body: _buildContent(),
     );
   }
 }

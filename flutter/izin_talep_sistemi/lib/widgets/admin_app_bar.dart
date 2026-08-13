@@ -1,3 +1,4 @@
+// lib/widgets/admin_app_bar.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/admin_appbar_provider.dart';
@@ -13,6 +14,7 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final TextEditingController? searchController;
   final ValueChanged<String>? onSearchChanged;
   final bool hasSearch;
+  final bool showMenuButton;
 
   const AdminAppBar({
     super.key,
@@ -23,6 +25,7 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
     this.searchController,
     this.onSearchChanged,
     this.hasSearch = true,
+    this.showMenuButton = false,
   });
 
   @override
@@ -31,10 +34,19 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appBarState = ref.watch(adminAppBarProvider);
+
     return AppBar(
       elevation: 1,
       automaticallyImplyActions: false,
       automaticallyImplyLeading: false,
+      leading: showMenuButton
+          ? Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
+            )
+          : null,
       title: SizedBox(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -54,7 +66,6 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 icon: const Icon(Icons.add),
                 color: context.colors.secondary,
               ),
-
             if (hasSearch == true)
               Expanded(
                 child: SizedBox(
@@ -86,13 +97,12 @@ class AdminAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
-            Spacer(flex: 4),
+            const Spacer(flex: 4),
           ],
         ),
       ),
       actions: [
         const AdminBellWarning(),
-
         Builder(
           builder: (BuildContext context) {
             return IconButton(
