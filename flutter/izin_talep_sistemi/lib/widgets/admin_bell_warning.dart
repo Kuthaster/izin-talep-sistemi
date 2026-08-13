@@ -10,6 +10,7 @@ class AdminBellWarning extends ConsumerWidget {
   const AdminBellWarning({super.key});
 
   @override
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncGaps = ref.watch(approverGapsProvider);
     final asyncDepartmentless = ref.watch(departmentlessUsersProvider);
@@ -110,6 +111,50 @@ class AdminBellWarning extends ConsumerWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+          );
+        }
+
+        for (final r in resets) {
+          items.add(
+            PopupMenuItem(
+              child: ListTile(
+                leading: const Icon(
+                  Icons.lock_reset,
+                  color: Colors.orange,
+                  size: 18,
+                ),
+                title: Text('${r.userName}: Şifre sıfırlama talep etti'),
+                subtitle: Text(r.email, style: const TextStyle(fontSize: 11)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final temp = await ref
+                      .read(userServiceProvider)
+                      .issueTempPassword(r.userId);
+                  ref.invalidate(passwordResetRequestsProvider);
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text('${r.userName} için geçici şifre'),
+                        content: SelectableText(
+                          temp,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Kapat'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
               ),
             ),
           );
