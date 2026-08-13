@@ -131,13 +131,15 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         final attachmentService = ref.read(
           leaveRequestAttachmentServiceProvider,
         );
-        attachmentService
-            .upload(
-              targetRequestId,
+        () async {
+          try {
+            await attachmentService.upload(
+              targetRequestId!,
               _pendingAttachment!.path!,
               _pendingAttachment!.name,
-            )
-            .catchError((e) {});
+            );
+          } catch (_) {}
+        }();
       }
       ref.invalidate(leaveRequestsProvider);
       ref.invalidate(leaveBalancesProvider);
