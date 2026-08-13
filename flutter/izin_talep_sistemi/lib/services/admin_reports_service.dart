@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:izin_talep_sistemi/models/approver_gap.dart';
 import 'package:izin_talep_sistemi/models/departmentless_user.dart';
 import 'package:izin_talep_sistemi/models/leave_balance_audit.dart';
-
+import 'package:izin_talep_sistemi/models/password_reset_request.dart';
 import 'api_client.dart';
 
 class AdminReportsService {
@@ -28,6 +28,15 @@ class AdminReportsService {
     final response = await _dio.get('/api/admin/reports/balance-audits');
     return (response.data as List)
         .map((item) => LeaveBalanceAudit.fromJson(item))
+        .toList();
+  }
+
+  Future<List<PasswordResetRequest>> getPasswordResetRequests() async {
+    final response = await _dio.get(
+      '/api/admin/reports/password-reset-requests',
+    );
+    return (response.data as List)
+        .map((item) => PasswordResetRequest.fromJson(item))
         .toList();
   }
 }

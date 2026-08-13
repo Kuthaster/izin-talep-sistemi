@@ -1,5 +1,6 @@
 package com.kutalmis.izin_talep_sistemi.controller;
 
+import com.kutalmis.izin_talep_sistemi.service.PasswordResetService;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kutalmis.izin_talep_sistemi.dto.TempPasswordDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserCreateDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserResponseDTO;
 import com.kutalmis.izin_talep_sistemi.dto.UserUpdateDTO;
@@ -29,10 +31,12 @@ import jakarta.validation.Valid;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
 
+    private final PasswordResetService passwordResetService;
     private final UserService userService;
 
-    public AdminUserController(UserService userService) {
+    public AdminUserController(UserService userService, PasswordResetService passwordResetService) {
         this.userService = userService;
+        this.passwordResetService = passwordResetService;
     }
 
     @Operation(summary = "Tüm kullanıcıları listele")
@@ -62,9 +66,14 @@ public class AdminUserController {
             @ApiResponse(responseCode = "403", description = "Bu kullanıcıyı silme yetkiniz yok."),
             @ApiResponse(responseCode = "400", description = "Geçersiz girdi: Kullanıcı bulunamadı.")
     })
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
+    }
+
+    @Operation(summary = "Kullanıcı için geçici şifre oluştur")
+    @PostMapping("/{userId}/temp-password")
+    public TempPasswordDTO issueTempPassword(@PathVariable Long userId) {
+        return passwordResetService.issueTempPassword(userId);
     }
 }

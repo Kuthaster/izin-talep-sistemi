@@ -1,9 +1,11 @@
 package com.kutalmis.izin_talep_sistemi.controller;
 
+import com.kutalmis.izin_talep_sistemi.dto.ForgotPasswordDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LoginRequestDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LoginResponseDTO;
 import com.kutalmis.izin_talep_sistemi.entity.User;
 import com.kutalmis.izin_talep_sistemi.security.JwtService;
+import com.kutalmis.izin_talep_sistemi.service.PasswordResetService;
 import com.kutalmis.izin_talep_sistemi.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,14 +24,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private final PasswordResetService passwordResetService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserService userService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, UserService userService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, UserService userService,
+            PasswordResetService passwordResetService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userService = userService;
+        this.passwordResetService = passwordResetService;
     }
 
     @Operation(summary = "Giriş yap")
@@ -52,5 +57,11 @@ public class AuthController {
         String token = jwtService.generateToken(user.getEmail(), user.getRole().getName().name());
 
         return new LoginResponseDTO(token, "Bearer", user.getId(), user.getEmail(), user.getRole().getDisplayName());
+    }
+
+    @Operation(summary = "Buna basılıp e-posta girildiğinde admin paneline bildirim gönderilir, admin geçici şifre alınca kişinin admine ulaşması gerekli veyahut admin gördüğü e posta adresine yollayabilir. Placeholder yöntem")
+    @PostMapping("/forgot-password") // İsim RESTful değil ama auth'un hiç biri değil buraya uysun diye böyle
+    public void requestPasswordReset(@RequestBody ForgotPasswordDTO dto) {
+        passwordResetService.createRequest(dto.email());
     }
 }

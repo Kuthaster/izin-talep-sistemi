@@ -527,7 +527,6 @@ class _AdminUsersSectionState extends ConsumerState<AdminUsersSection> {
                               rolesAsync,
                               departmentsAsync,
                             );
-                            Navigator.of(context).pop();
                           },
                           child: Text("Kullanıcı Bilgilerini Güncelle"),
                         ),

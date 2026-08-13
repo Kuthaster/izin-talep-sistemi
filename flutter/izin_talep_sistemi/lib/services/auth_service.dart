@@ -27,4 +27,8 @@ class AuthService {
       throw ApiException('E-posta veya şifre hatalı', e.response?.statusCode);
     }
   }
+
+  Future<void> forgotPassword(String email) async {
+    await _dio.post('/api/auth/forgot-password', data: {'email': email});
+  }
 }

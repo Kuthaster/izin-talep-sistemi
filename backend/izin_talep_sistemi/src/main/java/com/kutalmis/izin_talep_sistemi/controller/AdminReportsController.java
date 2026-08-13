@@ -1,6 +1,5 @@
 package com.kutalmis.izin_talep_sistemi.controller;
 
-import com.kutalmis.izin_talep_sistemi.service.UserService;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,8 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kutalmis.izin_talep_sistemi.dto.ApproverGapDTO;
 import com.kutalmis.izin_talep_sistemi.dto.DepartmentlessUserDTO;
 import com.kutalmis.izin_talep_sistemi.dto.LeaveBalanceAuditDTO;
+import com.kutalmis.izin_talep_sistemi.dto.PasswordResetRequestDTO;
 import com.kutalmis.izin_talep_sistemi.service.DepartmentService;
 import com.kutalmis.izin_talep_sistemi.service.LeaveBalanceService;
+import com.kutalmis.izin_talep_sistemi.service.PasswordResetService;
+import com.kutalmis.izin_talep_sistemi.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,15 +25,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminReportsController {
 
+    private final PasswordResetService passwordResetService;
     private final UserService userService;
     private final DepartmentService departmentService;
     private final LeaveBalanceService leaveBalanceService;
 
     public AdminReportsController(DepartmentService departmentService, UserService userService,
-            LeaveBalanceService leaveBalanceService) {
+            LeaveBalanceService leaveBalanceService, PasswordResetService passwordResetService) {
         this.departmentService = departmentService;
         this.userService = userService;
         this.leaveBalanceService = leaveBalanceService;
+        this.passwordResetService = passwordResetService;
     }
 
     @Operation(summary = "Departmanların onaylayıcı boşluklarını listele", description = "Hangi departmanların hangi seviyelerde atanmış bir onaylayıcısı (yöneticisi) olmadığını gösterir.")
@@ -51,4 +55,11 @@ public class AdminReportsController {
     public List<LeaveBalanceAuditDTO> getBalanceAudits() {
         return leaveBalanceService.getAllAudits();
     }
+
+    @Operation(summary = "Açık şifre sıfırlama taleplerini listele")
+    @GetMapping("/password-reset-requests")
+    public List<PasswordResetRequestDTO> getPasswordResetRequests() {
+        return passwordResetService.getOpenRequests();
+    }
+
 }

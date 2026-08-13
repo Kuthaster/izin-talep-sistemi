@@ -173,6 +173,13 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                             ),
                     ),
                   ),
+                  TextButton(
+                    onPressed: () => _showForgotPasswordDialog(context, ref),
+                    child: Text(
+                      'Şifremi Unuttum',
+                      style: TextStyle(color: context.colors.onInverseSurface),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -181,4 +188,46 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
       ),
     );
   }
+}
+
+Future<void> _showForgotPasswordDialog(
+  BuildContext context,
+  WidgetRef ref,
+) async {
+  final controller = TextEditingController();
+  await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Şifremi Unuttum'),
+      content: TextField(
+        controller: controller,
+        keyboardType: TextInputType.emailAddress,
+        decoration: const InputDecoration(labelText: 'E-posta adresiniz'),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Vazgeç'),
+        ),
+        FilledButton(
+          onPressed: () async {
+            await ref
+                .read(authServiceProvider)
+                .forgotPassword(controller.text.trim());
+            if (context.mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Talebiniz alındı. Lütfen yöneticinizle iletişime geçin.',
+                  ),
+                ),
+              );
+            }
+          },
+          child: const Text('Gönder'),
+        ),
+      ],
+    ),
+  );
 }

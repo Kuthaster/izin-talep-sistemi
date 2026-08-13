@@ -39,4 +39,9 @@ class UserService {
   Future<void> deleteUser(int userId) async {
     await _dio.delete('/api/admin/users/$userId');
   }
+
+  Future<String> issueTempPassword(int userId) async {
+    final response = await _dio.post('/api/admin/users/$userId/temp-password');
+    return response.data['temporaryPassword'];
+  }
 }
