@@ -34,11 +34,22 @@ class _StatusDonutChartState extends State<StatusDonutChart> {
     return Column(
       children: [
         SizedBox(
-          width: 180,
-          height: 180,
-          child: MouseRegion(
-            onHover: (event) => _onHover(event.localPosition),
-            onExit: (_) => setState(() => _hovered = null),
+          width: 150,
+          height: 150,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: (details) {
+              _onHover(details.localPosition);
+            },
+            onTapUp: (_) => setState(() => _hovered = null),
+            onTapCancel: () => setState(() => _hovered = null),
+            onPanDown: (details) {
+              _onHover(details.localPosition);
+            },
+            onPanUpdate: (details) {
+              _onHover(details.localPosition);
+            },
+            onPanEnd: (_) => setState(() => _hovered = null),
             child: CustomPaint(
               size: const Size(180, 180),
               painter: _DonutPainter(
@@ -54,16 +65,18 @@ class _StatusDonutChartState extends State<StatusDonutChart> {
                     Text(
                       '$displayedValue',
                       style: TextStyle(
-                        fontSize: 26,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: context.colors.tertiary,
+                        color: getStatusTextColor(displayed),
                       ),
                     ),
                     Text(
                       getStatusLabel(displayed),
                       style: TextStyle(
-                        fontSize: 12,
-                        color: context.colors.secondary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+
+                        color: getStatusTextColor(displayed),
                       ),
                     ),
                   ],
@@ -72,10 +85,9 @@ class _StatusDonutChartState extends State<StatusDonutChart> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 6),
         Wrap(
-          spacing: 12,
-          runSpacing: 6,
+          spacing: 7,
           alignment: WrapAlignment.center,
           children: _order.map((s) {
             final count = widget.statusCounts[s] ?? 0;
@@ -158,7 +170,6 @@ class _DonutPainter extends CustomPainter {
 
     if (total == 0) {
       final paint = Paint()
-        ..color = Colors.pink
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth;
       canvas.drawCircle(center, radius, paint);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/status.dart';
 import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 
@@ -150,33 +151,44 @@ class LeaveTypeCard extends StatelessWidget {
   }
 }
 
-class LeaveTypeTilesScroller extends StatelessWidget {
+class LeaveTypeTilesScroller extends ConsumerStatefulWidget {
+  final double availableHeight;
   final List<LeaveTypeTileModel> items;
-  final double height;
 
   const LeaveTypeTilesScroller({
     super.key,
     required this.items,
-    this.height = 240,
+    required this.availableHeight,
   });
 
   @override
+  ConsumerState<LeaveTypeTilesScroller> createState() =>
+      _LeaveTypeTilesScrollerState();
+}
+
+class _LeaveTypeTilesScrollerState
+    extends ConsumerState<LeaveTypeTilesScroller> {
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: ListView.builder(
-        itemExtent: 120,
-        scrollDirection: Axis.vertical,
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final it = items[index];
-          return LeaveTypeCard(
-            leaveTypeName: it.leaveTypeName,
-            statusCounts: it.statusCounts,
-          );
-        },
-      ),
+    final expandedBudget = (widget.availableHeight * 0.5).clamp(120.0, 300.0);
+
+    return ExpansionTile(
+      title: const Text("Dashboard"),
+      children: [
+        SizedBox(
+          height: expandedBudget,
+          child: ListView.builder(
+            itemCount: widget.items.length,
+            itemBuilder: (context, index) {
+              final it = widget.items[index];
+              return LeaveTypeCard(
+                leaveTypeName: it.leaveTypeName,
+                statusCounts: it.statusCounts,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

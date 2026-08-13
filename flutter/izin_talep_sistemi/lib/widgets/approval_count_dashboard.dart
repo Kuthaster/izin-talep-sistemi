@@ -65,6 +65,7 @@ class ApprovalCountDashboard extends ConsumerWidget {
                     ),
                   )
                   .toList(),
+              availableHeight: constraints.maxHeight,
             );
 
             if (isNarrow) {

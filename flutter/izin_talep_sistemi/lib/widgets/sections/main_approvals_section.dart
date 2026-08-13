@@ -8,11 +8,22 @@ class MainApprovalsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Column(
-      children: [
-        ApprovalCountDashboard(),
-        Expanded(child: LeaveRequestForApprovalList()),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final h = (constraints.maxHeight * 0.5).clamp(500.0, 800.0);
+
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              ApprovalCountDashboard(),
+              SizedBox(
+                height: h,
+                child: LeaveRequestForApprovalList(availableHeight: h),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

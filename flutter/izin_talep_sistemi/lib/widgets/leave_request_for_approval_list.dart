@@ -4,7 +4,9 @@ import 'package:izin_talep_sistemi/providers/leave_request_approval_provider.dar
 import 'package:izin_talep_sistemi/widgets/leave_request_for_approval_tile.dart';
 
 class LeaveRequestForApprovalList extends ConsumerWidget {
-  const LeaveRequestForApprovalList({super.key});
+  final double availableHeight;
+
+  const LeaveRequestForApprovalList({super.key, required this.availableHeight});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,13 +22,31 @@ class LeaveRequestForApprovalList extends ConsumerWidget {
             if (a.status != 'PENDING' && b.status == 'PENDING') return 1;
             return 0;
           });
+        final expandedBudget = (availableHeight).clamp(400.0, double.infinity);
 
         return RefreshIndicator(
           onRefresh: () => ref.refresh(leaveRequestsForApprovalProvider.future),
-          child: ListView.builder(
-            itemCount: sorted.length,
-            itemBuilder: (context, index) =>
-                LeaveRequestForApprovalTile(request: sorted[index]),
+          child: ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              ExpansionTile(
+                title: const Text("İzin Talepleri"),
+                children: [
+                  SizedBox(
+                    height: expandedBudget,
+                    child: ListView.builder(
+                      itemCount: sorted.length,
+                      itemBuilder: (context, index) {
+                        return LeaveRequestForApprovalTile(
+                          request: sorted[index],
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
