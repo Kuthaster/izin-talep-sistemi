@@ -2,19 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/approver_gap_provider.dart';
 import 'package:izin_talep_sistemi/providers/departmentless_users_provider.dart';
+import 'package:izin_talep_sistemi/providers/password_reset_requests.provider.dart';
+import 'package:izin_talep_sistemi/providers/user_service.provider.dart';
 import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 
 class AdminBellWarning extends ConsumerWidget {
   const AdminBellWarning({super.key});
 
   @override
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncGaps = ref.watch(approverGapsProvider);
     final asyncDepartmentless = ref.watch(departmentlessUsersProvider);
+    final asyncResets = ref.watch(passwordResetRequestsProvider);
 
     final gaps = asyncGaps.value ?? [];
     final departmentless = asyncDepartmentless.value ?? [];
-    final count = gaps.length;
+    final resets = asyncResets.value ?? [];
+    final count = gaps.length + departmentless.length + resets.length;
 
     return PopupMenuButton<void>(
       tooltip: 'Uyarılar',
@@ -106,6 +111,50 @@ class AdminBellWarning extends ConsumerWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+          );
+        }
+
+        for (final r in resets) {
+          items.add(
+            PopupMenuItem(
+              child: ListTile(
+                leading: const Icon(
+                  Icons.lock_reset,
+                  color: Colors.orange,
+                  size: 18,
+                ),
+                title: Text('${r.userName}: Şifre sıfırlama talep etti'),
+                subtitle: Text(r.email, style: const TextStyle(fontSize: 11)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final temp = await ref
+                      .read(userServiceProvider)
+                      .issueTempPassword(r.userId);
+                  ref.invalidate(passwordResetRequestsProvider);
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text('${r.userName} için geçici şifre'),
+                        content: SelectableText(
+                          temp,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Kapat'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
               ),
             ),
           );
