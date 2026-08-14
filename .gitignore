@@ -12,6 +12,7 @@ backend/**/application.properties
 backend/**/application-local.properties
 !backend/**/application-example.properties
 *.log
+/uploads
 
 flutter/**/build/
 flutter/**/.dart_tool/

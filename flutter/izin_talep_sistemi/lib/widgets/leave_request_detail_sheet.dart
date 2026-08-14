@@ -4,6 +4,7 @@ import 'package:izin_talep_sistemi/models/leave_request_approval.dart';
 import 'package:izin_talep_sistemi/models/leave_decision.dart';
 import 'package:izin_talep_sistemi/models/status.dart';
 import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
+import 'package:izin_talep_sistemi/widgets/attachment_list.dart';
 
 class LeaveRequestDetailSheet extends StatelessWidget {
   final LeaveRequest request;
@@ -96,10 +97,7 @@ class LeaveRequestDetailSheet extends StatelessWidget {
                     Expanded(
                       child: Text(
                         request.leaveTypeName,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: const TextStyle(fontSize: 20),
                       ),
                     ),
                     Container(
@@ -117,7 +115,7 @@ class LeaveRequestDetailSheet extends StatelessWidget {
                         getStatusLabel(status),
                         style: TextStyle(
                           color: getStatusTextColor(status),
-                          fontWeight: FontWeight.w600,
+
                           fontSize: 12,
                         ),
                       ),
@@ -155,10 +153,7 @@ class LeaveRequestDetailSheet extends StatelessWidget {
                   ),
 
                 const SizedBox(height: 24),
-                const Text(
-                  'Onay Geçmişi',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+                const Text('Onay Geçmişi', style: TextStyle(fontSize: 16)),
                 const SizedBox(height: 8),
 
                 if (sortedApprovals.isEmpty)
@@ -179,6 +174,11 @@ class LeaveRequestDetailSheet extends StatelessWidget {
                       fmtDateTime: _fmtDateTime,
                     ),
                   ),
+
+                const SizedBox(height: 24),
+                const Text('Ekler', style: TextStyle(fontSize: 16)),
+                const SizedBox(height: 8),
+                AttachmentList(leaveRequestId: request.id),
               ],
             ),
           );
@@ -212,12 +212,7 @@ class _DetailRow extends StatelessWidget {
             Icon(icon, size: 18, color: context.colors.primary),
             const SizedBox(width: 10),
             Text('$label: ', style: TextStyle(color: context.colors.primary)),
-            Expanded(
-              child: Text(
-                value,
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-            ),
+            Expanded(child: Text(value, style: const TextStyle())),
           ],
         ),
       ),
@@ -263,10 +258,7 @@ class _ApprovalTile extends StatelessWidget {
                 children: [
                   Text(
                     'Seviye ${approval.level} · ${approval.approverName}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
+                    style: const TextStyle(fontSize: 13),
                   ),
                   Text(
                     '$label · ${fmtDateTime(approval.decidedAt)}',

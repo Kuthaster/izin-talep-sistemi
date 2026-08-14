@@ -20,7 +20,12 @@ class AdminBalanceAuditsSection extends ConsumerWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(adminAppBarProvider.notifier)
-          .updateAppBar(title: 'Bakiye Değişiklik Kayıtları', hasSearch: true);
+          .updateAppBar(
+            title: 'Denetim Kayıtları',
+            hasSearch: true,
+            primaryActionLabel: null,
+            onPrimaryAction: null,
+          );
     });
 
     return Expanded(

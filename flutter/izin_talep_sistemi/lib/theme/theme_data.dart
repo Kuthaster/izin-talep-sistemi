@@ -32,13 +32,13 @@ final ColorScheme lightColorScheme = ColorScheme(
   onTertiaryFixed: const Color(0xFF3D2612),
   onTertiaryFixedVariant: const Color.fromARGB(255, 255, 255, 255),
 
-  surface: const Color(0XFFFDFFFC),
+  surface: const Color(0XFFf3f4f5),
   onSurface: const Color(0xFF050505),
   inverseSurface: const Color(0XFF1A1C23),
   onInverseSurface: const Color(0XfFF4F4F9),
 
-  surfaceDim: const Color(0xFFDBD9DD),
-  surfaceBright: const Color(0xFFFDFFFC),
+  surfaceDim: const Color(0xFFe9ebed),
+  surfaceBright: const Color.fromARGB(255, 255, 255, 255),
 
   surfaceContainerLowest: const Color(0xFFFFFFFF),
   surfaceContainerLow: const Color(0xFFF7F6FA),
@@ -130,10 +130,7 @@ final ThemeData darkColorTheme = ThemeData(
   ),
   cardTheme: CardThemeData(color: darkColorScheme.surface),
   dataTableTheme: DataTableThemeData(
-    headingTextStyle: TextStyle(
-      color: darkColorScheme.onSurface,
-      fontWeight: FontWeight.w600,
-    ),
+    headingTextStyle: TextStyle(color: darkColorScheme.onSurface),
   ),
   filledButtonTheme: FilledButtonThemeData(
     style: ButtonStyle(
@@ -172,17 +169,14 @@ final ThemeData lightColorTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
   colorScheme: lightColorScheme,
-  scaffoldBackgroundColor: Color(0xffF5EFED),
+  scaffoldBackgroundColor: Color.fromARGB(255, 235, 238, 238),
   textTheme: GoogleFonts.kameronTextTheme().apply(
     bodyColor: lightColorScheme.onSurface,
     displayColor: lightColorScheme.onSurface,
   ),
   cardTheme: CardThemeData(color: lightColorScheme.surface),
   dataTableTheme: DataTableThemeData(
-    headingTextStyle: TextStyle(
-      color: lightColorScheme.onSurface,
-      fontWeight: FontWeight.w600,
-    ),
+    headingTextStyle: TextStyle(color: lightColorScheme.onSurface),
   ),
   filledButtonTheme: FilledButtonThemeData(
     style: ButtonStyle(
@@ -191,13 +185,7 @@ final ThemeData lightColorTheme = ThemeData(
       overlayColor: WidgetStateProperty.all(lightColorScheme.secondary),
     ),
   ),
-  /* outlinedButtonTheme: OutlinedButtonThemeData(
-    style: ButtonStyle(
-      backgroundColor: WidgetStateProperty.all(lightColorScheme.tertiary),
-      foregroundColor: WidgetStateProperty.all(lightColorScheme.onTertiary),
-      overlayColor: WidgetStateProperty.all(lightColorScheme.secondary),
-    ),
-  ), */
+
   bottomSheetTheme: BottomSheetThemeData(
     backgroundColor: lightColorScheme.surface,
   ),

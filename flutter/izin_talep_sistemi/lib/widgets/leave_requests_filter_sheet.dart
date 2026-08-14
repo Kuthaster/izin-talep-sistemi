@@ -71,10 +71,7 @@ class _LeaveRequestFilterSheetState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Filtrele',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
+                  const Text('Filtrele', style: TextStyle(fontSize: 18)),
                   TextButton(
                     onPressed: () =>
                         setState(() => _draft = const LeaveRequestFilter()),
@@ -83,10 +80,7 @@ class _LeaveRequestFilterSheetState
                 ],
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Durum',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              const Text('Durum', style: TextStyle()),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
@@ -113,10 +107,7 @@ class _LeaveRequestFilterSheetState
                 }).toList(),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'İzin Türü',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              const Text('İzin Türü', style: TextStyle()),
               const SizedBox(height: 6),
               asyncLeaveTypes.when(
                 loading: () => const Padding(
@@ -157,10 +148,7 @@ class _LeaveRequestFilterSheetState
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Başlangıç Tarihi Aralığı',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              const Text('Başlangıç Tarihi Aralığı', style: TextStyle()),
               const SizedBox(height: 6),
               Row(
                 children: [

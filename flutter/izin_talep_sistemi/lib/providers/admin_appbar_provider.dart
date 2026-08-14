@@ -50,12 +50,10 @@ class AdminAppBarNotifier extends StateNotifier<AdminAppBarState> {
     String? primaryActionLabel,
     VoidCallback? onPrimaryAction,
     List<Widget>? additionalActions,
-    TextEditingController? searchController,
     ValueChanged<String>? onSearchChanged,
-    String? searchQuery,
     bool hasSearch = false,
   }) {
-    state = state.copyWith(
+    state = AdminAppBarState(
       title: title,
       primaryActionLabel: primaryActionLabel,
       onPrimaryAction: onPrimaryAction,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_approval_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:izin_talep_sistemi/widgets/leave_request_for_approval_tile.dart';
 
 class LeaveRequestForApprovalList extends ConsumerWidget {
@@ -11,7 +12,6 @@ class LeaveRequestForApprovalList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncRequests = ref.watch(leaveRequestsForApprovalProvider);
-
     return asyncRequests.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Hata: $err')),
@@ -22,29 +22,23 @@ class LeaveRequestForApprovalList extends ConsumerWidget {
             if (a.status != 'PENDING' && b.status == 'PENDING') return 1;
             return 0;
           });
-        final expandedBudget = (availableHeight).clamp(400.0, double.infinity);
+        final expandedBudget = (availableHeight - 50).clamp(400.0, 700.0);
 
         return RefreshIndicator(
           onRefresh: () => ref.refresh(leaveRequestsForApprovalProvider.future),
-          child: ListView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+          child: ExpansionTile(
+            collapsedBackgroundColor: context.colors.surface,
+            initiallyExpanded: true,
+            title: const Text("İzin Talepleri"),
             children: [
-              ExpansionTile(
-                title: const Text("İzin Talepleri"),
-                children: [
-                  SizedBox(
-                    height: expandedBudget,
-                    child: ListView.builder(
-                      itemCount: sorted.length,
-                      itemBuilder: (context, index) {
-                        return LeaveRequestForApprovalTile(
-                          request: sorted[index],
-                        );
-                      },
-                    ),
-                  ),
-                ],
+              SizedBox(
+                height: expandedBudget,
+                child: ListView.builder(
+                  itemCount: sorted.length,
+                  itemBuilder: (context, index) {
+                    return LeaveRequestForApprovalTile(request: sorted[index]);
+                  },
+                ),
               ),
             ],
           ),

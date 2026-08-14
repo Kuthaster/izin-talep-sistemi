@@ -115,13 +115,11 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 18,
-                    backgroundColor: Colors.deepPurple.shade100,
                     child: Text(
                       _initials(request.userName),
                       style: TextStyle(
                         color: context.colors.primary,
                         fontSize: 13,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -136,10 +134,7 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                             Expanded(
                               child: Text(
                                 request.userName,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                style: const TextStyle(fontSize: 14),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -213,10 +208,7 @@ class LeaveRequestForApprovalTile extends ConsumerWidget {
                     ),
                     child: Text(
                       'Bu talep Seviye ${request.currentLevel} onayı bekliyor, sizin seviyenizde değil.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade700,
-                      ),
+                      style: TextStyle(fontSize: 12),
                     ),
                   ),
               ],

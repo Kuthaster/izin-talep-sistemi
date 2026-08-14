@@ -68,9 +68,7 @@ class LeaveRequestTile extends ConsumerWidget {
         builder: (context) => LeaveRequestDetailSheet(request: request),
       ),
       child: Container(
-        decoration: BoxDecoration(
-          color: context.colors.surfaceContainerHighest,
-        ),
+        decoration: BoxDecoration(color: context.colors.surface),
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.all(12),
         child: Opacity(

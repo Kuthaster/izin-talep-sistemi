@@ -73,7 +73,7 @@ class _ChangePasswordFormState extends ConsumerState<ChangePasswordForm> {
             Text(
               'Şifre Değiştir',
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+              style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 8),
 

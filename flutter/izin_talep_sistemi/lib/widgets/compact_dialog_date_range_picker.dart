@@ -123,10 +123,7 @@ class _CompactDialogDateRangePickerState
                   : (_rangeEnd == null)
                   ? '${_rangeStart!.day}/${_rangeStart!.month}/${_rangeStart!.year} — ...'
                   : '${_rangeStart!.day}/${_rangeStart!.month} — ${_rangeEnd!.day}/${_rangeEnd!.month}/${_rangeEnd!.year}',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: pickerTheme.headerTextColor,
-              ),
+              style: TextStyle(color: pickerTheme.headerTextColor),
             ),
             const SizedBox(height: 12),
             Row(
@@ -138,10 +135,7 @@ class _CompactDialogDateRangePickerState
                 ),
                 Text(
                   '${_monthNames[_displayedMonth.month - 1]} ${_displayedMonth.year}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: pickerTheme.monthLabelColor,
-                  ),
+                  style: TextStyle(color: pickerTheme.monthLabelColor),
                 ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),

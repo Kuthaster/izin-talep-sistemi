@@ -166,10 +166,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                             )
                           : const Text(
                               'Giriş yap',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: TextStyle(fontSize: 15),
                             ),
                     ),
                   ),

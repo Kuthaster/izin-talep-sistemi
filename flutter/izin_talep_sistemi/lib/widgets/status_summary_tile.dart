@@ -71,7 +71,7 @@ class StatusChip extends StatelessWidget {
       ),
       child: Text(
         "${getStatusLabel(status)}: $count",
-        style: TextStyle(color: fg, fontWeight: FontWeight.w800, fontSize: 12),
+        style: TextStyle(color: fg, fontWeight: FontWeight.bold, fontSize: 12),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
@@ -143,7 +143,7 @@ class LeaveTypeCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             "Toplam: $total",
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -173,6 +173,8 @@ class _LeaveTypeTilesScrollerState
     final expandedBudget = (widget.availableHeight * 0.5).clamp(120.0, 300.0);
 
     return ExpansionTile(
+      collapsedBackgroundColor: context.colors.surface,
+      initiallyExpanded: true,
       title: const Text("Dashboard"),
       children: [
         SizedBox(

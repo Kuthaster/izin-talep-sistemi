@@ -28,11 +28,7 @@ class AdminStatusChip extends ConsumerWidget {
       ),
       child: Text(
         label ?? getStatusLabel(status),
-        style: TextStyle(
-          color: getStatusTextColor(status),
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(color: getStatusTextColor(status), fontSize: 12),
       ),
     );
   }

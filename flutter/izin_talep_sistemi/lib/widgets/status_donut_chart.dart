@@ -34,8 +34,8 @@ class _StatusDonutChartState extends State<StatusDonutChart> {
     return Column(
       children: [
         SizedBox(
-          width: 150,
-          height: 150,
+          width: 180,
+          height: 180,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTapDown: (details) {

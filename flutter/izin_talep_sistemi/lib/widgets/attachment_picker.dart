@@ -1,8 +1,12 @@
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/models/leave_request_attachment.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_attachment_service_provider.dart';
+
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 
 class AttachmentPicker extends ConsumerStatefulWidget {
   final int leaveRequestId;
@@ -36,20 +40,18 @@ class _AttachmentPickerState extends ConsumerState<AttachmentPicker> {
   }
 
   Future<void> _pickAndUpload() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx'],
+    const typeGroup = XTypeGroup(
+      label: 'documents',
+      extensions: ['pdf', 'doc', 'docx'],
     );
-    if (result == null || result.files.single.path == null) return;
+
+    final XFile? file = await openFile(acceptedTypeGroups: [typeGroup]);
+    if (file == null) return;
 
     setState(() => _loading = true);
     try {
       final service = ref.read(leaveRequestAttachmentServiceProvider);
-      await service.upload(
-        widget.leaveRequestId,
-        result.files.single.path!,
-        result.files.single.name,
-      );
+      await service.upload(widget.leaveRequestId, file);
       await _load();
     } catch (e) {
       setState(() => _error = e.toString());
@@ -65,7 +67,6 @@ class _AttachmentPickerState extends ConsumerState<AttachmentPicker> {
       children: [
         Row(
           children: [
-            const Text('Ekler', style: TextStyle(fontWeight: FontWeight.w600)),
             const Spacer(),
             TextButton.icon(
               onPressed: _loading ? null : _pickAndUpload,
@@ -77,7 +78,7 @@ class _AttachmentPickerState extends ConsumerState<AttachmentPicker> {
         if (_error != null)
           Text(
             _error!,
-            style: const TextStyle(color: Colors.red, fontSize: 12),
+            style: TextStyle(color: context.colors.error, fontSize: 12),
           ),
         if (_loading) const LinearProgressIndicator(),
         ..._attachments.map(
@@ -85,8 +86,19 @@ class _AttachmentPickerState extends ConsumerState<AttachmentPicker> {
             dense: true,
             leading: const Icon(Icons.picture_as_pdf_outlined, size: 20),
             title: Text(a.fileName, overflow: TextOverflow.ellipsis),
-            onTap: () {
-              // opens in browser (web) or requires a download+open flow on mobile
+            onTap: () async {
+              try {
+                final service = ref.read(leaveRequestAttachmentServiceProvider);
+
+                final dir = await getApplicationDocumentsDirectory();
+                final savePath = '${dir.path}/${a.id}_${a.fileName}';
+
+                await service.downloadToFile(a.id, savePath);
+
+                await OpenFilex.open(savePath);
+              } catch (e) {
+                if (mounted) setState(() => _error = e.toString());
+              }
             },
           ),
         ),

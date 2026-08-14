@@ -283,7 +283,12 @@ public class LeaveRequestService {
             throw new IllegalStateException("Bu talep zaten sonuçlandırılmış, düzenlenemez.");
         }
 
-        if (request.getCurrentLevel() > 1) {
+        if ((request.getCurrentLevel() == 1)
+                || (request.getCurrentLevel() == 2
+                        && !(caller.getRole().getName().equals(RoleAuthority.MANAGER_LEVEL_1)))
+                || (request.getCurrentLevel() == 3
+                        && !(caller.getRole().getName().equals(RoleAuthority.MANAGER_LEVEL_2)))
+                || (request.getCurrentLevel() > 3)) {
             throw new IllegalStateException("Bu talep onay sürecine girdiği için artık düzenlenemez.");
         }
 

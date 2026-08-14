@@ -6,6 +6,7 @@ import 'package:izin_talep_sistemi/providers/admin_approval_filter_provider.dart
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
 import 'package:izin_talep_sistemi/ultilities/date_utilities.dart';
 import 'package:izin_talep_sistemi/widgets/admin_filter_bar.dart';
+import 'package:izin_talep_sistemi/widgets/leave_request_detail_sheet.dart';
 
 import '../../models/leave_decision.dart';
 import '../../models/leave_request.dart';
@@ -139,6 +140,7 @@ class _AdminApprovalsSectionState extends ConsumerState<AdminApprovalsSection> {
             title: 'İzinler',
             hasSearch: true,
             onPrimaryAction: null,
+            primaryActionLabel: null,
           );
     });
 
@@ -265,6 +267,21 @@ class _AdminApprovalsSectionState extends ConsumerState<AdminApprovalsSection> {
                               size: 16,
                             ),
                             child: const Text("İzni Sil"),
+                          ),
+                          MenuItemButton(
+                            leadingIcon: const Icon(
+                              Icons.attach_file,
+                              size: 12,
+                            ),
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                builder: (context) =>
+                                    LeaveRequestDetailSheet(request: request),
+                              );
+                            },
+                            child: const Text("Detay Görüntüle"),
                           ),
                         ],
                       ),

@@ -1,10 +1,12 @@
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/leave_balance_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_attachment_service_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_service_provider.dart';
 import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
+import 'package:izin_talep_sistemi/widgets/attachment_list.dart';
 import 'package:izin_talep_sistemi/widgets/compact_dialog_date_range_picker.dart';
 
 import '../models/leave_request.dart';
@@ -135,8 +137,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           try {
             await attachmentService.upload(
               targetRequestId!,
-              _pendingAttachment!.path!,
-              _pendingAttachment!.name,
+              _pendingAttachment!,
             );
           } catch (_) {}
         }();
@@ -155,16 +156,15 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     }
   }
 
-  PlatformFile? _pendingAttachment;
+  XFile? _pendingAttachment;
 
   Future<void> _pickAttachment() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx'],
+    const typeGroup = XTypeGroup(
+      label: 'documents',
+      extensions: ['pdf', 'doc', 'docx'],
     );
-    if (result != null && result.files.single.path != null) {
-      setState(() => _pendingAttachment = result.files.single);
-    }
+    final XFile? file = await openFile(acceptedTypeGroups: [typeGroup]);
+    if (file != null) setState(() => _pendingAttachment = file);
   }
 
   @override
@@ -186,7 +186,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           children: [
             Text(
               _isEditing ? 'Talebi Düzenle' : 'Yeni İzin Talebi',
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
 
@@ -254,6 +254,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               maxLines: 2,
             ),
             const SizedBox(height: 12),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Icon(
@@ -278,6 +279,10 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
                 ),
               ],
             ),
+            if (_isEditing) ...[
+              const SizedBox(height: 4),
+              AttachmentList(leaveRequestId: widget.existingRequest!.id),
+            ],
             if (_errorMessage != null) ...[
               const SizedBox(height: 8),
               Text(

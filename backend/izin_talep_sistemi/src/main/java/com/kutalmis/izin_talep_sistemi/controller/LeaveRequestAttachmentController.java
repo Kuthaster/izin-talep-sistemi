@@ -44,14 +44,20 @@ public class LeaveRequestAttachmentController {
                                                                                                                                                                             // z
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/attachments/{attachmentId}/download")
-    public ResponseEntity<Resource> download(@PathVariable Long attachmentId) {
+    public ResponseEntity<Resource> download(
+            @PathVariable Long attachmentId) {
         LeaveRequestAttachment attachment = attachmentService.getAttachmentEntity(attachmentId);
+
         Resource resource = attachmentService.loadAsResource(attachmentId);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(attachment.getContentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + attachment.getOriginalFileName() + "\"")
+                .contentType(MediaType.parseMediaType(
+                        attachment.getContentType()))
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" +
+                                attachment.getOriginalFileName() +
+                                "\"")
                 .body(resource);
     }
 

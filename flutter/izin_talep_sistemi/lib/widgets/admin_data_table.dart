@@ -236,7 +236,7 @@ class _AdminDataTableState<T> extends ConsumerState<AdminDataTable<T>> {
           const SizedBox(height: 16),
           Text(
             widget.emptyStateTitle ?? 'Veri Yok',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 18),
           ),
           if (widget.emptyStateMessage != null) ...[
             const SizedBox(height: 8),

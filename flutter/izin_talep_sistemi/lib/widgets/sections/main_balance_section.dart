@@ -70,7 +70,7 @@ class _BalanceCard extends StatelessWidget {
             color: ringColor,
             center: Text(
               '$availableDays',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 16),
             ),
           ),
           const SizedBox(width: 16),
@@ -78,13 +78,7 @@ class _BalanceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  leaveTypeName,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Text(leaveTypeName, style: const TextStyle(fontSize: 15)),
                 const SizedBox(height: 6),
                 Row(
                   children: [

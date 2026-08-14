@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izin_talep_sistemi/providers/auth_provider.dart';
 import 'package:izin_talep_sistemi/providers/leave_request_provider.dart';
+import 'package:izin_talep_sistemi/theme/theme_extensions.dart';
 import 'package:izin_talep_sistemi/widgets/app_bottom_nav_bar.dart';
 import 'package:izin_talep_sistemi/widgets/create_request_form.dart';
 import 'package:izin_talep_sistemi/widgets/leave_requests_filter_sheet.dart';
@@ -88,11 +89,16 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     return Scaffold(
       endDrawer: const ProfileDrawer(),
       appBar: AppBar(
+        elevation: 99,
+        backgroundColor: context.colors.primary,
         centerTitle: true,
-        title: Text(_titleFor(selected)),
+        title: Text(
+          _titleFor(selected),
+          style: TextStyle(color: context.colors.onPrimary),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: Icon(Icons.filter_list, color: context.colors.onPrimary),
             onPressed: () => showModalBottomSheet(
               context: context,
               isScrollControlled: true,
